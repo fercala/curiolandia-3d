@@ -5430,15 +5430,19 @@ function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10});w.sc.b
   const rays=grp(w.sc,[0,1.8,-.6]);for(let i=0;i<12;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.9,14),new THREE.MeshBasicMaterial({color:i%2?'#FFF3B0':'#FFE08A',transparent:true,opacity:0,depthWrite:false}));m.geometry.translate(0,7,0);m.rotation.z=i/12*PI*2;rays.add(m)}
   const tito=makeTito();tito.scale.setScalar(.62);tito.position.set(-4,0,1.1);tito.rotation.y=-.5;w.sc.add(tito);w.tito=tito;w.pick.push(tito);
   ch.userData.id='chest';w.pick.push(ch);
+  // antes de abrirse el cofre "respira" para invitar a tocarlo, y crece un poco con el ratón encima
+  let chS=1;
   w.upd.push(dt=>{const op=st.op||0,sh=Math.max(0,1-(T-st.shakeT)*3)*Math.sin(T*50);ch.rotation.z=sh*.06;ch.position.x=sh*.08;
+    const sT=st.openT?1:(st.hov?1.07:1)*(1+Math.sin(T*3)*.025);chS+=(sT-chS)*Math.min(1,dt*10);ch.scale.setScalar(chS);
     piv.rotation.x=-op*1.95;lock.visible=op<.15;glow.material.opacity=Math.min(1,op*2)*.9;
     rays.rotation.z=T*.4;rays.children.forEach(r=>r.material.opacity=Math.min(1,op*1.5)*.55);stars.forEach((s,i)=>{s.rotation.y=Math.sin(T*1.2+i)*.55;s.rotation.z=Math.sin(T*.8+i*1.7)*.25;s.position.y+=Math.sin(T*2+i)*.002});
     tito.userData.anim(dt,{hop:st.openT?st.openT+.2:st.hop})});
   camRig(w,V3(0,4.6,10),V3(0,2.05,0),.5);return w}
 {const S0=SCENES.cofre,enter0=S0.enter,down0=S0.down;
  Object.assign(S0,{three:true,
-  enter(o){this.hop=null;enter0.call(this,o);if(sceneName!=='cofre')return;setWorld(buildCofre(this));titoRect(W3.tito)},
+  enter(o){this.hop=null;this.hov=false;enter0.call(this,o);if(sceneName!=='cofre')return;setWorld(buildCofre(this));titoRect(W3.tito)},
   draw(){const w=W3;if(w&&w.kind==='cofre')titoRect(w.tito);
+    this.hov=false;if(!this.openT&&mouseOn&&!drag&&w&&w.kind==='cofre'){const u=pickAt(MX,MY);if(u&&u.id==='chest'){this.hov=true;hovNow='cf:cofre'}}
     if(this.openT){const k=T-this.openT;this.op=clamp(k*2.2,0,1)}
     if(this.openT){const k=T-this.openT,e=clamp((k-.25)/.8,0,1),gy=lerp(520,290,e*e*(3-2*e)),gs=back(e)*260;
       if(e>0){if(this.gift)drawItemPic(this.gift,800,gy,gs);else pic('monedas',800,gy,gs)}
