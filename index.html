@@ -5050,12 +5050,12 @@ const HOP={caracol:[.9,.6],erizo:[.65,.45],tortuga:[.4,.5],conejo:[1.4,.7]};
 function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.userData.id='tito';const t=S.tito||{},GR='#9BD86A';
   const kind=TITO_KINDS.includes(t.kind)?t.kind:'caracol';root.userData.kind=kind;
   const sc=(SHELLC[t.shell]||SHELLC.naranja),scarf=SCARFC[t.scarf]||SCARFC.roja;
-  let head,mouth,mo,sh,nose=null;const eyes=[],wig=[];
+  let head,mouth,mo,sh,nose=null;const eyes=[],wig=[],stalks=[],ears=[];
   if(kind==='caracol'){
   mk(Sph(1,26,16),GR,{p:[.15,.46,0],s:[1.4,.48,.56],to:b,ol:.06});mk(Cone(.36,.8,14),GR,{p:[-1.3,.3,0],r:[0,0,PI/2+.2],s:[1,1,.8],to:b,ol:.05});
   mk(Cyl(.42,.55,1.25,18),GR,{p:[.95,.95,0],r:[0,0,-.22],to:b,ol:.05});
   head=grp(b,[1.2,1.72,0]);mk(Sph(.6,24,18),GR,{to:head,ol:.05});
-  for(const z of[-.26,.26]){const st=grp(head,[.05,.4,z]);st.rotation.set(z*.5,0,-.12);mk(Cyl(.06,.08,.75,8),GR,{p:[0,.37,0],to:st,ol:.03});
+  for(const z of[-.26,.26]){const st=grp(head,[.05,.4,z]);st.rotation.set(z*.5,0,-.12);stalks.push(st);mk(Cyl(.06,.08,.75,8),GR,{p:[0,.37,0],to:st,ol:.03});
     const e=grp(st,[0,.82,0]);mk(Sph(.22,16,12),'#FFFFFF',{to:e,ol:.03});mk(Sph(.11,12,10),K,{p:[.12,.02,.11],ol:0,to:e});mk(Sph(.035,8,6),'#FFFFFF',{p:[.19,.07,.16],ol:0,to:e});eyes.push(e)}
   mouth=mk(new THREE.TorusGeometry(.16,.04,8,16,PI),'#7A2E3A',{p:[.48,-.15,.28],r:[0,.9,PI],ol:0,to:head});
   mo=mk(Sph(.12,12,10),'#7A2E3A',{p:[.5,-.2,.26],s:[1,.2,1],ol:0,to:head});
@@ -5120,7 +5120,7 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
   const mb=grp(b,[-.78,1.05,0]);mb.rotation.y=PI/2;mk(rbox(.95,1,.5,.12),sc[0],{to:mb,ol:.04});mk(rbox(.95,.4,.12,.05),sc[1],{p:[0,.32,.27],to:mb,ol:.03});
   head=grp(b,[.78,1.78,0]);mk(Sph(.55,22,16),FU,{s:[1.05,.95,.95],to:head,ol:.05});
   for(const z of[-.13,.13])mk(Sph(.2,12,10),'#FFFFFF',{p:[.42,-.14,z],ol:0,to:head});mk(Sph(.08,10,8),'#FF8AA0',{p:[.57,-.02,0],ol:0,to:head});
-  for(const z of[-.2,.2]){const ear=grp(head,[-.05,.42,z]);ear.rotation.x=z*1.1;wig.push([ear,'x',z*1.1,.07,2.4,z*6]);mk(Sph(.18,12,10),FU,{p:[0,.45,0],s:[1,3,.55],to:ear,ol:.03});mk(Sph(.11,10,8),IN,{p:[.08,.45,0],s:[.6,2.5,.4],ol:0,to:ear})}
+  for(const z of[-.2,.2]){const ear=grp(head,[-.05,.42,z]);ear.rotation.x=z*1.1;ears.push(ear);wig.push([ear,'x',z*1.1,.07,2.4,z*6]);mk(Sph(.18,12,10),FU,{p:[0,.45,0],s:[1,3,.55],to:ear,ol:.03});mk(Sph(.11,10,8),IN,{p:[.08,.45,0],s:[.6,2.5,.4],ol:0,to:ear})}
   for(const z of[-.22,.22]){const e=grp(head,[.32,.14,z]);mk(Sph(.15,14,10),'#FFFFFF',{to:e,ol:.03});mk(Sph(.08,10,8),K,{p:[.09,.01,z*.2],ol:0,to:e});mk(Sph(.03,8,6),'#FFFFFF',{p:[.15,.05,z*.25],ol:0,to:e});eyes.push(e)}
   // boca pegada al hocico (antes quedaba colgando por debajo de la barbilla)
   mouth=mk(new THREE.TorusGeometry(.08,.026,8,14,PI),'#7A2E3A',{p:[.6,-.25,0],r:[0,PI/2,PI],ol:0,to:head});
@@ -5164,6 +5164,10 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
     // al tocarlo, el erizo da una voltereta en el aire (gira alrededor de su centro, no de las patas)
     if(kind==='erizo'){const k=o.hop!=null?T-o.hop:9,hd=HOP.erizo[1],a2=k>=0&&k<hd?-(k/hd)*PI*2:0,cy=.9;b.rotation.z=a2;b.position.x=cy*Math.sin(-a2)*-1;b.position.y+=cy-cy*Math.cos(a2)}
     // y la tortuga esconde la cabeza un momento en el caparazón
+    // el conejo echa las orejas hacia atrás con el salto y vuelven con un rebote
+    if(ears.length){const k=o.hop!=null?T-o.hop:9,e=k<0||k>1.1?0:k<.25?k/.25:Math.cos((k-.25)*9)*Math.exp(-(k-.25)*4);for(const ea of ears)ea.rotation.z=.75*e}
+    // el caracol mete los ojos (encoge las antenas) un momento y los vuelve a sacar
+    if(stalks.length){const k=o.hop!=null?T-o.hop:9,e=k<0?0:k<.12?k/.12:k<.7?1:Math.max(0,1-(k-.7)/.35);for(const st of stalks)st.scale.y=1-.65*e}
     if(kind==='tortuga'){const k=o.hop!=null?T-o.hop:9,e=k<0?0:k<.15?k/.15:k<.9?1:Math.max(0,1-(k-.9)/.3);head.position.x=hx0-.5*e;head.scale.setScalar(1-.25*e)}};
   root.traverse(o=>{if(o.isMesh&&o.material&&o.material.type==='MeshToonMaterial')o.castShadow=true});
   return root}
