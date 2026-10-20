@@ -5351,7 +5351,8 @@ function buildZone(z,st){const Z=ZONES[z],P=ZPOS[z],sty=ZSTYLE[z]||ZSTYLE.jardin
     draw(){this.sync();const w=W3,Z=ZONES[z];let hv_=null;
       if(mouseOn&&!drag&&!(w&&busy3(w))){const u=pickAt(MX,MY);if(u&&u.tema){hv_=u.tema;hovNow='j:'+u.tema}else if(u&&u.id==='tito')hovNow='tito'}this.hov=hv_;
       {const nm=cap(Z.name);ctx.font=`600 44px ${DF}`;const tw=Math.min(900,ctx.measureText(nm).width);card(800-tw/2-40,26,tw+80,80,'rgba(255,255,255,.92)',6,40);text(nm,800,82,44,K,{w:600})}
-      if(hv_){const t=TEMA[hv_],p=ZPOS[z][hv_];ctx.font=`600 32px ${DF}`;const nm=t.concepts?'Rincón de los Conceptos':V(t.n),tw=ctx.measureText(nm).width;card(p.x-tw/2-24,p.y-178,tw+48,54,'rgba(255,255,255,.92)',5,27);text(nm,p.x,p.y-140,32,K,{w:600})}
+      // nombre de la casita bajo el ratón; en la fila de arriba no se monta sobre el cartel de la zona
+      if(hv_){const t=TEMA[hv_],p=ZPOS[z][hv_];ctx.font=`600 32px ${DF}`;const nm=t.concepts?'Rincón de los Conceptos':V(t.n),tw=ctx.measureText(nm).width,cy=Math.max(p.y-178,116);card(p.x-tw/2-24,cy,tw+48,54,'rgba(255,255,255,.92)',5,27);text(nm,p.x,cy+38,32,K,{w:600})}
       drawHome();drawCoinHUD();
       if(talking){const bx=TITO.x+TITO.w*.85,by=TITO.y-50;ctx.globalAlpha=.95;card(bx,by,96,72,'#fff',5,28);ctx.globalAlpha=1;speaker(bx+50,by+36,46+Math.sin(T*12)*4)}},
     down(x,y){const w=W3;if(!w||busy3(w))return;
