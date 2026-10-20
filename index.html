@@ -4558,6 +4558,8 @@ function drawTitoWear(k){const t=S.tito||{};
   if(t.glasses){for(const [ex,ey,er_] of E)circ(ex*k,ey*k,(er_+3)*k,'rgba(40,40,70,.38)',6*k);const [a,b]=E;ctx.beginPath();ctx.moveTo((a[0]+a[2]+3)*k,(a[1]-2)*k);ctx.lineTo((b[0]-b[2]-3)*k,(b[1]-2)*k);ctx.lineWidth=4*k;ctx.strokeStyle=K;ctx.stroke();for(const [ex,ey] of E){ctx.beginPath();ctx.arc((ex-4)*k,(ey-6)*k,6*k,PI*1.1,PI*1.6);ctx.lineWidth=3*k;ctx.strokeStyle='rgba(255,255,255,.8)';ctx.stroke()}}}
 
 /* ---------- catálogo ---------- */
+// icono de la casa de Tito: la casita con caparazón para el caracol; para los otros animales, su casa en pequeño (con el emblema de su animal)
+function titoHouseIc(x,y,s){if(titoKind()==='caracol')return pic('casaCaracol',x,y,s);ctx.save();ctx.translate(x,y);ctx.scale(s/280,s/280);drawTitoHouse(0,110,Math.min(1,houseLevel()));ctx.restore()}
 const SHOPCAT=[{id:'ropa',n:'Ropa para Tito',ic:'gorroFiesta'},{id:'colores',n:'Colores para Tito',ic:'caracol'},{id:'casa',n:'Cosas para la casa',ic:'lampara'},{id:'juguetes',n:'Juguetes',ic:'peluche'},{id:'mascotas',n:'Mascotas',ic:'hamster'},{id:'vales',n:'Vales para canjear',ic:'vale'}];
 const SHOP=[
   ...[['gorroFiesta',6,1],['gorra',8,1],['monio',6,1,'bow'],['gafas',10,1,'glasses'],['gorro',10,1],['gorroNavidad',12,2],['sombreroCopa',18,2],['sombreroPirata',18,2],['corona',30,3]].map(([id,p,tier,slot])=>({id,cat:'ropa',slot:slot||'hat',p,tier})),
@@ -4591,7 +4593,7 @@ SCENES.tienda={music:'casita',
   draw(){sky('#FFF6E6','#FDE6C6');for(let i=0;i<16;i++){ctx.fillStyle=i%2?'#FF8A7A':'#FFF6E6';ctx.beginPath();ctx.moveTo(i*100,0);ctx.lineTo(i*100+100,0);ctx.lineTo(i*100+100,26);ctx.quadraticCurveTo(i*100+50,62,i*100,26);ctx.closePath();ctx.fill()}
     floor(820,'#E9C99A');
     card(170,44,520,100,'#fff',6,50);pic('tienda',230,94,80);text(V(['La tienda','La tienda']),470,112,54,K,{w:600});
-    {const s=hv('btn:casa',hC(1240,70,52)),j=this.newHome?Math.abs(Math.sin((T-this.newHome)*6))*-14:0;ctx.save();ctx.translate(1240,70+j);ctx.scale(s,s);if(this.newHome){ctx.globalAlpha=.4+.3*Math.sin(T*6);circ(0,0,64,null,10,'#FFC93C');ctx.globalAlpha=1}circ(0,0,50,'#fff',6);pic('casaCaracol',0,0,84);ctx.restore()}
+    {const s=hv('btn:casa',hC(1240,70,52)),j=this.newHome?Math.abs(Math.sin((T-this.newHome)*6))*-14:0;ctx.save();ctx.translate(1240,70+j);ctx.scale(s,s);if(this.newHome){ctx.globalAlpha=.4+.3*Math.sin(T*6);circ(0,0,64,null,10,'#FFC93C');ctx.globalAlpha=1}circ(0,0,50,'#fff',6);titoHouseIc(0,0,84);ctx.restore()}
     card(1012,40,150,60,'#fff',5,30);star(1050,70,20,'#FFC93C',3);text(String(STARS()),1110,84,36,K,{f:LF});
     for(const tb of this.tabs()){const on=tb.id===this.cat,s=on?1:hv('tab:'+tb.id,hR(tb.x,tb.y,184,110));ctx.save();ctx.translate(tb.x,tb.y-(on?8:0));ctx.scale(s,s);card(-90,-52,180,104,on?'#FFE08A':'#fff',on?8:5,30,on?'#D9962A':K);if(tb.id==='colores'&&titoKind()!=='caracol')shellIcon(0,0,32,'naranja');else pic(tb.ic,0,0,80);ctx.restore()}
     for(const g of this.grid()){const it=g.it,own=S.owned[it.id]&&!it.vale,lk=STARS()<TIER_NEED[it.tier],w=own&&it.slot&&isWorn(it),s=lk?1:hv('it:'+it.id,hR(g.x,g.y,210,230));
@@ -4650,7 +4652,7 @@ SCENES.casaTito={music:'casita',
     if(!homeLight){ctx.fillStyle='rgba(30,30,70,.25)';ctx.fillRect(0,0,W,H)}
     const hl=houseLevel();if(hl>=1)for(let i=0;i<20;i++)flower(40+i*80,592,12,FLC[i%7],2.5);if(hl>=3)bunting(16,14);
     if(hl>=4){ctx.save();ctx.beginPath();ctx.rect(1200,130,300,230);ctx.clip();['#FF6B5E','#FFA94D','#FFD66B','#7CC86E','#5BB8E6','#9B8AD9'].forEach((c,i)=>{ctx.beginPath();ctx.arc(1350,400,200-i*14,PI,0);ctx.lineWidth=14;ctx.strokeStyle=c;ctx.stroke()});ctx.restore()}
-    card(170,44,560,100,'#fff',6,50);pic('casaCaracol',230,94,80);text('La casa de Tito',490,112,50,K,{w:600});
+    card(170,44,560,100,'#fff',6,50);titoHouseIc(230,94,80);text('La casa de Tito',490,112,50,K,{w:600});
     {const s=hv('lvl',hR(885,94,250,92));ctx.save();ctx.translate(885,94);ctx.scale(s,s);card(-125,-46,250,92,'#fff',6,46);for(let i=0;i<4;i++)star(-84+i*56,0,24,i<hl?'#FFC93C':'#EADFCF',4);ctx.restore()}
     {const s=hv('btn:tienda',hC(1240,70,52));ctx.save();ctx.translate(1240,70);ctx.scale(s,s);circ(0,0,50,'#fff',6);pic('tienda',0,0,84);ctx.restore()}
     const nv=this.nuevo;if(nv&&!nv.slot&&S.home[nv.id]&&(T-this.t0)<12){const p=S.home[nv.id],hs=HSIZE[nv.id]||160;ctx.globalAlpha=.45+.2*Math.sin(T*5);circ(p.x,p.y-hs*.4,hs*.62,'#FFE08A',0);ctx.globalAlpha=1}
@@ -5137,7 +5139,12 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
   // con el ratón encima Tito crece un poco, como las casitas y los lugares (hs = escala actual, suave)
   let hs=1;
   root.userData.anim=(dt,o={})=>{const tt=T+(o.ph||0),wk=o.walk||0;
-    b.position.y=Math.abs(Math.sin(tt*9))*.18*wk+Math.sin(tt*2.2)*.04;hs+=((o.hov?1.08:1)-hs)*Math.min(1,(dt||0)*10);b.scale.set(hs*(1+Math.sin(tt*9)*.05*wk),hs*(1-Math.sin(tt*9)*.05*wk),hs);
+    hs+=((o.hov?1.08:1)-hs)*Math.min(1,(dt||0)*10);const br=Math.sin(tt*2.2)*.04;
+    // cada animal camina a su manera: el caracol se estira y encoge, el conejo da saltitos, la tortuga se balancea despacio y el erizo trota
+    if(kind==='conejo'){const ph=tt*6,u=Math.abs(Math.sin(ph)),sq=wk*Math.max(0,.35-u)*.5;b.position.y=u*.5*wk+br;b.rotation.z=-Math.cos(ph)*Math.sign(Math.sin(ph))*.12*wk;b.scale.set(hs*(1+sq),hs*(1-sq),hs)}
+    else if(kind==='tortuga'){b.position.y=Math.abs(Math.sin(tt*5))*.06*wk+br;b.rotation.x=Math.sin(tt*5)*.09*wk;b.scale.setScalar(hs)}
+    else if(kind==='erizo'){b.position.y=Math.abs(Math.sin(tt*12))*.12*wk+br;b.rotation.x=Math.sin(tt*12)*.05*wk;b.scale.set(hs,hs*(1-Math.abs(Math.sin(tt*12))*.03*wk),hs)}
+    else{b.position.y=Math.abs(Math.sin(tt*9))*.18*wk+br;b.scale.set(hs*(1+Math.sin(tt*9)*.05*wk),hs*(1-Math.sin(tt*9)*.05*wk),hs)}
     const bl=((tt+.5)%3.9)<.14?.12:1;for(const e of eyes)e.scale.y=bl;
     head.rotation.z=Math.sin(tt*1.3)*.06+(o.look||0);const tk=talking&&o.talk!==false&&(T*7|0)%2;mo.visible=!!tk;mouth.visible=!tk;
     // al terminar el salto vuelve justo al suelo (antes se quedaba flotando a la altura del último cuadro del salto)
