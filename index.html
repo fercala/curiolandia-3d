@@ -5365,7 +5365,7 @@ const SPOT3={
   montana(g,open){const gc=open?'#A9C98A':'#CFC8BF';mk(Cone(2.4,4.2,9),gc,{p:[-1,2.1,-.4],to:g,ol:.07});mk(Cone(2,3.4,9),gc,{p:[1.5,1.7,.2],to:g,ol:.07});
     mk(Cone(.95,1.65,9),'#FFFFFF',{p:[-1,3.4,-.4],to:g,ol:.05});mk(Cone(.75,1.3,9),'#FFFFFF',{p:[1.5,2.8,.2],to:g,ol:.05});
     if(open)for(let i=0;i<5;i++)flower3(g,-2+i*1,2+(i%2)*.3,FLC[i+1],.75,0);rock3(g,2.8,1.4,.8);rock3(g,-3,1.2,.6);
-    pillSpr(tx('5 años'),open?'#5B8DEF':'#B8B0A6','#fff',{p:[0,-.1,2.9],w:3.2,to:g});if(!open)zzz(g,[2.3,4,0])},
+    pillSpr(tx('5 años'),open?'#5B8DEF':'#B8B0A6','#fff',{p:[0,.6,2.9],w:3.2,to:g});if(!open)zzz(g,[2.3,4,0])},
   canciones(g){mk(Cyl(1.5,1.5,1.3,16),M('#fff',{map:stripesTex()}),{p:[0,.65,0],to:g,ol:.05});mk(Cone(1.85,1.6,16),'#FF6B5E',{p:[0,2.1,0],to:g,ol:.05});
     mk(Cyl(.03,.03,.7,6),K,{p:[0,3.1,0],ol:0,to:g});mk(new THREE.PlaneGeometry(.5,.3),new THREE.MeshToonMaterial({color:'#FFC93C',gradientMap:GRAD,side:THREE.DoubleSide}),{p:[.25,3.3,0],ol:0,to:g});
     mk(Box(.8,.95,.1),'#7A4C30',{p:[0,.48,1.47],to:g,ol:.03});
@@ -5428,7 +5428,8 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
     else SPOT3[z.id](g,open);
     const hit=new THREE.Mesh(Cyl(z.id==='casaTito'?3:2.4,2.4,3.4,12),new THREE.MeshBasicMaterial({visible:false}));hit.position.y=1.5;g.add(hit);
     const lk=!spotOpen(z.id)&&!ZAGE[z.id];
-    if(lk||(st.unl&&st.unl.id===z.id)){g.userData.lock=lock3(g,[0,3.3,0],1.15);if(lk){g.userData.need=spr(flowerTex(FLC[0],spotNeed(z.id)),2.3,1.15,{p:[0,2.2,1.7],to:g});greyAll(g,true)}}
+    if(lk||(st.unl&&st.unl.id===z.id)){const ly=z.id==='ingles'?4.3:3.3;g.userData.lockY=ly;g.userData.lock=lock3(g,[0,ly,0],1.15);// el bocadillo de Hello! no queda tapado por el candado
+    if(lk){g.userData.need=spr(flowerTex(FLC[0],spotNeed(z.id)),2.3,1.15,{p:[0,2.2,1.7],to:g});greyAll(g,true)}}
     if(st.wake&&st.wake.z===z.id)greyAll(g,true);
     w.spots[z.id]=g;w.pick.push(g)}
   // Tito
@@ -5440,8 +5441,8 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
     for(const id in w.spots){const g=w.spots[id];g.userData.anim&&g.userData.anim();
       g.traverse(o=>{if(o.userData.wave!=null)o.rotation.y=Math.sin(T*3+o.userData.wave)*.4;if(o.userData.fl)o.scale.set(1+Math.sin(T*14+o.position.x*9)*.15,1.6,1)});
       const hs=st.hov===id&&!busy3(w)?1.06:1;g.scale.setScalar(lerp(g.scale.x,hs,.2));
-      const L=g.userData.lock;if(L){if(st.unl&&st.unl.id===id&&T>st.unl.t){const k=(T-st.unl.t)/1.3;if(k>1){g.remove(L);g.userData.lock=null;if(g.userData.need){g.remove(g.userData.need);g.userData.need=null}greyAll(g,false)}else{L.position.set(k*2,3.3+k*k*5,0);L.rotation.z=k*3;L.scale.setScalar(1.15*(1+k*.4));if(k>.15)greyAll(g,false)}}
-        else{L.position.y=3.3+Math.sin(T*2+g.position.x)*.15;L.rotation.y=Math.sin(T*1.2)*.4;const sh=st.lockShake&&st.lockShake.id===id?Math.max(0,1-(T-st.lockShake.t)*2):0;L.rotation.z=Math.sin(T*40)*.3*sh}}}
+      const L=g.userData.lock;if(L){if(st.unl&&st.unl.id===id&&T>st.unl.t){const k=(T-st.unl.t)/1.3;if(k>1){g.remove(L);g.userData.lock=null;if(g.userData.need){g.remove(g.userData.need);g.userData.need=null}greyAll(g,false)}else{L.position.set(k*2,(g.userData.lockY||3.3)+k*k*5,0);L.rotation.z=k*3;L.scale.setScalar(1.15*(1+k*.4));if(k>.15)greyAll(g,false)}}
+        else{L.position.y=(g.userData.lockY||3.3)+Math.sin(T*2+g.position.x)*.15;L.rotation.y=Math.sin(T*1.2)*.4;const sh=st.lockShake&&st.lockShake.id===id?Math.max(0,1-(T-st.lockShake.t)*2):0;L.rotation.z=Math.sin(T*40)*.3*sh}}}
     if(st.wake){const g=w.spots[st.wake.z];if(T>st.wake.t&&!st.wake.done){st.wake.done=1;greyAll(g,false)}if(st.wake.done&&T<st.wake.t+1.5)g.position.x=MP(...MAPPOS[st.wake.z])[0]+Math.sin(T*40)*.15*(1-(T-st.wake.t)/1.5)}
     const h=w.spots.casaTito;h.userData.house.userData.anim(st.shake);h.userData.pet.userData.anim(st.petJump)});
   camRig(w,V3(1.2,25,20.5),V3(1.2,0,1.4),1.6);
