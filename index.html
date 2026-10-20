@@ -5361,8 +5361,8 @@ const SPOT3={
     pillSpr(tx('3 años'),'#FF8A7A','#fff',{p:[0,2.9,0],w:3.2,to:g})},
   bosque(g,open){mk(Cyl(3.1,3.2,.2,30),open?'#8CCB78':'#CFC8BF',{p:[0,.1,0],s:[1,1,.8],to:g,ol:.05});
     [[-1.7,.4,.85,'otoño'],[0,-.6,1.05,'verano'],[1.7,.3,.9,'verano'],[-.7,1.4,.7,'otoño'],[1,1.5,.7,'primavera'],[-2.2,-.9,.7,null],[2.3,-.9,.7,null]].forEach(([x,z,s,k])=>tree3(g,x,z,s,open?(k||'verano'):'gris',!k));
-    pillSpr(tx('4 años'),open?'#7CC86E':'#B8B0A6','#fff',{p:[0,4.2,0],w:3.2,to:g});if(!open)zzz(g,[2,3.2,0])},
-  montana(g,open){const gc=open?'#A9C98A':'#CFC8BF';mk(Cone(2.4,4.2,9),gc,{p:[-1,2.1,-.4],to:g,ol:.07});mk(Cone(2,3.4,9),gc,{p:[1.5,1.7,.2],to:g,ol:.07});
+    pillSpr(tx('4 años'),open?'#7CC86E':'#B8B0A6','#fff',{p:[0,4.5,0],w:4.4,to:g});if(!open)zzz(g,[2,3.2,0])},
+  montana(g,open){const gc=open?'#A7BCD6':'#CFC8BF';mk(Cone(2.4,4.2,9),gc,{p:[-1,2.1,-.4],to:g,ol:.07});mk(Cone(2,3.4,9),gc,{p:[1.5,1.7,.2],to:g,ol:.07});
     mk(Cone(.95,1.65,9),'#FFFFFF',{p:[-1,3.4,-.4],to:g,ol:.05});mk(Cone(.75,1.3,9),'#FFFFFF',{p:[1.5,2.8,.2],to:g,ol:.05});
     if(open)for(let i=0;i<5;i++)flower3(g,-2+i*1,2+(i%2)*.3,FLC[i+1],.75,0);rock3(g,2.8,1.4,.8);rock3(g,-3,1.2,.6);
     pillSpr(tx('5 años'),open?'#5B8DEF':'#B8B0A6','#fff',{p:[0,.6,2.9],w:3.2,to:g});if(!open)zzz(g,[2.3,4,0])},
