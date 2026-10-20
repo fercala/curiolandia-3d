@@ -5185,7 +5185,7 @@ function makeHouse(lvl,o={}){const g=new THREE.Group();g.userData.id='casaTito';
   mk(prism(3.9,1.7,2.9),'#FF8A7A',{p:[0,.25+H1,0],to:g,ol:.06});
   mk(Box(.5,1.1,.5),'#C98A4B',{p:[.8,.25+H1+1.0,-.4],to:g,ol:.04});
   const smoke=[];for(let i=0;i<3;i++)smoke.push(mk(Sph(.22,10,8),'#FFFFFF',{p:[.8,.25+H1+1.7,-.4],to:g,ol:.025,cs:false}));
-  plane(shellTex(),.8,.8,{p:[0,.25+H1+.65,1.46],to:g});
+  g.userData.emb=plane(shellTex(),.8,.8,{p:[0,.25+H1+.65,1.46],to:g});
   mk(Box(.75,1.25,.12),'#C98A4B',{p:[0,.25+.62,1.22],to:g,ol:.04});mk(Sph(.06,8,6),K,{p:[.22,.9,1.3],ol:0,to:g});
   const wins=[[-1,1.3],[1,1.3]];if(two)wins.push([-1,2.85],[1,2.85]);
   for(const [x,y] of wins){mk(Box(.62,.56,.1),win,{p:[x,y,1.22],to:g,ol:.035,cs:false});mk(Box(.62,.05,.12),K,{p:[x,y,1.24],ol:0,to:g});mk(Box(.05,.56,.12),K,{p:[x,y,1.24],ol:0,to:g})}
@@ -5277,7 +5277,9 @@ function trailTick(w,tito,dt,walking){
   if(d.parent!==w.sc)w.sc.add(d);d.scale.setScalar(tito.scale.x);d.position.set(P.x,(h?h.point.y:P.y)+.015,P.z);d.visible=true;d.userData.a=1;d.material.opacity=.6}
 function walkTick(w,tito,dt){const k=w.walk;let wk=0;
   if(k){const e=clamp((T-k.t0)/k.dur,0,1),s=e*e*(3-2*e);tito.position.lerpVectors(k.from,k.to,s);wk=1;
-    if(k.free&&(k.st=(k.st||0)+dt)>=.26){k.st=0;w.steps=(w.steps||0)+1;tone(w.steps%2?520:440,.07,'sine',.12,.8)}
+    // pasos al ritmo de cada animal (v1.36): saltito blando del conejo, pasos lentos y graves de la tortuga, trote ligero del erizo; el caracol como siempre
+    if(k.free){const kd=tito.userData.kind,P=kd==='conejo'?[PI/6,[300,260],.1,.16]:kd==='tortuga'?[PI/5,[330,294],.09,.11]:kd==='erizo'?[PI/12,[700,620],.05,.08]:[.26,[520,440],.07,.12];
+      if((k.st=(k.st||0)+dt)>=P[0]){k.st=0;w.steps=(w.steps||0)+1;tone(P[1][w.steps%2],P[2],kd==='conejo'?'triangle':'sine',P[3],.8)}}
    if(e>=1){w.walk=null;if(k.free)tito.userData.face=tito.userData.rest;const cb=k.cb;setTimeout(()=>{try{cb()}catch(err){console.error(err)}},60)}}
   const f=tito.userData.face;if(f!=null){let d=f-tito.rotation.y;while(d>PI)d-=PI*2;while(d<-PI)d+=PI*2;tito.rotation.y+=d*Math.min(1,dt*8)}
   trailTick(w,tito,dt,tito.userData.kind==='caracol'?wk:0);return wk}
@@ -5291,7 +5293,9 @@ function call0(fn,self,x,y){const tx_=TITO.x,h0=HOUSE_AT[0];TITO.x=-9999;HOUSE_A
 const go0=go;go=function(n,o){go0(n,o);if(!(scene&&scene.three)){restore2D();setCursor('pt')}};
 // cambiar de personaje (zona de adultos): Tito se rehace dentro del mismo grupo, así la escena sigue igual
 function retito(){const w=W3,t=w&&w.tito;if(!t)return;const keepUD={face:t.userData.face,rest:t.userData.rest};
-  for(const c of t.children.slice()){t.remove(c);c.traverse(o=>{if(o.geometry&&!o.geometry.userData.keep)o.geometry.dispose()})}makeTito(t);Object.assign(t.userData,keepUD)}
+  for(const c of t.children.slice()){t.remove(c);c.traverse(o=>{if(o.geometry&&!o.geometry.userData.keep)o.geometry.dispose()})}makeTito(t);Object.assign(t.userData,keepUD);
+  // el emblema de la puerta de su casa también cambia al momento (antes seguía el del animal anterior hasta salir del mapa)
+  const h=w.spots&&w.spots.casaTito&&w.spots.casaTito.userData.house,e=h&&h.userData.emb;if(e){e.material.map=shellTex();e.material.needsUpdate=true}}
 window.__w3={get W(){return W3},retito,get PRK(){return PRK},set PRK(v){PRK=v;rs()},FPS,pickAt,proj,THREE,R};
 
 /* ================= EL MAPA: la isla de Curiolandia ================= */
