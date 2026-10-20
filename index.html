@@ -5012,7 +5012,7 @@ function plane(tex,w,h,o={}){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h)
 // cartel en forma de píldora: [texto, fondo, color del texto]
 function pillTex(t,bg='#fff',fg=K,sz=56){return canvasTex(512,128,g=>{g.font=`700 ${sz}px ${DF}`;const tw=Math.min(470,g.measureText(t).width+60);card(256-tw/2,14,tw,100,bg,8,50);text(t,256,64+sz*.36,sz,fg)},'pill:'+t+bg+fg+sz)}
 const pillSpr=(t,bg,fg,o={})=>spr(pillTex(t,bg,fg),o.w||2.4,(o.w||2.4)/4,o);
-function flowerTex(c,n){return canvasTex(256,128,()=>{card(14,14,228,100,'#fff',8,50);flower(80,64,28,c,4);text(String(n),170,92,72,K,{f:LF})},'fl:'+c+n)}
+function flowerTex(c,n){return canvasTex(256,128,()=>{card(14,14,228,100,'#fff',8,50);flower(80,64,28,c,4);const L=String(n).length>1;text(String(n),L?168:170,L?84:92,L?52:72,K,{f:LF})},'fl:'+c+n)}
 
 /* ---------- utilería ---------- */
 function flower3(to,x,z,c,s=1,y=0){const g=grp(to,[x,y,z],s);mk(gcache('stem',()=>Cyl(.035,.035,.5,5)),'#6FB84F',{p:[0,.25,0],ol:0,cs:false,to:g});const h=grp(g,[0,.55,0]);h.rotation.x=-.5;
@@ -5387,7 +5387,7 @@ const SPOT3={
     g.userData.anim=()=>bl.forEach((b,i)=>{b.rotation.z=Math.sin(T*1.5+i)*.06;b.rotation.x=Math.cos(T*1.2+i)*.05})},
   tienda(g){mk(Box(2.6,1,1.1),'#FFF3D6',{p:[0,.5,.3],to:g,ol:.05});for(const x of[-1.2,1.2])for(const z of[-.3,.8])mk(Box(.13,2.3,.13),'#C98A4B',{p:[x,1.15,z],to:g,ol:.025});
     const aw=grp(g,[0,2.35,.25]);aw.rotation.x=.25;for(let i=0;i<6;i++)mk(Box(.47,.12,1.6),i%2?'#fff':'#FF6B5E',{p:[-1.18+i*.47,0,0],to:aw,ol:.025});
-    spr(pillTex(tx('Tienda'),'#7CC86E','#fff'),2.1,.52,{p:[0,3.1,0],to:g});
+    spr(pillTex(tx('Tienda'),'#7CC86E','#fff',80),3.2,.8,{p:[0,3.3,0],to:g});
     for(let i=0;i<5;i++)mk(Cyl(.2,.2,.07,16),'#FFC93C',{p:[-.7+(i%3)*.3,1.05+Math.floor(i/3)*.08,.4+(i%2)*.15],to:g,ol:.02});
     spr(picTex('manzana'),.6,.6,{p:[.5,1.3,.4],to:g});spr(picTex('pelota'),.6,.6,{p:[.95,1.3,.4],to:g});
     if(S.coins>0){const c=mk(Cyl(.4,.4,.1,24),'#FFC93C',{p:[1.4,2.6,.6],r:[PI/2,0,0],to:g,ol:.03});g.userData.anim=()=>{c.rotation.z=T*3;c.position.y=2.9+Math.sin(T*3)*.12}}},
@@ -5422,7 +5422,7 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
     else SPOT3[z.id](g,open);
     const hit=new THREE.Mesh(Cyl(z.id==='casaTito'?3:2.4,2.4,3.4,12),new THREE.MeshBasicMaterial({visible:false}));hit.position.y=1.5;g.add(hit);
     const lk=!spotOpen(z.id)&&!ZAGE[z.id];
-    if(lk||(st.unl&&st.unl.id===z.id)){g.userData.lock=lock3(g,[0,3.3,0],1.15);if(lk){g.userData.need=spr(flowerTex(FLC[0],spotNeed(z.id)),1.5,.75,{p:[0,2.3,1.6],to:g});greyAll(g,true)}}
+    if(lk||(st.unl&&st.unl.id===z.id)){g.userData.lock=lock3(g,[0,3.3,0],1.15);if(lk){g.userData.need=spr(flowerTex(FLC[0],spotNeed(z.id)),2.3,1.15,{p:[0,2.2,1.7],to:g});greyAll(g,true)}}
     if(st.wake&&st.wake.z===z.id)greyAll(g,true);
     w.spots[z.id]=g;w.pick.push(g)}
   // Tito
@@ -5517,7 +5517,7 @@ function buildZone(z,st){const Z=ZONES[z],P=ZPOS[z],sty=ZSTYLE[z]||ZSTYLE.jardin
   if(ci>0){const per=rp.length/(pts.length-1||1);ribbon(w.sc,rp.slice(0,Math.round(ci*per)+1),1.5,'#FFE08A',.05,{polygonOffset:1})}
   w.cas={};for(const t of Z.temas){const g=casita3(w.sc,t,B[t.id],{s:main?1:1.25,locked:!temaOpen(t),unl:st.unl&&st.unl.id===t.id});w.cas[t.id]=g;w.pick.push(g)}
   w.avoid=(w.avoid||[]).concat(Object.values(w.cas).map(g=>[g.position.x,g.position.z,(main?1:1.25)*2.4]));
-  const c=Z.temas.find(t=>t.concepts);if(c&&!temaOpen(c)){spr(flowerTex(FLC[0],Math.min(pathDone(z),3)+'/3'),1.6,.8,{p:[B[c.id][0],.6,B[c.id][1]+2.1],to:w.sc})}
+  const c=Z.temas.find(t=>t.concepts);if(c&&!temaOpen(c)){spr(flowerTex(FLC[0],Math.min(pathDone(z),3)+'/3'),2.3,1.15,{p:[B[c.id][0],.9,B[c.id][1]+2.4],to:w.sc})}
   let ar=null,rg=null;if(st.cur){const p=B[st.cur.id];ar=arrow3(w.sc,[p[0],5.2,p[1]],.85);rg=ring3(w.sc,[p[0],.08,p[1]],2.1)}
   const tito=makeTito();tito.scale.setScalar(.62);const ta=B[(st.titoAt&&B[st.titoAt]&&st.titoAt)||(st.cur&&st.cur.id)||path[0].id];tito.position.set(ta[0]+1.9,0,ta[1]+1.2);tito.rotation.y=-.3;w.sc.add(tito);w.tito=tito;w.pick.push(tito);
   w.upd.push(dt=>{const wk=walkTick(w,tito,dt);tito.userData.anim(dt,{walk:wk,hop:st.hop,hov:st.hovTito});
