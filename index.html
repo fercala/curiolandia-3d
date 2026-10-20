@@ -1190,7 +1190,7 @@ function giveSticker(k){S.stk[k]=(S.stk[k]||0)+1;save();toast={k,t:T};setTimeout
 function drawSticker(k,x,y,s,rot=0,grey){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.shadowColor='rgba(74,52,40,.25)';ctx.shadowBlur=s*.08;ctx.shadowOffsetY=s*.04;
   circ(0,0,s*.55,'#fff',0);ctx.shadowColor='transparent';circ(0,0,s*.55,null,3,'#EADFCF');if(grey){ctx.globalAlpha=.25;picG(k,0,0,s*.86);ctx.globalAlpha=1}else pic(k,0,0,s*.86);ctx.restore()}
 function drawToast(){if(!toast)return;const k=T-toast.t;if(k>2.8){toast=null;return}
-  const a=k<.3?back(k/.3):k>2.4?1-(k-2.4)/.4:1;ctx.save();ctx.globalAlpha=clamp(a,0,1);ctx.translate(800,180);ctx.scale(clamp(a,0,1.2),clamp(a,0,1.2));
+  const a=k<.3?back(k/.3):k>2.4?1-(k-2.4)/.4:1;ctx.save();ctx.globalAlpha=clamp(a,0,1);ctx.translate(toast.x||800,toast.y||180);ctx.scale(clamp(a,0,1.2),clamp(a,0,1.2));
   card(-230,-80,460,160,'#FFF6E6',6,40);drawSticker(toast.k,-140,0,130,Math.sin(T*4)*.1);text(V(['¡Figurita nueva!','¡Pegatina nueva!']),60,14,38,K);ctx.restore()}
 
 /* ---------- calendario ---------- */
@@ -4452,7 +4452,9 @@ SCENES.cofre={music:'casita',
   enter(o){coinBanner=null;toast=null;this.t=TEMA[o.t];this.taps=0;this.op=0;this.openT=0;this.shakeT=-9;this.rewarded=false;this.gift=nextGift();this.busy=false;
     S.cofres=(S.cofres||0)+1;save();
     const n=lowName(this.t);later(400,()=>{SFX.tada();burst(800,300,70);say(('¡Terminaste todos los juegos de '+n).replace(/ de el /,' del ')+kid()+'! ¡Ganaste un cofre del tesoro! Tocalo tres veces para abrirlo.')})},
-  reward(){if(this.rewarded)return;this.rewarded=true;const it=this.gift;if(it)grantGift(it);giveSticker(this.t.icon);giveCoins(it?10:20,800,560)},
+  reward(){if(this.rewarded)return;this.rewarded=true;const it=this.gift;if(it)grantGift(it);giveSticker(this.t.icon);giveCoins(it?10:20,800,560);
+    // los carteles de figurita y monedas van a la derecha: en el centro tapaban el regalo y su nombre
+    if(toast){toast.x=1290;toast.y=300}if(coinBanner){coinBanner.x=1300;coinBanner.y=540}},
   next(){const z=this.t.zone;go(ZONES[z]?z:'map',{from:this.t.id})},
   prompt(){if(!this.openT)say('Tocá el cofre para abrirlo. ¡Te '+(3-this.taps===1?'falta un toque':'faltan '+(3-this.taps)+' toques')+'!');else say('Tocá la casa para ver tu regalo, o la flecha verde para seguir el camino.')},
   hint(){if(!this.openT)return{x:800,y:560,r:200};if(T<this.openT+3)return null;return{x:1000,y:800,r:80}},
@@ -4532,7 +4534,7 @@ function drawCoinFx(){hudAt();
     const e=k*k*(3-2*k),a=c.spend?[HUDX-50,HUDY]:[c.x,c.y],b=c.spend?[c.x,c.y]:[HUDX-50,HUDY];
     pic('moneda',lerp(a[0],b[0],e),lerp(a[1],b[1],e)-Math.sin(k*PI)*130,62*(1-k*.25))}
   coinFx=coinFx.filter(c=>!c.done);if(!coinFx.length)shownCoins=S.coins;
-  if(coinBanner){const k=T-coinBanner.t;if(k>2.6){coinBanner=null;return}const a=k<.3?back(k/.3):k>2.2?1-(k-2.2)/.4:1;ctx.save();ctx.globalAlpha=clamp(a,0,1);ctx.translate(800,470);ctx.scale(clamp(a,0,1.2),clamp(a,0,1.2));
+  if(coinBanner){const k=T-coinBanner.t;if(k>2.6){coinBanner=null;return}const a=k<.3?back(k/.3):k>2.2?1-(k-2.2)/.4:1;ctx.save();ctx.globalAlpha=clamp(a,0,1);ctx.translate(coinBanner.x||800,coinBanner.y||470);ctx.scale(clamp(a,0,1.2),clamp(a,0,1.2));
     card(-250,-90,500,180,'#FFF6D6',7,50);pic(coinBanner.icon||'monedas',-140,0,150);text('+'+coinBanner.n,60,26,92,'#D9962A',{f:LF,st:8,sc:'#fff'});ctx.restore()}}
 {const or0=onRight;onRight=function(first){or0(first);if(first&&sceneName==='juego'&&gameCoins<5){gameCoins++;giveCoins(1,MX||800,MY||450)}}}
 {const e0=SCENES.juego.enter;SCENES.juego.enter=function(o){gameCoins=0;e0.call(this,o)}}
@@ -5047,7 +5049,7 @@ const TITO_KINDS=['caracol','erizo','tortuga','conejo'];
 function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.userData.id='tito';const t=S.tito||{},GR='#9BD86A';
   const kind=TITO_KINDS.includes(t.kind)?t.kind:'caracol';root.userData.kind=kind;
   const sc=(SHELLC[t.shell]||SHELLC.naranja),scarf=SCARFC[t.scarf]||SCARFC.roja;
-  let head,mouth,mo,sh;const eyes=[];
+  let head,mouth,mo,sh;const eyes=[],wig=[];
   if(kind==='caracol'){
   mk(Sph(1,26,16),GR,{p:[.15,.46,0],s:[1.4,.48,.56],to:b,ol:.06});mk(Cone(.36,.8,14),GR,{p:[-1.3,.3,0],r:[0,0,PI/2+.2],s:[1,1,.8],to:b,ol:.05});
   mk(Cyl(.42,.55,1.25,18),GR,{p:[.95,.95,0],r:[0,0,-.22],to:b,ol:.05});
@@ -5092,7 +5094,7 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
   // TORTUGA: caparazón con el color de la tienda (el naranja de siempre) y dibujo de placas del color oscuro
   const SK='#8FD07A',U=new THREE.Vector3(0,1,0);
   for(const [x,z] of[[.68,.5],[.68,-.5],[-.62,.5],[-.62,-.5]])mk(Cyl(.2,.24,.5,10),SK,{p:[x,.25,z],to:b,ol:.03});
-  mk(Cone(.16,.42,8),SK,{p:[-1.3,.42,0],r:[0,0,PI/2+.3],to:b,ol:.025});
+  wig.push([mk(Cone(.16,.42,8),SK,{p:[-1.3,.42,0],r:[0,0,PI/2+.3],to:b,ol:.025}),'y',0,.35,5,0]);
   mk(Cyl(.2,.26,.7,12),SK,{p:[1.15,.72,0],r:[0,0,-.95],to:b,ol:.035});
   mk(Sph(1,22,12),'#F3E2A9',{p:[0,.44,0],s:[1.22,.2,.92],to:b,ol:.04});
   mk(new THREE.SphereGeometry(1,28,14,0,PI*2,0,PI/2),sc[0],{p:[0,.46,0],s:[1.25,.95,.95],to:b,ol:.06});
@@ -5117,7 +5119,7 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
   const mb=grp(b,[-.78,1.05,0]);mb.rotation.y=PI/2;mk(rbox(.95,1,.5,.12),sc[0],{to:mb,ol:.04});mk(rbox(.95,.4,.12,.05),sc[1],{p:[0,.32,.27],to:mb,ol:.03});
   head=grp(b,[.78,1.78,0]);mk(Sph(.55,22,16),FU,{s:[1.05,.95,.95],to:head,ol:.05});
   for(const z of[-.13,.13])mk(Sph(.2,12,10),'#FFFFFF',{p:[.42,-.14,z],ol:0,to:head});mk(Sph(.08,10,8),'#FF8AA0',{p:[.57,-.02,0],ol:0,to:head});
-  for(const z of[-.2,.2]){const ear=grp(head,[-.05,.42,z]);ear.rotation.x=z*1.1;mk(Sph(.18,12,10),FU,{p:[0,.45,0],s:[1,3,.55],to:ear,ol:.03});mk(Sph(.11,10,8),IN,{p:[.08,.45,0],s:[.6,2.5,.4],ol:0,to:ear})}
+  for(const z of[-.2,.2]){const ear=grp(head,[-.05,.42,z]);ear.rotation.x=z*1.1;wig.push([ear,'x',z*1.1,.07,2.4,z*6]);mk(Sph(.18,12,10),FU,{p:[0,.45,0],s:[1,3,.55],to:ear,ol:.03});mk(Sph(.11,10,8),IN,{p:[.08,.45,0],s:[.6,2.5,.4],ol:0,to:ear})}
   for(const z of[-.22,.22]){const e=grp(head,[.32,.14,z]);mk(Sph(.15,14,10),'#FFFFFF',{to:e,ol:.03});mk(Sph(.08,10,8),K,{p:[.09,.01,z*.2],ol:0,to:e});mk(Sph(.03,8,6),'#FFFFFF',{p:[.15,.05,z*.25],ol:0,to:e});eyes.push(e)}
   mouth=mk(new THREE.TorusGeometry(.1,.03,8,14,PI),'#7A2E3A',{p:[.55,-.3,0],r:[0,PI/2,PI],ol:0,to:head});
   mo=mk(Sph(.08,10,8),'#7A2E3A',{p:[.56,-.32,0],s:[.5,.6,1],ol:0,to:head});
@@ -5146,7 +5148,9 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
     else if(kind==='erizo'){b.position.y=Math.abs(Math.sin(tt*12))*.12*wk+br;b.rotation.x=Math.sin(tt*12)*.05*wk;b.scale.set(hs,hs*(1-Math.abs(Math.sin(tt*12))*.03*wk),hs)}
     else{b.position.y=Math.abs(Math.sin(tt*9))*.18*wk+br;b.scale.set(hs*(1+Math.sin(tt*9)*.05*wk),hs*(1-Math.sin(tt*9)*.05*wk),hs)}
     const bl=((tt+.5)%3.9)<.14?.12:1;for(const e of eyes)e.scale.y=bl;
-    head.rotation.z=Math.sin(tt*1.3)*.06+(o.look||0);const tk=talking&&o.talk!==false&&(T*7|0)%2;mo.visible=!!tk;mouth.visible=!tk;
+    head.rotation.z=Math.sin(tt*1.3)*.06+(o.look||0);
+    // orejas del conejo (se mueven solas y de vez en cuando dan un respingo) y cola de la tortuga
+    for(const [m,ax,b0,amp,sp,ph] of wig){const tw=((tt+ph*.3)%5)<.35?Math.sin(((tt+ph*.3)%5)/.35*PI)*2.5:0;m.rotation[ax]=b0+Math.sin(tt*sp+ph)*amp+tw*amp*Math.sign(b0||1)}const tk=talking&&o.talk!==false&&(T*7|0)%2;mo.visible=!!tk;mouth.visible=!tk;
     // al terminar el salto vuelve justo al suelo (antes se quedaba flotando a la altura del último cuadro del salto)
     if(o.hop!=null){const k=T-o.hop;root.position.y=(o.y0||0)+(k>=0&&k<.6?Math.sin(k/.6*PI)*.9:0)}};
   root.traverse(o=>{if(o.isMesh&&o.material&&o.material.type==='MeshToonMaterial')o.castShadow=true});
