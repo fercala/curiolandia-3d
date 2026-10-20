@@ -4900,6 +4900,12 @@ function frame(now){
   hoverTick(dt);
   if(fade>0){ctx.fillStyle=`rgba(255,246,230,${fade})`;ctx.fillRect(0,0,W,H)}
   ctx.restore();
+  // pantallas 2D en móviles alargados: las bandas de los lados (antes marrón oscuro) continúan el borde de la escena, como si siguiera
+  if(!(scene&&scene.three)&&(OX>2||OY>2)){try{ctx.save();ctx.setTransform(1,0,0,1,0,0);const x0=Math.round(OX*DPR),y0=Math.round(OY*DPR),gw=Math.round(W*SC*DPR),gh=Math.round(H*SC*DPR),rw=cv.width-x0-gw,rh=cv.height-y0-gh;
+    if(x0>0){ctx.drawImage(cv,x0+2,y0,1,gh,0,y0,x0,gh);if(rw>0)ctx.drawImage(cv,x0+gw-3,y0,1,gh,x0+gw,y0,rw,gh)}
+    if(y0>0){ctx.drawImage(cv,0,y0+2,cv.width,1,0,0,cv.width,y0);if(rh>0)ctx.drawImage(cv,0,y0+gh-3,cv.width,1,0,y0+gh,cv.width,rh)}
+    ctx.fillStyle='rgba(46,36,32,.08)';if(x0>0){ctx.fillRect(0,0,x0,cv.height);ctx.fillRect(x0+gw,0,rw,cv.height)}if(y0>0){ctx.fillRect(0,0,cv.width,y0);ctx.fillRect(0,y0+gh,cv.width,rh)}
+    ctx.restore()}catch(e){}}
   // fuera del recorte de la franja del juego: el velo oscuro tapa toda la pantalla (antes solo la franja del juego y en vertical se veía el 3D arriba y abajo)
   if(isPortrait()&&!portraitOk){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='rgba(46,36,32,.88)';ctx.fillRect(0,0,cv.width,cv.height);ctx.restore();ctx.save();ctx.translate(800,400);ctx.rotate(Math.sin(T*2)*.8-.8);card(-90,-160,180,320,'#fff',10,30);ctx.restore();text(V(['Girá el teléfono','Gira el móvil']),800,700,90,'#fff');text(V(['(tocá para seguir igual)','(toca para seguir igual)']),800,790,44,'#FCEBD0')}
   requestAnimationFrame(frame);
@@ -5346,14 +5352,14 @@ const SPOT3={
     mk(mg(Array.from({length:16},(_,i)=>{const a=i/16*PI*2;return[Box(.14,.6,.14),[Math.cos(a)*3.05,.45,Math.sin(a)*2.35]]})),'#C98A4B',{to:g,ol:.025});
     [[-1.4,-.4,0],[.3,-.9,1],[1.6,.2,2],[-.4,.9,3]].forEach(([x,z,i])=>{const h=grp(g,[x,.2,z],.75);mk(Box(1.1,.8,.9),'#FFF3B0',{p:[0,.4,0],to:h,ol:.04});mk(Cone(.95,.75,4),FLC[i],{p:[0,1.18,0],r:[0,PI/4,0],to:h,ol:.04});mk(Box(.28,.45,.06),'#C98A4B',{p:[0,.25,.46],to:h,ol:.02})});
     for(let i=0;i<7;i++)flower3(g,-2.4+i*.8,1.75+(i%2)*.25,FLC[i%7],.7,.2);
-    pillSpr(tx('3 años'),'#FF8A7A','#fff',{p:[0,2.9,0],w:2.3,to:g})},
+    pillSpr(tx('3 años'),'#FF8A7A','#fff',{p:[0,2.9,0],w:3.2,to:g})},
   bosque(g,open){mk(Cyl(3.1,3.2,.2,30),open?'#8CCB78':'#CFC8BF',{p:[0,.1,0],s:[1,1,.8],to:g,ol:.05});
     [[-1.7,.4,.85,'otoño'],[0,-.6,1.05,'verano'],[1.7,.3,.9,'verano'],[-.7,1.4,.7,'otoño'],[1,1.5,.7,'primavera'],[-2.2,-.9,.7,null],[2.3,-.9,.7,null]].forEach(([x,z,s,k])=>tree3(g,x,z,s,open?(k||'verano'):'gris',!k));
-    pillSpr(tx('4 años'),open?'#7CC86E':'#B8B0A6','#fff',{p:[0,4.2,0],w:2.3,to:g});if(!open)zzz(g,[2,3.2,0])},
+    pillSpr(tx('4 años'),open?'#7CC86E':'#B8B0A6','#fff',{p:[0,4.2,0],w:3.2,to:g});if(!open)zzz(g,[2,3.2,0])},
   montana(g,open){const gc=open?'#A9C98A':'#CFC8BF';mk(Cone(2.4,4.2,9),gc,{p:[-1,2.1,-.4],to:g,ol:.07});mk(Cone(2,3.4,9),gc,{p:[1.5,1.7,.2],to:g,ol:.07});
     mk(Cone(.95,1.65,9),'#FFFFFF',{p:[-1,3.4,-.4],to:g,ol:.05});mk(Cone(.75,1.3,9),'#FFFFFF',{p:[1.5,2.8,.2],to:g,ol:.05});
     if(open)for(let i=0;i<5;i++)flower3(g,-2+i*1,2+(i%2)*.3,FLC[i+1],.75,0);rock3(g,2.8,1.4,.8);rock3(g,-3,1.2,.6);
-    pillSpr(tx('5 años'),open?'#5B8DEF':'#B8B0A6','#fff',{p:[0,-.1,2.9],w:2.3,to:g});if(!open)zzz(g,[2.3,4,0])},
+    pillSpr(tx('5 años'),open?'#5B8DEF':'#B8B0A6','#fff',{p:[0,-.1,2.9],w:3.2,to:g});if(!open)zzz(g,[2.3,4,0])},
   canciones(g){mk(Cyl(1.5,1.5,1.3,16),M('#fff',{map:stripesTex()}),{p:[0,.65,0],to:g,ol:.05});mk(Cone(1.85,1.6,16),'#FF6B5E',{p:[0,2.1,0],to:g,ol:.05});
     mk(Cyl(.03,.03,.7,6),K,{p:[0,3.1,0],ol:0,to:g});mk(new THREE.PlaneGeometry(.5,.3),new THREE.MeshToonMaterial({color:'#FFC93C',gradientMap:GRAD,side:THREE.DoubleSide}),{p:[.25,3.3,0],ol:0,to:g});
     mk(Box(.8,.95,.1),'#7A4C30',{p:[0,.48,1.47],to:g,ol:.03});
