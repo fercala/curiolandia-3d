@@ -1110,7 +1110,8 @@ function vozFile(t){if(!VOZ)return null;t=vozN(S.name?t.split(', '+S.name).join(
 function vozStop(){const f=VOZ_FIN;VOZ_FIN=null;if(VOZ_EL){VOZ_EL.onended=VOZ_EL.onerror=null;try{VOZ_EL.pause()}catch(e){}}f&&f()}
 if('speechSynthesis' in window){try{const c0=speechSynthesis.cancel.bind(speechSynthesis);speechSynthesis.cancel=()=>{vozStop();c0()}}catch(e){}}
 function vozPlay(fs,tok,fin,fail){
-  const a=VOZ_EL||(VOZ_EL=new Audio()),get=f=>{f=VOZ_DIR+f;return VOZ_BL[f]?Promise.resolve(VOZ_BL[f]):fetch(f).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>VOZ_BL[f]=URL.createObjectURL(b))};
+  const a=VOZ_EL||(VOZ_EL=new Audio()),get=f=>{f=VOZ_DIR+f;// se guarda la promesa: la precarga y el primer paso piden el mismo archivo una sola vez
+    return VOZ_BL[f]||(VOZ_BL[f]=fetch(f).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>URL.createObjectURL(b)).catch(e=>{delete VOZ_BL[f];throw e}))};
   const step=n=>{if(n>=fs.length){VOZ_FIN=null;fin();return}get(fs[n]).then(u=>{if(tok!==sayTok)return;if(n===0)vozStop();a.src=u;a.playbackRate=VOZ_RATE;a.preservesPitch=true;a.volume=Math.min(1,S.vol.voz);VOZ_FIN=fin;
     a.onended=()=>step(n+1);a.onerror=()=>{VOZ_FIN=null;fail()};const p=a.play();if(p)p.catch(()=>{VOZ_FIN=null;fail()})}).catch(()=>{VOZ_FIN=null;fail()})};
   Promise.all(fs.map(get)).catch(()=>{});step(0);
@@ -5659,7 +5660,9 @@ function buildTitle(){const w=newWorld({fov:34,kind:'title',shadow:10});w.sc.bac
   tree3(w.sc,-3.6,-1.6,.8,'primavera');bush3(w.sc,3.5,-1.4,.9);
   const tito=makeTito();tito.position.set(-.3,0,.6);tito.rotation.y=-.25;w.sc.add(tito);w.tito=tito;
   const qs=[];for(let i=0;i<10;i++){const s=spr(canvasTex(128,128,()=>text('?',64,108,120,LOGOC[i%LOGOC.length],{st:8,sc:'#fff'}),'q'+i),.9,.9,{p:[-8+i*1.8,1+(i*53%7)*.8,-3-(i%3)*1.5],to:w.sc,op:.8});qs.push(s)}
-  w.upd.push(dt=>{tito.userData.anim(dt,{});tito.rotation.y=-.25+Math.sin(T*.5)*.35;qs.forEach((q,i)=>{q.position.y+=dt*(.3+(i%3)*.15);if(q.position.y>8)q.position.y=-1;q.material.rotation=Math.sin(T+i)*.2})});
+  w.upd.push(dt=>{tito.userData.anim(dt,{});tito.rotation.y=-.25+Math.sin(T*.5)*.35;qs.forEach((q,i)=>{q.position.y+=dt*(.3+(i%3)*.15);if(q.position.y>8)q.position.y=-1;q.material.rotation=Math.sin(T+i)*.2;
+    // al pasar por detrás del título y del subtítulo se desvanecen para que se lean bien
+    if(W3===w){const [x,y]=projO(q),tt=x>470&&x<1270&&y>40&&y<330;q.material.opacity+=((tt?.08:.8)-q.material.opacity)*Math.min(1,dt*6)}})});
   camRig(w,V3(3.2,3.8,12.5),V3(2.6,2.1,0),.6);return w}
 {const S0=SCENES.title,enter0=S0.enter;
  Object.assign(S0,{three:true,
