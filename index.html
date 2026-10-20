@@ -238,6 +238,21 @@ const TITO_SVG=`<path d="M14 184 Q8 160 40 158 L150 158 Q158 120 166 86 Q172 60 
 <path d="M194 110 q12 9 24 0" fill="none" ${sw(4)}/>
 <circle cx="184" cy="100" r="7" fill="#FF8A7A" opacity=".5"/><circle cx="222" cy="100" r="6" fill="#FF8A7A" opacity=".5"/>`;
 
+// Tito erizo (mismo marco 240x200 que el caracol: cabeza arriba a la derecha, así la ropa le queda en su sitio)
+const ERIZO_SVG=`<ellipse cx="62" cy="186" rx="17" ry="9" fill="#8A5A3C" ${sw(5)}/><ellipse cx="148" cy="186" rx="17" ry="9" fill="#8A5A3C" ${sw(5)}/>
+<ellipse cx="108" cy="158" rx="88" ry="30" fill="#F2D6B0" ${sw(6)}/>
+<path d="M2 137 L23 132 L5 121 L27 120 L13 106 L35 109 L25 92 L46 99 L41 81 L60 92 L59 73 L76 87 L80 68 L93 84 L101 66 L110 84 L123 68 L127 87 L143 74 L142 93 L162 82 L155 101 L177 94 L166 110 L188 108 L174 121 L195 123 L 170 150 L 30 150 Z" fill="#B07A4F" ${sw(6)}/>
+<path d="M41 134 L15 131 M44 125 L20 117 M50 117 L28 104 M59 110 L41 94 M69 104 L56 85 M81 100 L73 79 M94 98 L92 76 M108 98 L111 77 M120 101 L129 80 M132 105 L146 86 M143 110 L161 95 M151 118 L173 106 M157 126 L181 119" fill="none" stroke="#7A5030" stroke-width="5" stroke-linecap="round"/>
+<path d="M156 128 Q186 146 216 130 L216 144 Q186 160 154 142 Z" fill="#FF6B5E" ${sw(4)}/>
+<ellipse cx="172" cy="72" rx="10" ry="13" fill="#E8B98A" ${sw(5)}/>
+<circle cx="194" cy="102" r="40" fill="#F2D6B0" ${sw(6)}/>
+<path d="M220 88 Q238 98 234 112 Q226 122 212 120 Z" fill="#F2D6B0" ${sw(5)}/>
+<circle cx="231" cy="104" r="8" fill="${K}"/>
+<circle cx="184" cy="94" r="13" fill="#fff" ${sw(5)}/><circle cx="210" cy="92" r="12" fill="#fff" ${sw(5)}/>
+<circle cx="187" cy="96" r="6.5" fill="${K}"/><circle cx="213" cy="94" r="6" fill="${K}"/><circle cx="189" cy="93" r="2.3" fill="#fff"/><circle cx="215" cy="91" r="2.2" fill="#fff"/>
+<path d="M208 122 q8 7 16 0" fill="none" ${sw(4)}/>
+<circle cx="194" cy="116" r="7" fill="#FF8A7A" opacity=".5"/>`;
+
 Object.assign(PICS,{formas:`<circle cx="-26" cy="-20" r="26" fill="#FF8A7A" ${sw()}/><rect x="6" y="-46" width="46" height="46" rx="6" fill="#5B8DEF" ${sw()}/><path d="M-8 50 L18 6 L44 50 Z" fill="#7CC86E" ${sw()}/>`});
 /* ---------- Dibujos PA: lugares, oficios, objetos y vehiculos ---------- */
 const PA_oct=(r,cy)=>[...Array(8)].map((_,i)=>{const a=(22.5+45*i)*Math.PI/180;return `${(r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`}).join(' ');
@@ -849,7 +864,7 @@ const V=x=>Array.isArray(x)?(S.variant==='es'?x[1]:x[0]):tx(x);
 const IMG={},IMGG={};
 function svgImg(inner,vb,px){const i=new Image();i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${px}" height="${Math.round(px*(+vb.split(' ')[3])/(+vb.split(' ')[2]))}">${inner}</svg>`);return i}
 for(const k in PICS) IMG[k]=svgImg(PICS[k],'-62 -62 124 124',320);
-IMG.tito=svgImg(TITO_SVG,'0 0 240 200',480); IMG.lupi=svgImg(LUPI_SVG,'0 0 200 230',420); IMG.glasses=svgImg(GLASSES_SVG,'0 0 200 230',420); IMG.hand=svgImg(HAND_SVG,'0 0 80 110',160);
+IMG.tito=svgImg(TITO_SVG,'0 0 240 200',480);IMG.erizo=svgImg(ERIZO_SVG,'0 0 240 200',480); IMG.lupi=svgImg(LUPI_SVG,'0 0 200 230',420); IMG.glasses=svgImg(GLASSES_SVG,'0 0 200 230',420); IMG.hand=svgImg(HAND_SVG,'0 0 80 110',160);
 function greyOf(k){if(!IMGG[k]&&PICS[k])IMGG[k]=svgImg(PICS[k].replace(/(fill|stroke)="(#[0-9A-Fa-f]{6})"/g,(m,a,c)=>c.toUpperCase()===K.toUpperCase()?m:(a==='fill'?'fill="#FBF8F2"':'stroke="#D8D0C4"')),'-62 -62 124 124',320);return IMGG[k]}
 function pic(n,x,y,s,a=1){const i=IMG[n]; if(!i||!i.complete)return; ctx.globalAlpha*=a; ctx.drawImage(i,x-s/2,y-s/2,s,s); ctx.globalAlpha/=a}
 function picG(n,x,y,s){const i=greyOf(n); if(!i||!i.complete)return; ctx.drawImage(i,x-s/2,y-s/2,s,s)}
@@ -919,6 +934,9 @@ const TITO={x:14,y:700,w:226};
 const temasDone=()=>Object.values(S.temas).filter(t=>t&&t.done).length;
 const FLPOS=[[-2.4,58],[-1.9,60],[-1.4,62],[-.9,61],[-.4,60],[-2.9,56],[2.6,52],[-2.15,38],[-1.6,40],[-1.05,40],[-.5,38],[-2.65,36],[2.9,40],[-1.9,22],[-1.2,22]];
 const FLC=['#FF8A7A','#F58BB4','#FFC93C','#9B8AD9','#7FD3F0','#FF6B5E','#FFA94D'];
+// personaje de Tito (zona de adultos): 'caracol' (por defecto) o 'erizo'; ojos [x,y,r], boca y centro de las flores en el dibujo 2D de 240x200
+const titoKind=()=>S.tito&&S.tito.kind==='erizo'?'erizo':'caracol';
+const TITO_EYES={caracol:[[174,20,15],[222,20,15]],erizo:[[184,94,13],[210,92,12]]},TITO_2D={caracol:{skin:'#9BD86A',mouth:[206,116],fl:[96,100,1]},erizo:{skin:'#F2D6B0',mouth:[216,124],fl:[98,118,.82]}};
 function drawTito(x,y,w,o={}){
   const k=w/240,h=200*k,b=Math.sin(T*2.2)*w*.02,i=typeof titoImg==='function'?titoImg():IMG.tito; if(!i.complete)return;
   ctx.save();ctx.translate(x,y+b);
@@ -927,11 +945,12 @@ function drawTito(x,y,w,o={}){
   // antenas que se mueven
   ctx.drawImage(i,0,0,w,h);
   const blink=o.sleep||((T+.5)%3.9)<.14;
-  if(blink)for(const ex of[174,222]){circ(ex*k,20*k,16*k,'#9BD86A',5*k);ctx.beginPath();ctx.moveTo((ex-10)*k,22*k);ctx.quadraticCurveTo(ex*k,(o.sleep?30:27)*k,(ex+10)*k,22*k);ctx.lineWidth=4*k;ctx.strokeStyle=K;ctx.stroke()}
-  if(talking&&o.mouth!==false&&(T*7|0)%2){ell(206*k,116*k,11*k,9*k,'#7A2E3A',3.5*k)}
+  const tk=titoKind(),D=TITO_2D[tk];
+  if(blink)for(const [ex,ey,er] of TITO_EYES[tk]){circ(ex*k,ey*k,(er+1)*k,D.skin,5*k);ctx.beginPath();ctx.moveTo((ex-10)*k,(ey+2)*k);ctx.quadraticCurveTo(ex*k,(ey+(o.sleep?10:7))*k,(ex+10)*k,(ey+2)*k);ctx.lineWidth=4*k;ctx.strokeStyle=K;ctx.stroke()}
+  if(talking&&o.mouth!==false&&(T*7|0)%2){ell(D.mouth[0]*k,D.mouth[1]*k,11*k,9*k,'#7A2E3A',3.5*k)}
   // flores en el caparazón
   const n=Math.min(FLPOS.length,o.flowers??temasDone());
-  for(let j=0;j<n;j++){const [a,r]=FLPOS[j];flower((96+Math.cos(a)*r)*k,(100+Math.sin(a)*r)*k,13*k*(1+Math.sin(T*3+j)*.05),FLC[j%FLC.length],2.5*k)}
+  for(let j=0;j<n;j++){const [a,r]=FLPOS[j],[fx,fy,fs]=D.fl;flower((fx+Math.cos(a)*r*fs)*k,(fy+Math.sin(a)*r*fs)*k,13*k*(1+Math.sin(T*3+j)*.05),FLC[j%FLC.length],2.5*k)}
   if(typeof drawTitoWear==='function'&&!o.plain)drawTitoWear(k);
   ctx.restore();
   if(talking&&o.bubble!==false&&!o.flip){const bx=x+w*.92,by=y-30;ctx.globalAlpha=.95;card(bx,by,96,72,'#fff',5,28);ctx.globalAlpha=1;speaker(bx+50,by+36,46+Math.sin(T*12)*4)}
@@ -4485,15 +4504,19 @@ function drawCoinFx(){hudAt();
 const SHELLC={naranja:['#FFA94D','#D9762A'],azul:['#7FB0FF','#4A6FD0'],rosa:['#F58BB4','#C95A8A'],verde:['#7FD8C8','#3E9E8E'],violeta:['#B9A6F0','#7A62C9'],dorado:['#FFD34E','#C9962A']};
 const SCARFC={roja:'#FF6B5E',azul:'#5B8DEF',amarilla:'#FFC93C',violeta:'#9B8AD9'};
 const TITOIMG={};
-function titoImg(){const t=S.tito||{},sh=SHELLC[t.shell]?t.shell:'naranja',sc=SCARFC[t.scarf]?t.scarf:'roja',key=sh+'|'+sc;if(key==='naranja|roja')return IMG.tito;
-  if(!TITOIMG[key])TITOIMG[key]=svgImg(TITO_SVG.replace('fill="#FFA94D"','fill="'+SHELLC[sh][0]+'"').replace('stroke="#D9762A"','stroke="'+SHELLC[sh][1]+'"').replace('fill="#FF6B5E"','fill="'+SCARFC[sc]+'"'),'0 0 240 200',480);
-  const i=TITOIMG[key];return i.complete?i:IMG.tito}
+function titoImg(){const t=S.tito||{},sh=SHELLC[t.shell]?t.shell:'naranja',sc=SCARFC[t.scarf]?t.scarf:'roja',er=titoKind()==='erizo',key=(er?'erizo|':'')+sh+'|'+sc;if(key==='naranja|roja')return IMG.tito;
+  // el erizo lleva el color de la tienda en las púas (con el naranja de siempre, púas marrones)
+  if(!TITOIMG[key])TITOIMG[key]=er?svgImg(ERIZO_SVG.replace('fill="#B07A4F"','fill="'+(sh==='naranja'?'#B07A4F':SHELLC[sh][0])+'"').replace('stroke="#7A5030"','stroke="'+(sh==='naranja'?'#7A5030':SHELLC[sh][1])+'"').replace('fill="#FF6B5E"','fill="'+SCARFC[sc]+'"'),'0 0 240 200',480)
+    :svgImg(TITO_SVG.replace('fill="#FFA94D"','fill="'+SHELLC[sh][0]+'"').replace('stroke="#D9762A"','stroke="'+SHELLC[sh][1]+'"').replace('fill="#FF6B5E"','fill="'+SCARFC[sc]+'"'),'0 0 240 200',480);
+  const i=TITOIMG[key];return i.complete?i:er?(IMG.erizo||IMG.tito):IMG.tito}
 const HATPOS={gorroFiesta:[198,28,86],gorra:[204,44,84],gorro:[198,40,84],gorroNavidad:[202,32,92],sombreroCopa:[198,34,78],sombreroPirata:[198,38,100],corona:[198,42,72]};
 function drawTitoWear(k){const t=S.tito||{};
-  if(t.bow)pic('monio',126*k,42*k,56*k);
-  if(t.hat&&HATPOS[t.hat]){const [x,y,s]=HATPOS[t.hat];pic(t.hat,x*k,y*k,s*k);
-    for(const ex of[174,222]){circ(ex*k,20*k,15*k,'#fff',5*k);circ((ex+3)*k,22*k,7*k,K,0);circ((ex+5)*k,19*k,2.5*k,'#fff',0)}}
-  if(t.glasses){for(const ex of[174,222])circ(ex*k,20*k,19*k,'rgba(40,40,70,.38)',6*k);ctx.beginPath();ctx.moveTo(193*k,18*k);ctx.lineTo(203*k,18*k);ctx.lineWidth=4*k;ctx.strokeStyle=K;ctx.stroke();for(const ex of[170,218]){ctx.beginPath();ctx.arc(ex*k,14*k,6*k,PI*1.1,PI*1.6);ctx.lineWidth=3*k;ctx.strokeStyle='rgba(255,255,255,.8)';ctx.stroke()}}}
+  const er=titoKind()==='erizo',E=TITO_EYES[titoKind()];
+  if(t.bow)pic('monio',(er?104:126)*k,(er?66:42)*k,56*k);
+  // en el caracol el sombrero tapa los ojos (están en las antenas) y se vuelven a dibujar encima; en el erizo no hace falta
+  if(t.hat&&HATPOS[t.hat]){const [x,y,s]=HATPOS[t.hat];pic(t.hat,x*k,(er?y+4:y)*k,s*k);
+    if(!er)for(const ex of[174,222]){circ(ex*k,20*k,15*k,'#fff',5*k);circ((ex+3)*k,22*k,7*k,K,0);circ((ex+5)*k,19*k,2.5*k,'#fff',0)}}
+  if(t.glasses){for(const [ex,ey,er_] of E)circ(ex*k,ey*k,(er_+3)*k,'rgba(40,40,70,.38)',6*k);const [a,b]=E;ctx.beginPath();ctx.moveTo((a[0]+a[2]+3)*k,(a[1]-2)*k);ctx.lineTo((b[0]-b[2]-3)*k,(b[1]-2)*k);ctx.lineWidth=4*k;ctx.strokeStyle=K;ctx.stroke();for(const [ex,ey] of E){ctx.beginPath();ctx.arc((ex-4)*k,(ey-6)*k,6*k,PI*1.1,PI*1.6);ctx.lineWidth=3*k;ctx.strokeStyle='rgba(255,255,255,.8)';ctx.stroke()}}}
 
 /* ---------- catálogo ---------- */
 const SHOPCAT=[{id:'ropa',n:'Ropa para Tito',ic:'gorroFiesta'},{id:'colores',n:'Colores para Tito',ic:'caracol'},{id:'casa',n:'Cosas para la casa',ic:'lampara'},{id:'juguetes',n:'Juguetes',ic:'peluche'},{id:'mascotas',n:'Mascotas',ic:'hamster'},{id:'vales',n:'Vales para canjear',ic:'vale'}];
@@ -4728,6 +4751,9 @@ function openAdult(){
    <div class="row"><span>Edad</span>${[3,4,5].map(n=>`<label class="opt"><input type="radio" name="a-age" value="${n}" ${S.age===n?'checked':''}> ${n} años</label>`).join('')}</div>
    <div class="row"><span>Cumpleaños</span><select id="a-bd">${['—',...Array.from({length:31},(_,i)=>i+1)].map((d,i)=>`<option value="${i}" ${S.bday&&S.bday.d===i?'selected':''}>${d}</option>`).join('')}</select><select id="a-bm">${['—',...MESES].map((m,i)=>`<option value="${i}" ${S.bday&&S.bday.m===i-1?'selected':''}>${m}</option>`).join('')}</select></div>
    <p class="note">El día del cumpleaños, la Asamblea lo celebra con una torta y velitas.</p></section>
+  <section><h3>Personaje de Tito</h3>
+   <div class="row">${[['caracol','🐌 Caracol'],['erizo','🦔 Erizo']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-kind" value="${k}" ${((S.tito&&S.tito.kind)||'caracol')===k?'checked':''}> ${l}</label>`).join('')}</div>
+   <p class="note">Tito sigue llamándose Tito. La ropa y los colores de la tienda le quedan igual (en el erizo, el color va en las púas).</p></section>
   <section><h3>Idioma y voz</h3>
    <div class="row"><span>Palabras</span>${[['ar','Rioplatense (vos, remera, auto)'],['es','España (tú, camiseta, coche)']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-var" value="${k}" ${S.variant===k?'checked':''}> ${l}</label>`).join('')}</div>
    <div class="row"><span>Estaciones</span>${[['N','Hemisferio norte (España)'],['S','Hemisferio sur (Argentina, Uruguay)']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-hemi" value="${k}" ${S.hemi===k?'checked':''}> ${l}</label>`).join('')}</div>
@@ -4760,6 +4786,7 @@ function openAdult(){
   bkWire(q);
   q('#a-name').oninput=e=>{S.name=e.target.value.trim().slice(0,20);save()};
   el.querySelectorAll('[name=a-age]').forEach(r=>r.onchange=()=>{S.age=+r.value;ADAPT=0;save()});
+  el.querySelectorAll('[name=a-kind]').forEach(r=>r.onchange=()=>{S.tito=S.tito||{};S.tito.kind=r.value;save();try{if(window.__w3&&__w3.retito)__w3.retito()}catch(e){console.error(e)}});
   el.querySelectorAll('[name=a-var]').forEach(r=>r.onchange=()=>{S.variant=r.value;save();pickVoice();say(tx('¡Hola! Soy Tito. ¿Jugamos? Tocá la plaza.'))});
   el.querySelectorAll('[name=a-hemi]').forEach(r=>r.onchange=()=>{S.hemi=r.value;save()});
   el.querySelectorAll('[name=a-lim]').forEach(r=>r.onchange=()=>{S.limit=+r.value;save()});
@@ -4974,26 +5001,55 @@ function shellGeo(){const R=.74,b=.12,k=.36,zs=1.85,sp=new Spiral(R,b,2.1,-1.0),
   for(let i=0;i<=seg;i++){const P=sp.getPointAt(i/seg),tr=k*Math.hypot(P.x,P.y);for(let j=0;j<=rad;j++){const v=i*(rad+1)+j;p.setXYZ(v,P.x+(p.getX(v)-P.x)*tr,P.y+(p.getY(v)-P.y)*tr,(p.getZ(v)-P.z)*tr*zs)}}
   g.computeVertexNormals();return {g,sp,k,zs}}
 let SHELL=null;
-function makeTito(){const root=new THREE.Group(),b=grp(root);root.userData.id='tito';const t=S.tito||{},GR='#9BD86A';
+// personajes de Tito que ya tienen modelo (S.tito.kind; los demás vuelven al caracol)
+const TITO_KINDS=['caracol','erizo'];
+function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.userData.id='tito';const t=S.tito||{},GR='#9BD86A';
+  const kind=TITO_KINDS.includes(t.kind)?t.kind:'caracol';root.userData.kind=kind;
   const sc=(SHELLC[t.shell]||SHELLC.naranja),scarf=SCARFC[t.scarf]||SCARFC.roja;
+  let head,mouth,mo,sh;const eyes=[];
+  if(kind==='caracol'){
   mk(Sph(1,26,16),GR,{p:[.15,.46,0],s:[1.4,.48,.56],to:b,ol:.06});mk(Cone(.36,.8,14),GR,{p:[-1.3,.3,0],r:[0,0,PI/2+.2],s:[1,1,.8],to:b,ol:.05});
   mk(Cyl(.42,.55,1.25,18),GR,{p:[.95,.95,0],r:[0,0,-.22],to:b,ol:.05});
-  const head=grp(b,[1.2,1.72,0]);mk(Sph(.6,24,18),GR,{to:head,ol:.05});
-  const eyes=[];for(const z of[-.26,.26]){const st=grp(head,[.05,.4,z]);st.rotation.set(z*.5,0,-.12);mk(Cyl(.06,.08,.75,8),GR,{p:[0,.37,0],to:st,ol:.03});
+  head=grp(b,[1.2,1.72,0]);mk(Sph(.6,24,18),GR,{to:head,ol:.05});
+  for(const z of[-.26,.26]){const st=grp(head,[.05,.4,z]);st.rotation.set(z*.5,0,-.12);mk(Cyl(.06,.08,.75,8),GR,{p:[0,.37,0],to:st,ol:.03});
     const e=grp(st,[0,.82,0]);mk(Sph(.22,16,12),'#FFFFFF',{to:e,ol:.03});mk(Sph(.11,12,10),K,{p:[.12,.02,.11],ol:0,to:e});mk(Sph(.035,8,6),'#FFFFFF',{p:[.19,.07,.16],ol:0,to:e});eyes.push(e)}
-  const mouth=mk(new THREE.TorusGeometry(.16,.04,8,16,PI),'#7A2E3A',{p:[.48,-.15,.28],r:[0,.9,PI],ol:0,to:head});
-  const mo=mk(Sph(.12,12,10),'#7A2E3A',{p:[.5,-.2,.26],s:[1,.2,1],ol:0,to:head});
+  mouth=mk(new THREE.TorusGeometry(.16,.04,8,16,PI),'#7A2E3A',{p:[.48,-.15,.28],r:[0,.9,PI],ol:0,to:head});
+  mo=mk(Sph(.12,12,10),'#7A2E3A',{p:[.5,-.2,.26],s:[1,.2,1],ol:0,to:head});
   for(const z of[-1,1])mk(Sph(.1,10,8),'#FF9EAA',{p:[.38,-.05,z*.42],s:[1,.6,.4],ol:0,to:head});
   {const sg=grp(b,[.92,1.02,0]);sg.rotation.z=-.22;mk(new THREE.TorusGeometry(.47,.15,10,24),scarf,{r:[PI/2,0,0],to:sg,ol:.03})}mk(Box(.22,.5,.12),scarf,{p:[.62,.62,.38],r:[0,0,.3],to:b,ol:.03});
-  if(!SHELL)SHELL=shellGeo();const sh=grp(b,[-.32,1.55,0]);mk(SHELL.g,sc[0],{to:sh,ol:.045});mk(Sph(.18,12,10),sc[0],{s:[1,1,1.4],to:sh,ol:.03});
+  if(!SHELL)SHELL=shellGeo();sh=grp(b,[-.32,1.55,0]);mk(SHELL.g,sc[0],{to:sh,ol:.045});mk(Sph(.18,12,10),sc[0],{s:[1,1,1.4],to:sh,ol:.03});
   // la raya del caparazón
   {const sp=SHELL.sp,pts=[];for(let i=0;i<=120;i++){const P=sp.getPointAt(i/120),tr=SHELL.k*Math.hypot(P.x,P.y);pts.push(new THREE.Vector3(P.x,P.y,tr*SHELL.zs*.97))}
    const cv3=new THREE.CatmullRomCurve3(pts);for(const sg of[1,-1]){const m=mk(new THREE.TubeGeometry(cv3,120,.035,6,false),sc[1],{ol:0,cs:false,to:sh});m.scale.z=sg}}
   // flores en el caparazón (una por casita terminada)
   const n=Math.min(15,temasDone());for(let j=0;j<n;j++){const P=SHELL.sp.getPointAt(.02+j*.034),tr=SHELL.k*Math.hypot(P.x,P.y),f=grp(sh,[P.x*1.04,P.y*1.04,tr*SHELL.zs*.9],.55);
     for(let i=0;i<5;i++){const a=i/5*PI*2;mk(Sph(.12,8,6),FLC[j%FLC.length],{p:[Math.cos(a)*.14,Math.sin(a)*.14,0],s:[1,1,.5],ol:.025,to:f})}mk(Sph(.09,8,6),'#FFD66B',{p:[0,0,.03],s:[1,1,.6],ol:.02,to:f})}
-  if(t.hat&&IMG[t.hat])spr(picTex(t.hat),1.35,1.35,{p:[.05,.95,0],to:head});
-  if(t.bow)spr(picTex('monio'),.8,.8,{p:[-.3,2.55,.3],to:b});
+  }else{
+  // ERIZO: cuerpo crema, abrigo de púas (una sola geometría) del color elegido en la tienda (marrón con el naranja de siempre)
+  const CR='#F2D6B0',PU=t.shell&&t.shell!=='naranja'?sc[0]:'#9A6A45';
+  mk(Sph(1,26,16),CR,{p:[.1,.72,0],s:[1.25,.72,.82],to:b,ol:.06});
+  mk(Sph(1,24,16),PU,{p:[-.12,.98,0],s:[1.18,.82,.86],to:b,ol:.05});
+  const sp=gcache('puas',()=>{const parts=[],cn=Cone(.12,.46,6),q=new THREE.Quaternion(),e=new THREE.Euler(),U=new THREE.Vector3(0,1,0);
+    for(let i=0;i<70;i++){const y=1-(i+.5)/70*1.25,r=Math.sqrt(Math.max(0,1-y*y)),a=i*2.39996,d=new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r);if(d.x>.55||y<-.2)continue;
+      const P=[d.x*1.15,d.y*.8,d.z*.84],n=new THREE.Vector3(d.x/1.15,d.y/.8,d.z/.84).normalize();q.setFromUnitVectors(U,n);e.setFromQuaternion(q);parts.push([cn,[P[0]+n.x*.16,P[1]+n.y*.16,P[2]+n.z*.16],1,[e.x,e.y,e.z]])}return mg(parts)});
+  mk(sp,PU,{p:[-.12,.98,0],to:b,ol:.025});
+  for(const [x,z] of[[.6,.42],[.6,-.42],[-.55,.45],[-.55,-.45]])mk(Sph(.17,10,8),'#8A5A3C',{p:[x,.14,z],s:[1.3,.7,1],to:b,ol:.025});
+  head=grp(b,[1.08,1.02,0]);mk(Sph(.56,22,16),CR,{s:[1.08,1,1],to:head,ol:.05});
+  mk(Cone(.27,.62,16),CR,{p:[.62,-.1,0],r:[0,0,-PI/2],to:head,ol:.035});mk(Sph(.12,12,10),K,{p:[.94,-.1,0],ol:0,to:head});
+  for(const z of[-.34,.34])mk(Sph(.15,10,8),'#E8B98A',{p:[-.12,.44,z],s:[1,1,.55],to:head,ol:.025});
+  for(const z of[-.24,.24]){const e=grp(head,[.36,.16,z]);mk(Sph(.16,14,10),'#FFFFFF',{to:e,ol:.03});mk(Sph(.085,10,8),K,{p:[.1,.01,z*.2],ol:0,to:e});mk(Sph(.03,8,6),'#FFFFFF',{p:[.16,.05,z*.25],ol:0,to:e});eyes.push(e)}
+  mouth=mk(new THREE.TorusGeometry(.12,.035,8,14,PI),'#7A2E3A',{p:[.62,-.3,0],r:[0,PI/2,PI],ol:0,to:head});
+  mo=mk(Sph(.09,10,8),'#7A2E3A',{p:[.64,-.32,0],s:[.5,.6,1],ol:0,to:head});
+  for(const z of[-1,1])mk(Sph(.1,10,8),'#FF9EAA',{p:[.46,-.14,z*.36],s:[1,.6,.4],ol:0,to:head});
+  {const sg=grp(b,[.72,.86,0]);sg.rotation.z=-.85;mk(new THREE.TorusGeometry(.44,.14,10,24),scarf,{r:[PI/2,0,0],to:sg,ol:.03})}
+  sh=grp(b,[-.12,.98,0]);
+  // flores entre las púas (una por casita terminada)
+  const n=Math.min(15,temasDone());for(let j=0;j<n;j++){const f_=.15+(j%5)*.36,y=.3+Math.floor(j/5)*.24,r=Math.sqrt(1-y*y),d=new THREE.Vector3(-Math.sin(f_)*r,y,Math.cos(f_)*r);
+    const f=grp(sh,[d.x*1.28,d.y*.92,d.z*.95],.5);f.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d);
+    for(let i=0;i<5;i++){const a2=i/5*PI*2;mk(Sph(.12,8,6),FLC[j%FLC.length],{p:[Math.cos(a2)*.14,Math.sin(a2)*.14,0],s:[1,1,.5],ol:.025,to:f})}mk(Sph(.09,8,6),'#FFD66B',{p:[0,0,.03],s:[1,1,.6],ol:.02,to:f})}
+  }
+  if(t.hat&&IMG[t.hat])spr(picTex(t.hat),1.35,1.35,{p:kind==='erizo'?[-.05,.85,0]:[.05,.95,0],to:head});
+  if(t.bow)spr(picTex('monio'),.8,.8,{p:kind==='erizo'?[-.25,1.95,.3]:[-.3,2.55,.3],to:b});
   if(t.glasses)for(const e of eyes){const gm=new THREE.Mesh(new THREE.TorusGeometry(.25,.04,8,20),M(K));gm.position.set(.16,0,.1);gm.rotation.y=PI/2.4;e.add(gm);const ln=new THREE.Mesh(new THREE.CircleGeometry(.24,20),new THREE.MeshBasicMaterial({color:0x28284a,transparent:true,opacity:.38}));ln.position.copy(gm.position);ln.rotation.copy(gm.rotation);e.add(ln)}
   // caja invisible para tocarlo
   const hit=new THREE.Mesh(Box(4,3.6,1.6),new THREE.MeshBasicMaterial({visible:false}));hit.position.set(.2,1.5,0);root.add(hit);
@@ -5133,7 +5189,7 @@ function walkTick(w,tito,dt){const k=w.walk;let wk=0;
     if(k.free&&(k.st=(k.st||0)+dt)>=.26){k.st=0;w.steps=(w.steps||0)+1;tone(w.steps%2?520:440,.07,'sine',.12,.8)}
    if(e>=1){w.walk=null;if(k.free)tito.userData.face=tito.userData.rest;const cb=k.cb;setTimeout(()=>{try{cb()}catch(err){console.error(err)}},60)}}
   const f=tito.userData.face;if(f!=null){let d=f-tito.rotation.y;while(d>PI)d-=PI*2;while(d<-PI)d+=PI*2;tito.rotation.y+=d*Math.min(1,dt*8)}
-  trailTick(w,tito,dt,wk);return wk}
+  trailTick(w,tito,dt,tito.userData.kind==='caracol'?wk:0);return wk}
 
 // TITO (rectángulo 2D) y HOUSE_AT siguen al modelo 3D; al volver al 2D se restauran
 const TITO0={x:TITO.x,y:TITO.y,w:TITO.w},HOUSE0=[HOUSE_AT[0],HOUSE_AT[1]];
@@ -5142,7 +5198,10 @@ function restore2D(){Object.assign(TITO,TITO0);HOUSE_AT[0]=HOUSE0[0];HOUSE_AT[1]
 // llamar a la lógica original sin que el rectángulo de Tito ni la mascota capturen el toque
 function call0(fn,self,x,y){const tx_=TITO.x,h0=HOUSE_AT[0];TITO.x=-9999;HOUSE_AT[0]=-9999;try{fn.call(self,x,y)}finally{if(sceneName&&scene&&scene.three){TITO.x=tx_;HOUSE_AT[0]=h0}}}
 const go0=go;go=function(n,o){go0(n,o);if(!(scene&&scene.three)){restore2D();setCursor('pt')}};
-window.__w3={get W(){return W3},get PRK(){return PRK},set PRK(v){PRK=v;rs()},FPS,pickAt,proj,THREE,R};
+// cambiar de personaje (zona de adultos): Tito se rehace dentro del mismo grupo, así la escena sigue igual
+function retito(){const w=W3,t=w&&w.tito;if(!t)return;const keepUD={face:t.userData.face,rest:t.userData.rest};
+  for(const c of t.children.slice()){t.remove(c);c.traverse(o=>{if(o.geometry&&!o.geometry.userData.keep)o.geometry.dispose()})}makeTito(t);Object.assign(t.userData,keepUD)}
+window.__w3={get W(){return W3},retito,get PRK(){return PRK},set PRK(v){PRK=v;rs()},FPS,pickAt,proj,THREE,R};
 
 /* ================= EL MAPA: la isla de Curiolandia ================= */
 const MZB={};for(const z of MZ2)MZB[z.id]={x:z.x,y:z.y,r:z.r};
