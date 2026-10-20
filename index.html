@@ -5270,7 +5270,8 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
   draw(){this.sync();const w=W3;
     let hv_=null;if(mouseOn&&!drag&&!(w&&busy3(w))){const u=pickAt(MX,MY);if(u&&u.spot){hv_=u.spot;hovNow='mz'+u.spot}else if(u&&u.id==='tito')hovNow='tito';else if(u&&u.id==='pipo')hovNow='pipo'}
     this.hov=hv_;
-    if(hv_){const z=mzOf(hv_);ctx.font=`600 34px ${DF}`;const t=cap(z.name),tw=ctx.measureText(t).width;card(z.x-tw/2-26,z.y-z.r-70,tw+52,58,'rgba(255,255,255,.92)',5,29);text(t,z.x,z.y-z.r-29,34,K,{w:600})}
+    // nombre del lugar bajo el ratón; los de arriba del mapa quedaban escondidos detrás del cartel de Curiolandia
+    if(hv_){const z=mzOf(hv_);ctx.font=`600 34px ${DF}`;const t=cap(z.name),tw=ctx.measureText(t).width;const cy=Math.max(z.y-z.r-70,118);card(z.x-tw/2-26,cy,tw+52,58,'rgba(255,255,255,.92)',5,29);text(t,z.x,cy+41,34,K,{w:600})}
     card(560,22,480,88,'#fff',6,44);drawLogoSmall(800,86,56);
     drawSeguir();drawHome();drawCoinHUD();
     if(talking){const bx=TITO.x+TITO.w*.85,by=TITO.y-50;ctx.globalAlpha=.95;card(bx,by,96,72,'#fff',5,28);ctx.globalAlpha=1;speaker(bx+50,by+36,46+Math.sin(T*12)*4)}},
