@@ -5228,7 +5228,7 @@ function makeHouse(lvl,o={}){const g=new THREE.Group();g.userData.id='casaTito';
   if(own('fuente'))spr(picTex('fuente'),1.3,1.3,{p:[-2.3,.75,1.9],to:g});
   if(own('casitaPerro')){spr(picTex('casitaPerro'),1.3,1.3,{p:[2.7,.75,1.2],to:g});spr(picTex('perro'),.75,.75,{p:[3.2,.45,1.8],to:g})}
   if(own('banco'))spr(picTex('banco'),1.1,1.1,{p:[-1.5,.55,2.2],to:g});
-  pillSpr(tx('Casa de Tito'),'#FFA94D','#fff',{p:[0,-.2,3.2],w:2.6,to:g});
+  spr(pillTex(tx('Casa de Tito'),'#FFA94D','#fff',72),3.4,.85,{p:[0,.55,2.5],to:g});
   const hit=new THREE.Mesh(Box(5,5,4),new THREE.MeshBasicMaterial({visible:false}));hit.position.y=2.2;g.add(hit);
   g.userData.anim=(shake)=>{for(let i=0;i<3;i++){const k=(T*.35+i/3)%1,s=smoke[i];s.position.set(.8+Math.sin(T+i)*.2+k*.5,.25+H1+1.7+k*1.8,-.4);s.scale.setScalar(.6+k*1.4);s.visible=k<.92}
     if(g.userData.star)g.userData.star.rotation.y=Math.sin(T*1.5)*.55;
@@ -5347,7 +5347,7 @@ const SPOT3={
     g.userData.anim=()=>{drops.forEach((d,i)=>{const a=i/8*PI*2,k=(T*.9+i*.37)%1;d.position.set(Math.cos(a)*(.4+k*.6),1.55+Math.sin(k*PI)*.7-k*.6,Math.sin(a)*(.4+k*.6))})};
     DIAC.forEach((c,i)=>{const a=PI*1.05+i/6*PI*.9,x=Math.cos(a)*2.55,z=Math.sin(a)*2.55;mk(Cyl(.05,.05,1.6,6),'#FFFFFF',{p:[x,.8,z],to:g,ol:.025});
       const f=mk(new THREE.PlaneGeometry(.55,.38),new THREE.MeshToonMaterial({color:c,gradientMap:GRAD,side:THREE.DoubleSide}),{p:[x+.27,1.4,z],ol:0,to:g});f.userData.wave=i});
-    spr(canvasTex(512,150,()=>{card(16,16,480,118,'#fff',8,30);DIAC.forEach((c,i)=>circ(100+i*52,52,15,c,4));text('ASAMBLEA',256,118,50,K,{f:LF})},'asamblea'),3.2,.95,{p:[0,2.7,-.6],to:g})},
+    spr(canvasTex(512,150,()=>{card(16,16,480,118,'#fff',8,30);DIAC.forEach((c,i)=>circ(100+i*52,44,13,c,4));text('ASAMBLEA',256,124,66,K,{f:LF})},'asamblea'),3.9,1.15,{p:[0,2.8,-.6],to:g})},
   jardin(g,open){mk(Cyl(3.2,3.3,.2,36),'#B5E89E',{p:[0,.1,0],s:[1,1,.78],to:g,ol:.05});
     mk(mg(Array.from({length:16},(_,i)=>{const a=i/16*PI*2;return[Box(.14,.6,.14),[Math.cos(a)*3.05,.45,Math.sin(a)*2.35]]})),'#C98A4B',{to:g,ol:.025});
     [[-1.4,-.4,0],[.3,-.9,1],[1.6,.2,2],[-.4,.9,3]].forEach(([x,z,i])=>{const h=grp(g,[x,.2,z],.75);mk(Box(1.1,.8,.9),'#FFF3B0',{p:[0,.4,0],to:h,ol:.04});mk(Cone(.95,.75,4),FLC[i],{p:[0,1.18,0],r:[0,PI/4,0],to:h,ol:.04});mk(Box(.28,.45,.06),'#C98A4B',{p:[0,.25,.46],to:h,ol:.02})});
