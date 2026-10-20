@@ -5046,6 +5046,7 @@ function shellGeo(){const R=.74,b=.12,k=.36,zs=1.85,sp=new Spiral(R,b,2.1,-1.0),
 let SHELL=null;
 // personajes de Tito que ya tienen modelo (S.tito.kind; los demás vuelven al caracol)
 const TITO_KINDS=['caracol','erizo','tortuga','conejo'];
+const HOP={caracol:[.9,.6],erizo:[.65,.45],tortuga:[.4,.5],conejo:[1.4,.7]};
 function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.userData.id='tito';const t=S.tito||{},GR='#9BD86A';
   const kind=TITO_KINDS.includes(t.kind)?t.kind:'caracol';root.userData.kind=kind;
   const sc=(SHELLC[t.shell]||SHELLC.naranja),scarf=SCARFC[t.scarf]||SCARFC.roja;
@@ -5157,7 +5158,8 @@ function makeTito(into){const root=into||new THREE.Group(),b=grp(root);root.user
     // orejas del conejo (se mueven solas y de vez en cuando dan un respingo) y cola de la tortuga
     for(const [m,ax,b0,amp,sp,ph] of wig){const tw=((tt+ph*.3)%5)<.35?Math.sin(((tt+ph*.3)%5)/.35*PI)*2.5:0;m.rotation[ax]=b0+Math.sin(tt*sp+ph)*amp+tw*amp*Math.sign(b0||1)}const tk=talking&&o.talk!==false&&(T*7|0)%2;mo.visible=!!tk;mouth.visible=!tk;
     // al terminar el salto vuelve justo al suelo (antes se quedaba flotando a la altura del último cuadro del salto)
-    if(o.hop!=null){const k=T-o.hop;root.position.y=(o.y0||0)+(k>=0&&k<.6?Math.sin(k/.6*PI)*.9:0)}};
+    // al tocarlo salta a su manera: el conejo alto, la tortuga apenas (pesa con su caparazón), el erizo un brinco corto
+    if(o.hop!=null){const k=T-o.hop,[hh,hd]=HOP[kind]||HOP.caracol;root.position.y=(o.y0||0)+(k>=0&&k<hd?Math.sin(k/hd*PI)*hh:0)}};
   root.traverse(o=>{if(o.isMesh&&o.material&&o.material.type==='MeshToonMaterial')o.castShadow=true});
   return root}
 
@@ -5527,7 +5529,8 @@ function buildZone(z,st){const Z=ZONES[z],P=ZPOS[z],sty=ZSTYLE[z]||ZSTYLE.jardin
 
 /* ================= LA CASITA DE UN TEMA: los juegos en estaciones ================= */
 // dónde se para Tito junto a la estación j: en la fila de atrás (si hay dos filas) se queda más atrás para que el cartel de la fila de delante no lo tape
-const st3Tito=(n,j)=>n>4&&st3Pos(n,j)[1]<0?[-2.3,-.5]:[-2,1.35];
+// la tortuga y el erizo llevan la cabeza baja y larga: un poco más a la izquierda para que el disco del juego no les tape la cara
+const st3Tito=(n,j)=>{const g={tortuga:-.7,erizo:-.45}[S.tito&&S.tito.kind]||0;return n>4&&st3Pos(n,j)[1]<0?[-2.3+g,-.5]:[-2+g,1.35]};
 function st3Pos(n,j){if(n<=4)return[(j-(n-1)/2)*4.3,.4];const per=n<=6?3:4,r=Math.floor(j/per),c=j%per,cc=r?per-1-c:c;return[(cc-(per-1)/2)*(per===3?4.8:4.2),r?3.4:-2.4]}
 function bgSample(t){const c=document.createElement('canvas');c.width=1024;c.height=576;const g=c.getContext('2d'),old=ctx;ctx=g;g.scale(.64,.64);try{t.bg()}catch(e){}
   const c2=document.createElement('canvas');c2.width=64;c2.height=36;const g2=c2.getContext('2d',{willReadFrequently:true});ctx=g2;g2.scale(.04,.04);try{t.bg()}catch(e){}ctx=old;
