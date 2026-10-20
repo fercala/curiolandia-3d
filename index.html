@@ -5092,7 +5092,10 @@ function camTick(w,dt){const c=w.cb;if(!c)return;const k=1-Math.exp(-dt*3);
 // debajo de 20 cuadros el juego entero va más lento porque el paso de tiempo está topado en 0,05 s
 const FPS={n:0,t0:0,last:0};
 function fpsTick(){const now=performance.now();if(now-FPS.last>1000||document.hidden){FPS.n=0;FPS.t0=now}FPS.last=now;FPS.n++;
-  if(now-FPS.t0>=4000){const fps=FPS.n*1000/(now-FPS.t0);if(fps<24&&PRK>.5){PRK=Math.max(.5,PRK*.75);rs()}FPS.n=0;FPS.t0=now}}
+  if(now-FPS.t0>=4000){const fps=FPS.n*1000/(now-FPS.t0);if(fps<24&&PRK>.5){PRK=Math.max(.5,PRK*.75);if(FPS.up)FPS.noUp=true;rs()}
+    // si fue un tirón pasajero (cargando, otra app) y ahora va sobrado, la nitidez vuelve a subir; si vuelve a ir lento después de subir, se queda baja
+    else if(fps>=55&&PRK<1&&!FPS.noUp){PRK=Math.min(1,PRK/.75);FPS.up=true;rs()}
+    FPS.n=0;FPS.t0=now}}
 R3frame=function(dt){if(!W3||!scene||!scene.three)return;fpsTick();
   for(const f of W3.upd)try{f(dt)}catch(e){console.error(e)}camTick(W3,dt);R.render(W3.sc,W3.cam)};
 // Tito camina hasta un punto y después pasa algo (entrar a un lugar)
@@ -5137,7 +5140,7 @@ function restore2D(){Object.assign(TITO,TITO0);HOUSE_AT[0]=HOUSE0[0];HOUSE_AT[1]
 // llamar a la lógica original sin que el rectángulo de Tito ni la mascota capturen el toque
 function call0(fn,self,x,y){const tx_=TITO.x,h0=HOUSE_AT[0];TITO.x=-9999;HOUSE_AT[0]=-9999;try{fn.call(self,x,y)}finally{if(sceneName&&scene&&scene.three){TITO.x=tx_;HOUSE_AT[0]=h0}}}
 const go0=go;go=function(n,o){go0(n,o);if(!(scene&&scene.three)){restore2D();setCursor('pt')}};
-window.__w3={get W(){return W3},get PRK(){return PRK},pickAt,proj,THREE,R};
+window.__w3={get W(){return W3},get PRK(){return PRK},set PRK(v){PRK=v;rs()},FPS,pickAt,proj,THREE,R};
 
 /* ================= EL MAPA: la isla de Curiolandia ================= */
 const MZB={};for(const z of MZ2)MZB[z.id]={x:z.x,y:z.y,r:z.r};
