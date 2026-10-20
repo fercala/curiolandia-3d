@@ -3821,7 +3821,8 @@ SCENES.quien={music:'title',
 SCENES.intro={music:'title',
   enter(){this.ph=0;this.t=0;this.qs=[];this.next()},
   next(){
-    const lines=['¡Hola! Yo soy Tito, el caracol curioso. En mi mochila guardo un montón de preguntas.','Pero hoy la mochila se abrió... ¡y las preguntas se escaparon por todo el pueblo!','¿Qué día es hoy? ¿De qué color es el cielo? ¿Qué come la vaca?','¿Me ayudás a encontrar las respuestas'+kid()+'? ¡Vamos a Curiolandia!'];
+    // la presentación cambia con el personaje de Tito (zona de adultos); la del caracol es la de siempre
+    const lines=[({erizo:'¡Hola! Yo soy Tito, el erizo curioso. En mi mochila guardo un montón de preguntas.',tortuga:'¡Hola! Yo soy Tito, la tortuga curiosa. En mi mochila guardo un montón de preguntas.',conejo:'¡Hola! Yo soy Tito, el conejo curioso. En mi mochila guardo un montón de preguntas.'})[titoKind()]||'¡Hola! Yo soy Tito, el caracol curioso. En mi mochila guardo un montón de preguntas.','Pero hoy la mochila se abrió... ¡y las preguntas se escaparon por todo el pueblo!','¿Qué día es hoy? ¿De qué color es el cielo? ¿Qué come la vaca?','¿Me ayudás a encontrar las respuestas'+kid()+'? ¡Vamos a Curiolandia!'];
     if(this.ph>=lines.length){S.intro=true;save();go('map',{hello:true});return}
     this.t=0; if(this.ph===1){SFX.whoosh();for(let i=0;i<16;i++)this.qs.push({a:rnd(-2.6,-.4),v:rnd(200,520),c:pick(LOGOC),r:rnd(-1,1),t0:T+i*.06})}
     say(lines[this.ph],()=>later(700,()=>{this.ph++;this.next()}));
@@ -4265,7 +4266,15 @@ function drawPet(x,y,s,o={}){const st=o.st??petStage(),j=o.jump?Math.max(0,1-(T-
   else if(st===1)pic('huevoDino',0,-s*.46,s*.95);
   else{const k=st===2?.72:st===3?.92:1.1,b=Math.abs(Math.sin(T*3))*-s*.03;pic('dinosaurio',0,-s*k*.44+b,s*k);if(st>=4)pic('corona',s*k*.27,-s*k*.9+b,s*k*.3)}
   ctx.restore()}
-function shellIcon(x,y,r){const c=SHELLC[S.tito&&S.tito.shell]||SHELLC.naranja;circ(x,y,r,c[0],Math.max(3,r*.12));ctx.beginPath();for(let i=0;i<=30;i++){const a=i/30*PI*4,q=r*.08+i/30*r*.62;ctx.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q)}ctx.lineWidth=r*.14;ctx.strokeStyle=c[1];ctx.lineCap='round';ctx.stroke()}
+// emblema de Tito (puerta de su casa, tienda): espiral de caracol, púas de erizo, placas de tortuga o mochila de conejo, con el color de la tienda
+function shellIcon(x,y,r,sh,kind){sh=sh||(S.tito&&S.tito.shell);const c=SHELLC[sh]||SHELLC.naranja,tk=kind||(typeof titoKind==='function'?titoKind():'caracol'),lw=Math.max(3,r*.12);ctx.lineCap='round';ctx.lineJoin='round';
+  if(tk==='erizo'){const nar=!SHELLC[sh]||sh==='naranja',f=nar?'#B07A4F':c[0],st=nar?'#7A5030':c[1];ctx.beginPath();for(let i=0;i<24;i++){const a=i/24*PI*2,q=i%2?r*.72:r*1.02;ctx.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q)}ctx.closePath();fillStroke(f,lw);
+    ctx.beginPath();for(let i=0;i<8;i++){const a=i/8*PI*2+.2;ctx.moveTo(x+Math.cos(a)*r*.2,y+Math.sin(a)*r*.2);ctx.lineTo(x+Math.cos(a)*r*.55,y+Math.sin(a)*r*.55)}ctx.lineWidth=r*.11;ctx.strokeStyle=st;ctx.stroke();return}
+  if(tk==='conejo'){ctx.save();ctx.translate(x,y);card(-r*.78,-r*.82,r*1.56,r*1.7,c[0],lw,r*.3);ctx.beginPath();ctx.moveTo(-r*.6,-r*.2);ctx.lineTo(r*.6,-r*.2);ctx.moveTo(-r*.3,-r*.2);ctx.lineTo(-r*.3,-r*.75);ctx.moveTo(r*.3,-r*.2);ctx.lineTo(r*.3,-r*.75);ctx.lineWidth=r*.13;ctx.strokeStyle=c[1];ctx.stroke();ctx.restore();return}
+  circ(x,y,r,c[0],lw);ctx.beginPath();
+  if(tk==='tortuga'){const h=r*.4;for(let i=0;i<=6;i++){const a=i/6*PI*2+PI/6;ctx.lineTo(x+Math.cos(a)*h,y+Math.sin(a)*h)}for(let i=0;i<6;i++){const a=i/6*PI*2+PI/6;ctx.moveTo(x+Math.cos(a)*h,y+Math.sin(a)*h);ctx.lineTo(x+Math.cos(a)*r*.86,y+Math.sin(a)*r*.86)}}
+  else for(let i=0;i<=30;i++){const a=i/30*PI*4,q=r*.08+i/30*r*.62;ctx.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q)}
+  ctx.lineWidth=r*.14;ctx.strokeStyle=c[1];ctx.stroke()}
 function drawTitoHouse(x,gy,lvl,o={}){const s=o.s||1,sh=o.shake?Math.sin(T*40)*7*Math.max(0,1-(T-o.shake)/1.4):0;ctx.save();ctx.translate(x+sh,gy);ctx.scale(s,s);
   if(lvl>=4)['#FF6B5E','#FFA94D','#FFD66B','#7CC86E','#5BB8E6','#9B8AD9'].forEach((c,i)=>{ctx.beginPath();ctx.arc(0,-60,178-i*10,PI,0);ctx.lineWidth=10;ctx.strokeStyle=c;ctx.globalAlpha=.75;ctx.stroke();ctx.globalAlpha=1});
   ell(0,8,172,36,'#9FD88A',5);
@@ -4552,7 +4561,7 @@ function drawTitoWear(k){const t=S.tito||{};
 const SHOPCAT=[{id:'ropa',n:'Ropa para Tito',ic:'gorroFiesta'},{id:'colores',n:'Colores para Tito',ic:'caracol'},{id:'casa',n:'Cosas para la casa',ic:'lampara'},{id:'juguetes',n:'Juguetes',ic:'peluche'},{id:'mascotas',n:'Mascotas',ic:'hamster'},{id:'vales',n:'Vales para canjear',ic:'vale'}];
 const SHOP=[
   ...[['gorroFiesta',6,1],['gorra',8,1],['monio',6,1,'bow'],['gafas',10,1,'glasses'],['gorro',10,1],['gorroNavidad',12,2],['sombreroCopa',18,2],['sombreroPirata',18,2],['corona',30,3]].map(([id,p,tier,slot])=>({id,cat:'ropa',slot:slot||'hat',p,tier})),
-  ...[['naranja',0,1],['azul',15,1],['rosa',15,2],['verde',20,2],['violeta',25,3],['dorado',40,3]].map(([c,p,tier])=>({id:'caparazon:'+c,cat:'colores',slot:'shell',v:c,p,tier,n:'el caparazón '+(c==='rosa'?'rosa':c==='verde'?'verde':c),draw:(x,y,s)=>{circ(x,y,s*.36,SHELLC[c][0],6);ctx.beginPath();for(let i=0;i<=40;i++){const a=i/40*PI*4.4,r=4+i/40*s*.26;ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r)}ctx.lineWidth=s*.05;ctx.strokeStyle=SHELLC[c][1];ctx.lineCap='round';ctx.stroke()}})),
+  ...[['naranja',0,1],['azul',15,1],['rosa',15,2],['verde',20,2],['violeta',25,3],['dorado',40,3]].map(([c,p,tier])=>({id:'caparazon:'+c,cat:'colores',slot:'shell',v:c,p,tier,n:'el caparazón '+(c==='rosa'?'rosa':c==='verde'?'verde':c),draw:(x,y,s)=>{if(titoKind()!=='caracol')return shellIcon(x,y,s*.36,c);circ(x,y,s*.36,SHELLC[c][0],6);ctx.beginPath();for(let i=0;i<=40;i++){const a=i/40*PI*4.4,r=4+i/40*s*.26;ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r)}ctx.lineWidth=s*.05;ctx.strokeStyle=SHELLC[c][1];ctx.lineCap='round';ctx.stroke()}})),
   ...[['roja',0,1],['azul',8,1],['amarilla',8,1],['violeta',10,2]].map(([c,p,tier])=>({id:'bufanda:'+c,cat:'colores',slot:'scarf',v:c,p,tier,n:'la bufanda '+c,draw:(x,y,s)=>{ctx.save();ctx.translate(x,y);card(-s*.38,-s*.16,s*.76,s*.2,SCARFC[c],6,s*.1);card(s*.08,-s*.04,s*.16,s*.38,SCARFC[c],6,s*.06);ctx.restore()}})),
   ...[['alfombra',10,1],['cuadro',8,1],['plantaInterior',8,1],['lampara',12,1],['banco',12,2],['estanteria',15,2],['reloj',15,2],['farol',15,2],['piano',30,3],['fuente',35,3]].map(([id,p,tier])=>({id,cat:'casa',p,tier})),
   ...[['pelotaPlaya',6,1],['bloques',8,1],['peluche',10,1],['cometa',10,1],['xilofono',12,1],['muneca',15,2],['robot',18,2],['trenJuguete',18,2],['guitarra',20,2],['telescopio',30,3]].map(([id,p,tier])=>({id,cat:'juguetes',p,tier})),
@@ -4584,7 +4593,7 @@ SCENES.tienda={music:'casita',
     card(170,44,520,100,'#fff',6,50);pic('tienda',230,94,80);text(V(['La tienda','La tienda']),470,112,54,K,{w:600});
     {const s=hv('btn:casa',hC(1240,70,52)),j=this.newHome?Math.abs(Math.sin((T-this.newHome)*6))*-14:0;ctx.save();ctx.translate(1240,70+j);ctx.scale(s,s);if(this.newHome){ctx.globalAlpha=.4+.3*Math.sin(T*6);circ(0,0,64,null,10,'#FFC93C');ctx.globalAlpha=1}circ(0,0,50,'#fff',6);pic('casaCaracol',0,0,84);ctx.restore()}
     card(1012,40,150,60,'#fff',5,30);star(1050,70,20,'#FFC93C',3);text(String(STARS()),1110,84,36,K,{f:LF});
-    for(const tb of this.tabs()){const on=tb.id===this.cat,s=on?1:hv('tab:'+tb.id,hR(tb.x,tb.y,184,110));ctx.save();ctx.translate(tb.x,tb.y-(on?8:0));ctx.scale(s,s);card(-90,-52,180,104,on?'#FFE08A':'#fff',on?8:5,30,on?'#D9962A':K);pic(tb.ic,0,0,80);ctx.restore()}
+    for(const tb of this.tabs()){const on=tb.id===this.cat,s=on?1:hv('tab:'+tb.id,hR(tb.x,tb.y,184,110));ctx.save();ctx.translate(tb.x,tb.y-(on?8:0));ctx.scale(s,s);card(-90,-52,180,104,on?'#FFE08A':'#fff',on?8:5,30,on?'#D9962A':K);if(tb.id==='colores'&&titoKind()!=='caracol')shellIcon(0,0,32,'naranja');else pic(tb.ic,0,0,80);ctx.restore()}
     for(const g of this.grid()){const it=g.it,own=S.owned[it.id]&&!it.vale,lk=STARS()<TIER_NEED[it.tier],w=own&&it.slot&&isWorn(it),s=lk?1:hv('it:'+it.id,hR(g.x,g.y,210,230));
       ctx.save();ctx.translate(g.x,g.y);ctx.scale(s,s);card(-105,-115,210,230,w?'#FFF6D6':'#fff',w?9:6,32,w?'#FFC93C':K);drawItemPic(it,0,-22,150);
       if(own){circ(0,82,26,'#7CC86E',5);ctx.beginPath();ctx.moveTo(-11,82);ctx.lineTo(-2,92);ctx.lineTo(13,72);ctx.lineWidth=7;ctx.strokeStyle='#fff';ctx.lineCap='round';ctx.stroke()}
@@ -5157,7 +5166,7 @@ function makePipo(st){const g=new THREE.Group(),b=grp(g);g.userData.id='pipo';
   return g}
 
 /* ---------- la casa de Tito, que crece con las casitas terminadas ---------- */
-function shellTex(){const c=(SHELLC[S.tito&&S.tito.shell]||SHELLC.naranja)[0];return canvasTex(128,128,()=>{shellIcon(64,64,52)},'shell:'+c)}
+function shellTex(){const c=(SHELLC[S.tito&&S.tito.shell]||SHELLC.naranja)[0];return canvasTex(128,128,()=>{shellIcon(64,64,52)},'shell:'+titoKind()+':'+c)}
 function makeHouse(lvl,o={}){const g=new THREE.Group();g.userData.id='casaTito';const h=new Date().getHours(),lit=h>=19||h<7,win=lit?'#FFE08A':'#BFEAF7';
   const two=lvl>=2,H1=two?3.6:2.1;
   mk(Cyl(3.4,3.5,.25,40),'#9FD88A',{p:[0,.12,0],s:[1,1,.75],to:g,ol:.04});
