@@ -5078,7 +5078,7 @@ function fireflies(w,WX,WZ,sz){const n=24,pos=new Float32Array(n*3),ph=[];for(le
     const ff=new THREE.Points(fg,new THREE.PointsMaterial({color:'#FFF06A',size:sz||2.2,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));ff.raycast=()=>{};w.sc.add(ff);
     w.upd.push(()=>{for(let i=0;i<n;i++){const [x,z,a]=ph[i];pos[i*3]=x+Math.sin(T*.5+a)*1.2;pos[i*3+1]=1.3+Math.sin(T*.9+a*2)*.6;pos[i*3+2]=z+Math.cos(T*.4+a)*1.2}fg.attributes.position.needsUpdate=true;ff.material.opacity=.65+.35*Math.sin(T*3)})}
 // estrellas que titilan en el cielo de noche (tres grupos que brillan a destiempo)
-function skyStars(w,y0,z0,WX,HY){for(let k=0;k<3;k++){const n=12,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*WX;pos[i*3+1]=y0+Math.random()*HY;pos[i*3+2]=z0-Math.random()*2}
+function skyStars(w,y0,z0,WX,HY){for(let k=0;k<3;k++){const n=12,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*WX;pos[i*3+1]=y0+Math.random()*HY;pos[i*3+2]=z0-Math.random()*2;if(Math.abs(pos[i*3]+12)<2&&Math.abs(pos[i*3+1]-2.3)<2)pos[i*3]+=5/* que no tapen la luna */}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
     const p=new THREE.Points(g,new THREE.PointsMaterial({color:'#FFF6C8',size:1.5,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));p.raycast=()=>{};w.sc.add(p);
     w.upd.push(()=>{p.material.opacity=.55+.45*Math.sin(T*2.2+k*2.1)})}
@@ -5090,6 +5090,11 @@ function skyStars(w,y0,z0,WX,HY){for(let k=0;k<3;k++){const n=12,pos=new Float32
 function sunRays(w,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);w.sc.add(g);
   for(let i=0;i<10;i++){const a=i/10*PI*2,r=mk(Box(.16,.5,.06),M('#FFD447',{emissive:'#E0A020'}),{p:[Math.cos(a)*1.65,Math.sin(a)*1.65,0],r:[0,0,a-PI/2],ol:0,cs:false,rs:false});r.raycast=()=>{};g.add(r)}
   w.upd.push(()=>{g.rotation.z=T*.25;const k=1+.06*Math.sin(T*2);g.scale.set(k,k,1)})}
+// carita del sol (ojos abiertos) o de la luna (ojos cerrados, dormida)
+function orbFace(w,x,y,z,sleep){const g=new THREE.Group();g.position.set(x,y,z+1.02);w.sc.add(g);const K='#5A3A1E',arc=a=>new THREE.TorusGeometry(.13,.035,6,12,PI);
+  for(const sd of[-1,1]){const e=sleep?mk(arc(),K,{p:[sd*.36,.2,0],r:[0,0,PI],ol:0,cs:false,rs:false}):mk(Sph(.09,10,8),K,{p:[sd*.36,.2,0],ol:0,cs:false,rs:false});e.raycast=()=>{};g.add(e);
+    const c=mk(Sph(.12,10,8),'#FF9A7A',{p:[sd*.58,-.08,-.05],s:[1,.6,.4],ol:0,cs:false,rs:false});c.raycast=()=>{};g.add(c)}
+  const m=mk(new THREE.TorusGeometry(sleep?.12:.26,.04,6,14,PI),K,{p:[0,sleep?-.2:-.08,0],r:[0,0,PI],ol:0,cs:false,rs:false});m.raycast=()=>{};g.add(m)}
 // luna de las zonas por la noche, con un halo que respira
 function zoneMoon(w,x,y,z,c,e,hc){const m=mk(Sph(1.1,20,16),M(c||'#FFF3B0',{emissive:e||'#B8963A'}),{p:[x,y,z],ol:.12,cs:false,rs:false});m.raycast=()=>{};w.sc.add(m);
   const hg=new THREE.BufferGeometry();hg.setAttribute('position',new THREE.BufferAttribute(new Float32Array([x,y,z-.6]),3));
@@ -6005,7 +6010,7 @@ function buildZone(z,st){const Z=ZONES[z],P=ZPOS[z],sty=ZSTYLE[z]||ZSTYLE.jardin
   w.ground=slab(w.sc,38,20,sty.g,sty.e);w.gb=[-16,16,-8,5.5];// que Tito no se salga del cuadro
   zoneDecor(w,z);
   // de noche, las zonas también: cielo de noche, un poco menos de luz y luciérnagas en las zonas verdes (como el mapa)
-  if(skyNow().night){w.sc.background=new THREE.Color('#3B4A86');w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.82});if(['jardin','bosque','ingles'].includes(z))fireflies(w,30,14);skyStars(w,1.2,-18,56,3.4);if(z!=='montana')zoneMoon(w,-12,2.3,-19)}else if(z!=='montana'){zoneMoon(w,-12,2.3,-19,'#FFD447','#E0A020','#FFE58A');sunRays(w,-12,2.3,-19)}/* de día, un sol en el mismo sitio (en la montaña no: la tapa el pico) */
+  if(skyNow().night){w.sc.background=new THREE.Color('#3B4A86');w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.82});if(['jardin','bosque','ingles'].includes(z))fireflies(w,30,14);skyStars(w,1.2,-18,56,3.4);if(z!=='montana'){zoneMoon(w,-12,2.3,-19);orbFace(w,-12,2.3,-19,1)}}else if(z!=='montana'){zoneMoon(w,-12,2.3,-19,'#FFD447','#E0A020','#FFE58A');sunRays(w,-12,2.3,-19);orbFace(w,-12,2.3,-19,0)}/* de día, un sol en el mismo sitio (en la montaña no: la tapa el pico) */
   for(let i=0;i<4;i++)cloud3(w.sc,-20+i*13,10+(i%2)*1.5,-14,.9);
   const main=MAINZ.includes(z),path=z==='fiestas'?FIESTAS:main?pathOf(z):Z.temas,B=w.base={};
   for(const t of Z.temas)B[t.id]=ZX(ZPB[z][t.id].x,ZPB[z][t.id].y);
