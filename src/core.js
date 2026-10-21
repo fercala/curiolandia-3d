@@ -333,7 +333,7 @@ function sparkles(x,y,n=6){for(let i=0;i<n;i++)parts.push({x:x+rnd(-20,20),y:y+r
 function drawParts(dt){
   for(const p of parts){p.t+=dt;p.vy+=(p.g??900)*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=dt*6;
     const a=1-p.t/p.life; if(a<=0)continue; ctx.globalAlpha=a;
-    if(p.k==='s')star(p.x,p.y,p.r,p.c,0); else if(p.k==='d'){circ(p.x,p.y,p.r,p.c,0)} else if(p.k==='h'){heart(p.x,p.y,p.r,p.c)} else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()}
+    if(p.k==='s')star(p.x,p.y,p.r,p.c,0); else if(p.k==='d'){circ(p.x,p.y,p.r,p.c,0)} else if(p.k==='h'){heart(p.x,p.y,p.r,p.c)} else if(p.k==='z'){ctx.font=`700 ${p.r*2}px ${DF}`;ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle='#5F6FB4';ctx.strokeText('z',p.x,p.y);ctx.fillStyle=p.c;ctx.fillText('z',p.x,p.y)} else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()}
   } ctx.globalAlpha=1; parts=parts.filter(p=>p.t<p.life);
 }
 /* ---------- HUD ---------- */
