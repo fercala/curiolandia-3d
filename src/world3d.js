@@ -141,6 +141,22 @@ function bus3(w,z){const D=w.sc,b=grp(D,[0,0,z],.9),body=grp(b,[0,0,0]);b.userDa
   for(const x of[-.95,.95])for(const sd of[-1,1])mk(Cyl(.28,.28,.2,14),'#3A2E2A',{p:[x,.3,sd*.55],r:[PI/2,0,0],ol:.02,to:b});
   let x=-14,dir=1;w.upd.push(dt=>{x+=dir*dt*1.6;if(x>14){x=14;dir=-1}if(x<-14){x=-14;dir=1}b.position.x=x;b.rotation.y+=((dir>0?0:PI)-b.rotation.y)*Math.min(1,dt*4);
     const k=b.userData.wob,e=k==null?9:T-k;body.position.y=(e<.5?Math.sin(e/.5*PI)*.4:0)+Math.abs(Math.sin(T*8))*.02});return b}
+// muñeco de nieve; al tocarlo el sombrero da un salto y gira
+function snowman3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.snowman=1;
+  mk(Sph(.7,18,14),'#FFFFFF',{p:[0,.62,0],to:g,ol:.03});mk(Sph(.5,18,14),'#FFFFFF',{p:[0,1.6,0],to:g,ol:.03});
+  for(const sd of[-1,1])mk(Sph(.06,8,6),K,{p:[sd*.17,1.7,.44],ol:0,cs:false,to:g});mk(Cone(.07,.4,8),'#FF8A3D',{p:[0,1.58,.6],r:[PI/2,0,0],ol:0,to:g});
+  for(let i=0;i<3;i++)mk(Sph(.06,8,6),K,{p:[0,.5+i*.25,.68-Math.abs(i-1)*.05],ol:0,cs:false,to:g});
+  mk(new THREE.TorusGeometry(.42,.09,8,20),'#E8503C',{p:[0,1.22,0],r:[PI/2,0,0],ol:0,to:g});
+  const hat=grp(g,[0,2.02,0]);mk(Cyl(.45,.45,.06,16),'#3A2E2A',{to:hat,ol:.02});mk(Cyl(.3,.3,.5,16),'#3A2E2A',{p:[0,.28,0],to:hat,ol:.02});g.userData.hat=hat;
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,q=Math.min(e/.9,1);hat.position.y=2.02+(e<.9?Math.sin(q*PI)*.9:0);hat.rotation.y=e<.9?q*PI*2:0});return g}
+function pinata3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.pinata=1;
+  mk(Cyl(.08,.1,3.6,8),'#B07A4A',{p:[-1.2,1.8,0],to:g,ol:.02});mk(Cyl(.07,.07,1.5,8),'#B07A4A',{p:[-.5,3.55,0],r:[0,0,PI/2],to:g,ol:.02});
+  const sw=grp(g,[.2,3.55,0]);mk(Cyl(.012,.012,.9,4),K,{p:[0,-.45,0],ol:0,cs:false,to:sw});mk(starGeo(.6,.4),'#FF6FA5',{p:[0,-1.45,0],to:sw,ol:.04});
+  for(let i=0;i<5;i++){const a=PI/2+i*PI*2/5;mk(Cone(.08,.4,6),DIAC[i%7],{p:[Math.cos(a)*.62,-1.45+Math.sin(a)*.62,0],r:[0,0,a-PI/2],ol:0,cs:false,to:sw})}
+  const cd=[];for(let i=0;i<7;i++){const m=mk(Sph(.12,8,6),DIAC[i%7],{to:g,ol:.02,cs:false});m.visible=false;m.raycast=()=>{};cd.push(m)}
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k;sw.rotation.z=e<2.6?Math.sin(e*6)*.45*Math.exp(-e*1.4):0;sw.rotation.y=e<2.6?e*3*Math.exp(-e):0;
+    for(let i=0;i<cd.length;i++){const m=cd[i];if(e>2.4){m.visible=false;continue}const a=i/cd.length*PI*2,vx=Math.cos(a)*1.3,vz=Math.sin(a)*1.3,t=Math.min(e,.75);
+      m.visible=e>.05;m.position.set(.2+vx*t,Math.max(.12,2.1+3*t-6*t*t),vz*t)}});return g}
 function cloud3(to,x,y,z,s){const g=grp(to,[x,y,z],s);mk(gcache('cloud',()=>mg([[0,0,0,1],[1.1,.3,0,1.2],[2.2,0,0,.9],[1.1,-.2,.5,1]].map(([a,b,c,r])=>[Sph(r,14,10),[a,b,c]]))),'#FFFFFF',{cs:false,rs:false,ol:.04,to:g});return g}
 function balloon3(to,x,z,c,h=2.4){const g=grp(to,[x,0,z]);mk(Cyl(.012,.012,h,4),K,{p:[0,h/2,0],ol:0,cs:false,to:g});mk(Sph(.38,14,12),c,{p:[0,h+.35,0],s:[1,1.2,1],to:g,ol:.03});g.userData.balloon=1;return g}
 
@@ -379,16 +395,16 @@ function walkTo(w,tito,to,cb,o={}){const from=tito.position.clone(),d=from.dista
   if(o.zoom){w.camT.pos=w.cb.pos.clone().lerp(to.clone().add(o.zoom),.35);w.camT.look=w.cb.look.clone().lerp(to,.35)}}
 // tocar el suelo vacío (después de pickAt): Tito camina hasta ahí, solo por la cara de arriba del suelo (nunca al mar ni al borde)
 // al tocarlos, los árboles se sacuden, los arbustos se aplastan, las flores saltan y las piedras botan; luego se calman solos; en el mapa, las zonas y las casitas
-const WOBK=o=>o.userData.tree||o.userData.bush||o.userData.flower||o.userData.rock||o.userData.boat||o.userData.balloon||o.userData.gift||o.userData.letter||o.userData.sign||o.userData.mount||o.userData.gull||o.userData.bfly||o.userData.mush||o.userData.bus;
+const WOBK=o=>o.userData.tree||o.userData.bush||o.userData.flower||o.userData.rock||o.userData.boat||o.userData.balloon||o.userData.gift||o.userData.letter||o.userData.sign||o.userData.mount||o.userData.gull||o.userData.bfly||o.userData.mush||o.userData.bus||o.userData.snowman||o.userData.pinata;
 function wobInit(w){w.trees=[];w.sc.traverse(o=>{if(WOBK(o)){o.userData.s0=o.scale.x;o.userData.y0=o.position.y;w.trees.push(o)}});if(!w.trees.length)return;
   w.upd.push(()=>{for(const t of w.trees){const k=t.userData.wob;if(k==null)continue;const e=T-k,s0=t.userData.s0,u=t.userData;
-    if(u.boat||u.gull||u.bfly||u.bus){if(e>1.6)u.wob=null;continue}// los barquitos se animan en su propio paso
+    if(u.pinata){if(e>2.6)u.wob=null;continue}if(u.boat||u.gull||u.bfly||u.bus){if(e>1.6)u.wob=null;continue}// los barquitos se animan en su propio paso
     if(e>1.6){t.rotation.x=t.rotation.z=0;if(u.bush||u.mush)t.scale.setScalar(s0);t.position.y=u.y0;if(u.flower){u.flower.rotation.z=0;u.flower.scale.setScalar(1)}t.userData.wob=null;continue}
     if(u.bush||u.mush){const a=Math.sin(e*14)*(u.mush?.3:.2)*Math.exp(-e*3.2);t.scale.set(s0*(1+a*.5),s0*(1-a),s0*(1+a*.5))}// los arbustos se aplastan y rebotan
     else if(u.flower){const q=Math.min(e/.7,1);t.position.y=u.y0+Math.sin(q*PI)*.25*s0;u.flower.rotation.z=q*PI*2;u.flower.scale.setScalar(1+Math.sin(q*PI)*.5)}// las flores dan un saltito girando
     else if(u.balloon){const q=Math.min(e/1.4,1);t.position.y=u.y0+Math.sin(q*PI)*.9;t.rotation.z=Math.sin(e*7)*.18*Math.exp(-e*2)}// los globos suben y vuelven
     else if(u.gift||u.letter){const q=Math.min(e/.6,1);t.position.y=u.y0+Math.sin(q*PI)*.7;t.rotation.z=Math.sin(q*PI*2)*.15}// los regalos y las letras saltan
-    else if(u.mount){}// las montañas no se mueven: responden con eco
+    else if(u.mount||u.snowman){}// las montañas no se mueven: responden con eco
     else if(u.rock){t.position.y=u.y0+Math.abs(Math.sin(e*9))*.3*Math.exp(-e*4)}// las piedras botan
     else{const a=Math.sin(e*16)*.13*Math.exp(-e*2.6);t.rotation.z=a;t.rotation.x=a*.4}}})}
 // tras pickAt: lo que vuela (mariposas, gaviotas) va por delante de las casitas, así que se mira primero
@@ -397,7 +413,7 @@ function flyTap(w,x,y){if(!w.fly)w.fly=(w.trees||[]).filter(t=>t.userData.bfly||
 function wobTap(w,x,y){const th=w.trees&&w.trees.length&&RC.intersectObjects(w.trees,true)[0];let t=th&&th.object;while(t&&!WOBK(t))t=t.parent;
   if(!t)return false;const u=t.userData;if(u.wob!=null&&T-u.wob<.3)return true;u.wob=T;
   if(u.bush){tone(330,.18,'sine',.14,1.8);noise(.18,.06,1800)}else if(u.flower){const f=pick([523,587,659,784,880]);tone(f,.3,'sine',.12);tone(f*2,.2,'sine',.05,1,.06)}
-  else if(u.rock){tone(150,.09,'triangle',.12,.7);noise(.06,.1,700)}else if(u.bus){tone(523,.12,'square',.05);tone(523,.14,'square',.05,1,.18)}else if(u.mush){tone(220,.2,'sine',.14,2.2);tone(440,.12,'triangle',.06,1.5,.12)}else if(u.bfly){tone(1568,.1,'sine',.07);tone(2093,.12,'sine',.06,1,.08);tone(2637,.14,'sine',.05,1,.16)}else if(u.gull){tone(1300,.16,'triangle',.08,.6);tone(1200,.2,'triangle',.07,.55,.2)}else if(u.mount){[0,1,2].forEach(i=>{const v=.13/(1+i*1.6),d=i*.45;tone(523,.14,'triangle',v,1,d);tone(392,.22,'triangle',v,1,d+.15)})}else if(u.sign){tone(1046,.5,'sine',.08);tone(1568,.4,'sine',.04,1,.05)}else if(u.gift){[523,659,784].forEach((f,i)=>tone(f,.15,'sine',.1,1,i*.07))}else if(u.letter){tone([392,440,523,523,659][u.letter-1],.22,'triangle',.12)}else if(u.balloon){tone(620,.14,'sine',.1,1.7);tone(880,.12,'sine',.07,1.5,.1)}else if(u.boat){tone(392,.22,'triangle',.12);tone(330,.35,'triangle',.12,1,.26)}else{noise(.35,.14,2400);noise(.25,.08,3600,.12)}sparkles(x,y);return true}
+  else if(u.rock){tone(150,.09,'triangle',.12,.7);noise(.06,.1,700)}else if(u.pinata){noise(.08,.22,900);tone(330,.08,'triangle',.12,1.2,.05);for(let i=0;i<5;i++)tone(1200+i*180,.06,'sine',.05,1,.25+i*.07)}else if(u.snowman){tone(660,.1,'triangle',.1,1.4);tone(990,.14,'triangle',.08,1,.12);noise(.25,.05,3000,.05)}else if(u.bus){tone(523,.12,'square',.05);tone(523,.14,'square',.05,1,.18)}else if(u.mush){tone(220,.2,'sine',.14,2.2);tone(440,.12,'triangle',.06,1.5,.12)}else if(u.bfly){tone(1568,.1,'sine',.07);tone(2093,.12,'sine',.06,1,.08);tone(2637,.14,'sine',.05,1,.16)}else if(u.gull){tone(1300,.16,'triangle',.08,.6);tone(1200,.2,'triangle',.07,.55,.2)}else if(u.mount){[0,1,2].forEach(i=>{const v=.13/(1+i*1.6),d=i*.45;tone(523,.14,'triangle',v,1,d);tone(392,.22,'triangle',v,1,d+.15)})}else if(u.sign){tone(1046,.5,'sine',.08);tone(1568,.4,'sine',.04,1,.05)}else if(u.gift){[523,659,784].forEach((f,i)=>tone(f,.15,'sine',.1,1,i*.07))}else if(u.letter){tone([392,440,523,523,659][u.letter-1],.22,'triangle',.12)}else if(u.balloon){tone(620,.14,'sine',.1,1.7);tone(880,.12,'sine',.07,1.5,.1)}else if(u.boat){tone(392,.22,'triangle',.12);tone(330,.35,'triangle',.12,1,.26)}else{noise(.35,.14,2400);noise(.25,.08,3600,.12)}sparkles(x,y);return true}
 // tocar el mar (solo en el mapa): un chapuzón con dos ondas que se abren
 function seaTap(w){if(!w.sea)return false;const h=RC.intersectObjects(w.sc.children,true).find(i=>i.object.visible!==false&&!(i.object.material&&i.object.material.visible===false));if(!h||h.object!==w.sea)return false;
   if(!w.spl){w.spl=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.TorusGeometry(1,.07,6,32),new THREE.MeshBasicMaterial({color:'#fff',transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-PI/2;m.visible=false;w.sc.add(m);return m});
@@ -637,8 +653,8 @@ function zoneDecor(w,z){const D=w.sc;
   if(z==='jardin'||z==='ingles'){for(let i=0;i<14;i++)flower3(D,-15+i*2.3,-8.2+(i%2)*.4,FLC[i%7],.8);for(let i=0;i<9;i++)bush3(D,-15.5+i*3.9,8.6,.8);for(const x of[-17.5,17.5])for(let i=0;i<5;i++)tree3(D,x,-6+i*3,.75,i%2?'primavera':'verano')}
   if(z==='bosque'){fallPts(w,40,['#F28C38','#E8603C','#F2C14E','#C9772E'],{size:1.5,map:canvasTex(32,32,()=>{ctx.beginPath();ctx.ellipse(16,16,13,7,.6,0,PI*2);ctx.fillStyle='#fff';ctx.fill()},'leaf'),sp:.6,sw:1.3});/* hojas que caen */for(let i=0;i<12;i++)tree3(D,-16.5+i*3,-8.6,.85+(i%3)*.15,i%3?'verano':'otoño',i%2);for(const x of[-18,18])for(let i=0;i<5;i++)tree3(D,x,-6+i*3,.8,'verano',i%2);for(let i=0;i<8;i++)rock3(D,-14+i*4,8.7,.5);[[-16,6.5],[-12,8.9],[-5.5,9],[2,8.8],[10,9],[15.5,6.8]].forEach(([x,zz],i)=>mush3(D,x,zz,.9+(i%3)*.2))}
   if(z==='montana'){[[-15,-22,7,10],[-5,-25,8,12.5],[6,-24,7.5,11],[16,-22,7,9.5]].forEach(([x,zz,r,h])=>{mk(Cone(r,h,10),'#B9C7DA',{p:[x,h/2-.3,zz],to:D,ol:.1}).userData.mount=1;mk(Cone(r*.38,h*.38,10),'#FFFFFF',{p:[x,h-.3-h*.19,zz],to:D,ol:.07}).userData.mount=1});
-    for(let i=0;i<10;i++)rock3(D,-16+i*3.6,8.6,.6+(i%3)*.2);fallPts(w,70,['#FFFFFF','#F4FAFF'],{size:.9,map:canvasTex(64,64,()=>{ctx.beginPath();ctx.arc(32,32,20,0,PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=5;ctx.strokeStyle='#9DBFE3';ctx.stroke()},'snow'),sp:.9,sw:.5});/* copos de nieve que caen despacio */for(const x of[-18,18])for(let i=0;i<4;i++)tree3(D,x,-4+i*3,.8,'verano',1)}
-  if(z==='fiestas'){fallPts(w,60,DIAC,{size:1,map:canvasTex(32,32,()=>{ctx.fillStyle='#fff';ctx.fillRect(9,4,14,24)},'conf'),sp:.7,sw:.9});/* confeti que cae despacio */for(let i=0;i<10;i++)balloon3(D,-15+i*3.3,-7.5,DIAC[i%7],2.5+(i%3)*.5);for(let i=0;i<8;i++){const b=grp(D,[-14+i*4,0,8]);b.userData.gift=1;mk(Box(.8,.7,.8),DIAC[i%7],{p:[0,.35,0],to:b,ol:.035});mk(Box(.18,.72,.82),'#FFC93C',{p:[0,.35,0],ol:.02,to:b})}}
+    for(let i=0;i<10;i++)rock3(D,-16+i*3.6,8.6,.6+(i%3)*.2);fallPts(w,70,['#FFFFFF','#F4FAFF'],{size:.9,map:canvasTex(64,64,()=>{ctx.beginPath();ctx.arc(32,32,20,0,PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=5;ctx.strokeStyle='#9DBFE3';ctx.stroke()},'snow'),sp:.9,sw:.5});/* copos de nieve que caen despacio */snowman3(w,-10.8,6.2,.8);snowman3(w,10,5.2,.9);for(const x of[-18,18])for(let i=0;i<4;i++)tree3(D,x,-4+i*3,.8,'verano',1)}
+  if(z==='fiestas'){fallPts(w,60,DIAC,{size:1,map:canvasTex(32,32,()=>{ctx.fillStyle='#fff';ctx.fillRect(9,4,14,24)},'conf'),sp:.7,sw:.9});/* confeti que cae despacio */pinata3(w,-7.2,5.3,.9);for(let i=0;i<10;i++)balloon3(D,-15+i*3.3,-7.5,DIAC[i%7],2.5+(i%3)*.5);for(let i=0;i<8;i++){const b=grp(D,[-14+i*4,0,8]);b.userData.gift=1;mk(Box(.8,.7,.8),DIAC[i%7],{p:[0,.35,0],to:b,ol:.035});mk(Box(.18,.72,.82),'#FFC93C',{p:[0,.35,0],ol:.02,to:b})}}
   if(z==='ingles'){// letras del abecedario que suben flotando despacio, como pompas
     const AB='ABCDEFGHIJ';for(let i=0;i<10;i++){const L=AB[i],q=spr(canvasTex(128,128,()=>text(L,64,104,104,DIAC[i%7],{f:LF,st:8,sc:K}),'abcf'+L),1.4,1.4,{p:[-16+i*3.5,(i*37%9),-6+(i*53%12)],to:D,op:.9});
       w.upd.push(dt=>{q.position.y+=dt*.45;q.position.x+=Math.sin(T+i)*dt*.3;q.material.rotation=Math.sin(T*.8+i)*.25;if(q.position.y>9)q.position.y=0})}}
