@@ -5022,7 +5022,9 @@ function flowerTex(c,n){return canvasTex(256,128,()=>{card(14,14,228,100,'#fff',
 
 /* ---------- utilería ---------- */
 function flower3(to,x,z,c,s=1,y=0){const g=grp(to,[x,y,z],s);mk(gcache('stem',()=>Cyl(.035,.035,.5,5)),'#6FB84F',{p:[0,.25,0],ol:0,cs:false,to:g});const h=grp(g,[0,.55,0]);h.rotation.x=-.5;
-  mk(gcache('petals',()=>mg([0,1,2,3,4].map(i=>{const a=i/5*PI*2;return[Sph(.12,9,7),[Math.cos(a)*.13,Math.sin(a)*.13,0],[1,1,.5]]}))),c,{ol:.02,cs:false,to:h});mk(gcache('fcenter',()=>Sph(.09,9,7)),'#FFD66B',{p:[0,0,.03],s:[1,1,.6],ol:0,cs:false,to:h});return g}
+  mk(gcache('petals',()=>mg([0,1,2,3,4].map(i=>{const a=i/5*PI*2;return[Sph(.12,9,7),[Math.cos(a)*.13,Math.sin(a)*.13,0],[1,1,.5]]}))),c,{ol:.02,cs:false,to:h});mk(gcache('fcenter',()=>Sph(.09,9,7)),'#FFD66B',{p:[0,0,.03],s:[1,1,.6],ol:0,cs:false,to:h});
+  const hit=new THREE.Mesh(gcache('fhit',()=>Sph(.32,6,4)),FHIT);hit.position.y=.45;g.add(hit);g.userData.flower=h;return g}
+const FHIT=new THREE.MeshBasicMaterial({visible:false});// zona de toque de las flores (son muy pequeñas para un dedo)
 const TREEC={primavera:['#9BD86A','#F58BB4'],verano:['#6FC25A',null],'otoño':['#FFA94D','#FF6B5E'],invierno:['#E8F4F8',null],gris:['#C9C2B8',null]};
 function tree3(to,x,z,s=1,kind='verano',pine){const g=grp(to,[x,0,z],s),c=TREEC[kind]||TREEC.verano;mk(Cyl(.18,.26,1.4,10),kind==='gris'?'#B8AFA4':'#A86B43',{p:[0,.7,0],to:g});
   if(pine){[[1.1,1.3,1.5],[.85,1.1,2.2],[.55,.9,2.85]].forEach(([r,h,y])=>mk(Cone(r,h,9),kind==='gris'?'#C9C2B8':'#4FA36A',{p:[0,y,0],to:g}))}
@@ -5030,7 +5032,7 @@ function tree3(to,x,z,s=1,kind='verano',pine){const g=grp(to,[x,0,z],s),c=TREEC[
     if(c[1])mk(gcache('berries',()=>mg([0,1,2,3,4].map(i=>{const a=i*1.3;return[Sph(.13,8,6),[Math.cos(a)*.75,1.9+Math.sin(i*2)*.4,Math.sin(a)*.75+.2]]}))),c[1],{ol:.02,cs:false,to:g})}
   g.userData.tree=1;return g}
 function bush3(to,x,z,s=1,c='#7CC86E'){const g=grp(to,[x,0,z],s);mk(gcache('bush',()=>mg([[0,.35,0,.45],[-.4,.28,.1,.33],[.4,.3,0,.35]].map(([a,b,d,r])=>[Sph(r,12,8),[a,b,d]]))),c,{to:g});g.userData.bush=1;return g}
-function rock3(to,x,z,s=1,c='#B9B2A8'){return mk(new THREE.DodecahedronGeometry(.5,0),c,{p:[x,.2*s,z],s:[s,s*.7,s],r:[0,x*3,0],to})}
+function rock3(to,x,z,s=1,c='#B9B2A8'){const m=mk(new THREE.DodecahedronGeometry(.5,0),c,{p:[x,.2*s,z],s:[s,s*.7,s],r:[0,x*3,0],to});m.userData.rock=1;return m}
 function lock3(to,p,s=1){const g=grp(to,p,s);mk(rbox(1.1,.85,.45,.12),'#FFC93C',{to:g,ol:.05});
   const sh=new THREE.TorusGeometry(.33,.09,10,20,PI);mk(sh,'#B8B0A6',{p:[0,.42,0],to:g,ol:.04});
   mk(Cyl(.09,.09,.1,12),K,{p:[0,.05,.24],r:[PI/2,0,0],ol:0,to:g});mk(Box(.07,.22,.08),K,{p:[0,-.12,.24],ol:0,to:g});return g}
@@ -5284,15 +5286,20 @@ function walkTo(w,tito,to,cb,o={}){const from=tito.position.clone(),d=from.dista
   w.walk={t0:T,dur,from,to:to.clone(),cb,free:!!o.free};const dx=to.x-from.x,dz=to.z-from.z;if(Math.hypot(dx,dz)>.1)tito.userData.face=Math.atan2(-dz,dx);
   if(o.zoom){w.camT.pos=w.cb.pos.clone().lerp(to.clone().add(o.zoom),.35);w.camT.look=w.cb.look.clone().lerp(to,.35)}}
 // tocar el suelo vacío (después de pickAt): Tito camina hasta ahí, solo por la cara de arriba del suelo (nunca al mar ni al borde)
-// los árboles se sacuden y los arbustos se aplastan al tocarlos, y se calman solos; en el mapa, las zonas y las casitas
-function wobInit(w){w.trees=[];w.sc.traverse(o=>{if(o.userData.tree||o.userData.bush){o.userData.s0=o.scale.x;w.trees.push(o)}});if(!w.trees.length)return;
-  w.upd.push(()=>{for(const t of w.trees){const k=t.userData.wob;if(k==null)continue;const e=T-k,s0=t.userData.s0;
-    if(e>1.6){t.rotation.x=t.rotation.z=0;t.scale.setScalar(s0);t.userData.wob=null;continue}
-    if(t.userData.bush){const a=Math.sin(e*14)*.2*Math.exp(-e*3.2);t.scale.set(s0*(1+a*.5),s0*(1-a),s0*(1+a*.5))}// los arbustos se aplastan y rebotan
+// al tocarlos, los árboles se sacuden, los arbustos se aplastan, las flores saltan y las piedras botan; luego se calman solos; en el mapa, las zonas y las casitas
+const WOBK=o=>o.userData.tree||o.userData.bush||o.userData.flower||o.userData.rock;
+function wobInit(w){w.trees=[];w.sc.traverse(o=>{if(WOBK(o)){o.userData.s0=o.scale.x;o.userData.y0=o.position.y;w.trees.push(o)}});if(!w.trees.length)return;
+  w.upd.push(()=>{for(const t of w.trees){const k=t.userData.wob;if(k==null)continue;const e=T-k,s0=t.userData.s0,u=t.userData;
+    if(e>1.6){t.rotation.x=t.rotation.z=0;if(u.bush)t.scale.setScalar(s0);t.position.y=u.y0;if(u.flower){u.flower.rotation.z=0;u.flower.scale.setScalar(1)}t.userData.wob=null;continue}
+    if(u.bush){const a=Math.sin(e*14)*.2*Math.exp(-e*3.2);t.scale.set(s0*(1+a*.5),s0*(1-a),s0*(1+a*.5))}// los arbustos se aplastan y rebotan
+    else if(u.flower){const q=Math.min(e/.7,1);t.position.y=u.y0+Math.sin(q*PI)*.25*s0;u.flower.rotation.z=q*PI*2;u.flower.scale.setScalar(1+Math.sin(q*PI)*.5)}// las flores dan un saltito girando
+    else if(u.rock){t.position.y=u.y0+Math.abs(Math.sin(e*9))*.3*Math.exp(-e*4)}// las piedras botan
     else{const a=Math.sin(e*16)*.13*Math.exp(-e*2.6);t.rotation.z=a;t.rotation.x=a*.4}}})}
 // tras pickAt (que deja RC apuntando al toque): ¿se tocó un árbol?
-function wobTap(w,x,y){const th=w.trees&&w.trees.length&&RC.intersectObjects(w.trees,true)[0];let t=th&&th.object;while(t&&!t.userData.tree&&!t.userData.bush)t=t.parent;
-  if(!t)return false;t.userData.wob=T;if(t.userData.bush){tone(330,.18,'sine',.14,1.8);noise(.18,.06,1800)}else{noise(.35,.14,2400);noise(.25,.08,3600,.12)}sparkles(x,y);return true}
+function wobTap(w,x,y){const th=w.trees&&w.trees.length&&RC.intersectObjects(w.trees,true)[0];let t=th&&th.object;while(t&&!WOBK(t))t=t.parent;
+  if(!t)return false;const u=t.userData;if(u.wob!=null&&T-u.wob<.3)return true;u.wob=T;
+  if(u.bush){tone(330,.18,'sine',.14,1.8);noise(.18,.06,1800)}else if(u.flower){const f=pick([523,587,659,784,880]);tone(f,.3,'sine',.12);tone(f*2,.2,'sine',.05,1,.06)}
+  else if(u.rock){tone(150,.09,'triangle',.12,.7);noise(.06,.1,700)}else{noise(.35,.14,2400);noise(.25,.08,3600,.12)}sparkles(x,y);return true}
 function walkGround(w){const h=w.ground&&RC.intersectObject(w.ground,false)[0];
   if(!(h&&h.face&&h.face.normal.y>.7))return;const B=w.gb;let x=B?clamp(h.point.x,B[0],B[1]):h.point.x,z=B?clamp(h.point.z,B[2],B[3]):h.point.z;
   // si el punto cae detrás o dentro de una casita, Tito se queda delante (o al costado) para que no quede tapado
