@@ -5114,12 +5114,13 @@ function bee3(w,cx,cz,ph,sc){const g=grp(w.sc,[cx,1.2,cz],sc||1.5);g.userData.bf
 // búho sobre un tocón: parpadea; al tocarlo gira la cabeza y ulula
 function owl3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.owl=1;mk(Cyl(.55,.62,.9,14),'#8A5A3A',{p:[0,.45,0],to:g,ol:.03});mk(Cyl(.5,.5,.02,14),'#D9B58A',{p:[0,.91,0],ol:0,cs:false,to:g});
   mk(Sph(.48,16,12),'#9C6B45',{p:[0,1.38,0],s:[1,1.15,.9],to:g,ol:.03});mk(Sph(.32,14,10),'#E9D2AE',{p:[0,1.3,.2],s:[1,1.2,.6],ol:0,cs:false,to:g});
-  const hd=grp(g,[0,1.95,0]);mk(Sph(.4,16,12),'#9C6B45',{to:hd,ol:.03});mk(Sph(.33,14,10),'#E9D2AE',{p:[0,0,.16],s:[1.05,.85,.7],ol:0,cs:false,to:hd});const E=[];
-  for(const sd of[-1,1]){mk(Sph(.19,12,10),skyNow().night?M('#FFE070',{emissive:'#C9A000'}):'#FFFFFF',{p:[sd*.17,.06,.3],s:[1,1,.5],ol:.02,cs:false,to:hd});const pu=mk(Sph(.1,10,8),K,{p:[sd*.17,.07,.39],s:[1,1,.5],ol:0,cs:false,to:hd});E.push(pu);
+  const hd=grp(g,[0,1.95,0]);mk(Sph(.4,16,12),'#9C6B45',{to:hd,ol:.03});mk(Sph(.33,14,10),'#E9D2AE',{p:[0,0,.16],s:[1.05,.85,.7],ol:0,cs:false,to:hd});const E=[],EW=[],nt=skyNow().night;
+  for(const sd of[-1,1]){EW.push(mk(Sph(.19,12,10),nt?M('#FFE070',{emissive:'#C9A000'}):'#FFFFFF',{p:[sd*.17,.06,.3],s:[1,1,.5],ol:.02,cs:false,to:hd}));const pu=mk(Sph(.1,10,8),K,{p:[sd*.17,.07,.39],s:[1,1,.5],ol:0,cs:false,to:hd});E.push(pu);
     mk(Cone(.09,.26,6),'#7A4E30',{p:[sd*.24,.4,0],r:[0,0,-sd*.35],ol:0,cs:false,to:hd})}
   mk(Cone(.06,.16,6),'#FFA94D',{p:[0,-.08,.4],r:[PI/2+.6,0,0],ol:0,cs:false,to:hd});
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,q=Math.min(e/1.2,1),bl=(T%4.3)<.15?.15:1;for(const pu of E)pu.scale.y=bl;
-    hd.rotation.y=e<1.2?Math.sin(q*PI*2)*1.2:Math.sin(T*.4)*.15;hd.rotation.z=e<1.2?Math.sin(q*PI)*.2:0});return g}
+  const zz=nt?null:zzz3(w,g,2.4);// el búho es nocturno: de día duerme y de noche está despierto
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,q=Math.min(e/1.2,1),sl=!nt&&e>3,bl=sl?.12:(T%4.3)<.15?.15:1;for(const pu of E)pu.scale.y=bl;for(const m of EW)m.scale.y=sl?.15:1;if(zz)zz.forEach(z=>z.visible=sl);
+    hd.rotation.y=e<1.2?Math.sin(q*PI*2)*1.2:sl?0:Math.sin(T*.4)*.15;hd.rotation.x=sl?.25:0;hd.rotation.z=e<1.2?Math.sin(q*PI)*.2:0});return g}
 // cabina de teléfono roja (rincón de inglés): al tocarla tiembla y suena ring-ring
 function phone3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.phone=1;const R='#D9372C';
   mk(Box(1,2.3,1),R,{p:[0,1.15,0],to:g,ol:.04});mk(Box(1.12,.18,1.12),R,{p:[0,2.38,0],to:g,ol:.03});mk(Sph(.5,14,8,0,PI*2,0,PI/2),R,{p:[0,2.46,0],s:[1,.35,1],to:g,ol:.03});
@@ -5234,9 +5235,10 @@ function post3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.post=1;const R='#
 // fila de hormigas que dan vueltas; al tocarlas se dispersan corriendo y vuelven a la fila
 function ants3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.ants=1;const hit=new THREE.Mesh(gcache('ahit',()=>Cyl(1.6,1.6,.6,10)),FHIT);hit.position.y=.3;g.add(hit);
   mk(Sph(.5,12,8),'#B07A4A',{p:[0,0,0],s:[1,.5,1],to:g,ol:.02});mk(Cyl(.08,.08,.04,8),'#4A3324',{p:[0,.25,0],ol:0,cs:false,to:g});
-  const A=[],n=9;for(let i=0;i<n;i++){const a=grp(g,[0,0,0]);for(const z2 of[-.09,0,.09])mk(Sph(.055,6,5),'#2F2420',{p:[0,.06,z2],ol:0,cs:false,to:a});A.push(a)}
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,sc=e<1.6?Math.sin(Math.min(e/1.6,1)*PI)*1.2:0;
-    for(let i=0;i<n;i++){const a=i/n*PI*2-T*.35,r=1.15+sc*(.6+.4*Math.sin(i*2.3)),ox=Math.cos(a)*r,oz=Math.sin(a)*r*.7;A[i].position.set(ox,0,oz);A[i].rotation.y=-a+(sc>.05?Math.sin(T*20+i)*.8:0)}});return g}
+  const A=[],n=9,nt=skyNow().night,zz=nt?zzz3(w,g,.5):null;for(let i=0;i<n;i++){const a=grp(g,[0,0,0]);for(const z2 of[-.09,0,.09])mk(Sph(.055,6,5),'#2F2420',{p:[0,.06,z2],ol:0,cs:false,to:a});A.push(a)}
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,sc=e<1.6?Math.sin(Math.min(e/1.6,1)*PI)*1.2:0,ins=nt&&e>=1.6;if(zz)zz.forEach(z=>z.visible=ins);
+    for(let i=0;i<n;i++){A[i].visible=!ins;// de noche están dentro del hormiguero
+      const a=i/n*PI*2-T*.35,r=1.15+sc*(.6+.4*Math.sin(i*2.3)),ox=Math.cos(a)*r,oz=Math.sin(a)*r*.7;A[i].position.set(ox,0,oz);A[i].rotation.y=-a+(sc>.05?Math.sin(T*20+i)*.8:0)}});return g}
 // faro de la orilla: la luz gira; al tocarlo suena la sirena y la luz parpadea
 function lighthouse3(w,x,z,s){const g=grp(w.sc,[x,0,z],s),nt=skyNow().night;g.userData.light=1;g.userData.dur=1.9;
   for(let i=0;i<4;i++)mk(Cyl(.5-i*.06,.56-i*.06,.7,16),i%2?'#E8503C':'#FFFFFF',{p:[0,.35+i*.7,0],to:g,ol:.035});
