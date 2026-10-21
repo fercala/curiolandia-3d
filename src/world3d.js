@@ -126,9 +126,9 @@ function gull3(w,R,Rz,h,ph,dir){const g=grp(w.sc,[0,h,0],1.6);g.userData.gull=1;
     const fl=Math.sin(T*.9+ph)>-.2?Math.sin(T*9+ph)*.5:.15;for(const [pv,sd] of W)pv.rotation.z=sd*fl;
     const k=g.userData.wob,e=k==null?9:T-k;g.rotation.z=e<.8?Math.min(e/.8,1)*PI*2:0});return g}// al tocarla da una voltereta
 // luciérnagas que flotan y parpadean (de noche); un solo dibujo para todas
-function fireflies(w,WX,WZ){const n=24,pos=new Float32Array(n*3),ph=[];for(let i=0;i<n;i++)ph.push([(Math.random()-.5)*WX,(Math.random()-.5)*WZ,Math.random()*6.28]);
+function fireflies(w,WX,WZ,sz){const n=24,pos=new Float32Array(n*3),ph=[];for(let i=0;i<n;i++)ph.push([(Math.random()-.5)*WX,(Math.random()-.5)*WZ,Math.random()*6.28]);
     const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.BufferAttribute(pos,3));
-    const ff=new THREE.Points(fg,new THREE.PointsMaterial({color:'#FFF06A',size:2.2,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));ff.raycast=()=>{};w.sc.add(ff);
+    const ff=new THREE.Points(fg,new THREE.PointsMaterial({color:'#FFF06A',size:sz||2.2,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));ff.raycast=()=>{};w.sc.add(ff);
     w.upd.push(()=>{for(let i=0;i<n;i++){const [x,z,a]=ph[i];pos[i*3]=x+Math.sin(T*.5+a)*1.2;pos[i*3+1]=1.3+Math.sin(T*.9+a*2)*.6;pos[i*3+2]=z+Math.cos(T*.4+a)*1.2}fg.attributes.position.needsUpdate=true;ff.material.opacity=.65+.35*Math.sin(T*3)})}
 // seta de sombrero rojo con lunares; al tocarla se aplasta y rebota como los arbustos
 function mush3(to,x,z,s){const g=grp(to,[x,0,z],s);g.userData.mush=1;mk(Cyl(.16,.2,.5,12),'#FFF6E6',{p:[0,.25,0],to:g,ol:.025});
@@ -287,12 +287,12 @@ function ants3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.ants=1;const hit=
   w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,sc=e<1.6?Math.sin(Math.min(e/1.6,1)*PI)*1.2:0;
     for(let i=0;i<n;i++){const a=i/n*PI*2-T*.35,r=1.15+sc*(.6+.4*Math.sin(i*2.3)),ox=Math.cos(a)*r,oz=Math.sin(a)*r*.7;A[i].position.set(ox,0,oz);A[i].rotation.y=-a+(sc>.05?Math.sin(T*20+i)*.8:0)}});return g}
 // faro de la orilla: la luz gira; al tocarlo suena la sirena y la luz parpadea
-function lighthouse3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.light=1;g.userData.dur=1.9;
+function lighthouse3(w,x,z,s){const g=grp(w.sc,[x,0,z],s),nt=skyNow().night;g.userData.light=1;g.userData.dur=1.9;
   for(let i=0;i<4;i++)mk(Cyl(.5-i*.06,.56-i*.06,.7,16),i%2?'#E8503C':'#FFFFFF',{p:[0,.35+i*.7,0],to:g,ol:.035});
   mk(Cyl(.42,.42,.1,16),'#3A3A3A',{p:[0,2.85,0],ol:.02,cs:false,to:g});const lm=mk(Cyl(.26,.26,.4,12),M('#FFF3B0',{emissive:'#FFC93C'}),{p:[0,3.1,0],ol:.02,cs:false,to:g});
   mk(Cone(.38,.4,12),'#E8503C',{p:[0,3.5,0],to:g,ol:.03});const bm=grp(g,[0,3.1,0]);
-  const beam=new THREE.Mesh(new THREE.ConeGeometry(.5,3,10,1,true).rotateZ(PI/2).translate(1.6,0,0),new THREE.MeshBasicMaterial({color:'#FFF6C0',transparent:true,opacity:.35,depthWrite:false,side:THREE.DoubleSide}));beam.raycast=()=>{};bm.add(beam);
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,f=e<1.8;bm.rotation.y=T*(f?3:.8);beam.material.opacity=f?(Math.sin(e*18)>0?.6:.15):.3;lm.scale.setScalar(f?1+Math.max(0,Math.sin(e*18))*.25:1)});return g}
+  const beam=new THREE.Mesh(new THREE.ConeGeometry(nt?.8:.5,nt?5:3,10,1,true).rotateZ(PI/2).translate(nt?2.6:1.6,0,0),new THREE.MeshBasicMaterial({color:'#FFF6C0',transparent:true,opacity:.35,depthWrite:false,side:THREE.DoubleSide}));beam.raycast=()=>{};bm.add(beam);
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,f=e<1.8;bm.rotation.y=T*(f?3:.8);beam.material.opacity=f?(Math.sin(e*18)>0?.6:.15):nt?.55:.3;lm.scale.setScalar(f?1+Math.max(0,Math.sin(e*18))*.25:1)});return g}
 // guirnalda de bombillas de colores que parpadean al fondo de la zona de fiestas (de noche brillan más)
 function garland3(w,z,h){const n=26,pos=new Float32Array(n*3),col=new Float32Array(n*3),wp=[];
   for(let i=0;i<n;i++){const q=i/(n-1),x=-16+q*32,y=h-Math.sin((q*3%1)*PI)*.7;pos.set([x,y,z],i*3);const c=new THREE.Color(DIAC[i%7]);col.set([c.r,c.g,c.b],i*3);wp.push(new THREE.Vector3(x,y+.12,z))}
@@ -893,7 +893,10 @@ function buildCasita(t,st){const bs=bgSample(t),w=newWorld({fov:38,bg:'#'+bs.top
     w.st.push({g,sp,p2:[0,0]});w.pick.push(g)}
   w.avoid=P.map(([x,z])=>[x,z,2.2]);
   for(let i=0;i<10;i++){const a=PI*.15+i/9*PI*.7;flower3(w.sc,Math.cos(a)*13.2,-Math.sin(a)*8+1,FLC[i%7],.8)}
-  lady3(w,-10,-4.4,1.3);bird3(w,10,-4.4,1.3,'#7FA8E8');butterfly3(w,-7,-6.5,'#FF8FB1',0,{s:1.1,h:3});butterfly3(w,7,-6.5,'#FFC93C',2.4,{s:1.1,h:3});// dos mariposas junto a las flores del fondo
+  lady3(w,-10,-4.4,1.3);bird3(w,10,-4.4,1.3,'#7FA8E8');
+  // de noche, también dentro de la casita: fondo más oscuro y azulado, menos luz y luciérnagas en vez de mariposas
+  if(skyNow().night){back.material.color.set('#8A93C4');w.sc.background=new THREE.Color(w.sc.background).multiplyScalar(.55);w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.85});fireflies(w,26,12,1.1)}
+  else{butterfly3(w,-7,-6.5,'#FF8FB1',0,{s:1.1,h:3});butterfly3(w,7,-6.5,'#FFC93C',2.4,{s:1.1,h:3})}// dos mariposas junto a las flores del fondo
   let ar=null,rg=null;if(nx>=0){const [x,z]=P[nx];ar=arrow3(w.sc,[x,4.2,z],.75);rg=ring3(w.sc,[x,.5,z],1.7)}
   const tito=makeTito();tito.scale.setScalar(.6);const ta=P[st.titoAt!=null&&P[st.titoAt]?st.titoAt:Math.max(0,nx)];{const ti=st3Tito(n,P.indexOf(ta)),o=ti;tito.position.set(ta[0]+o[0],0,ta[1]+o[1])}tito.rotation.y=-.2;w.sc.add(tito);w.tito=tito;w.pick.push(tito);
   w.upd.push(dt=>{const wk=walkTick(w,tito,dt);tito.userData.anim(dt,{walk:wk,hop:st.hop,hov:st.hovTito});
