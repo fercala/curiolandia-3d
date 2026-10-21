@@ -111,6 +111,12 @@ function fallPts(w,n,cols,o){const pos=new Float32Array(n*3),col=new Float32Arra
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));
   const p=new THREE.Points(g,new THREE.PointsMaterial({size:o.size,map:o.map,vertexColors:true,transparent:true,depthWrite:false,opacity:o.op||1}));p.raycast=()=>{};w.sc.add(p);
   w.upd.push(dt=>{for(let i=0;i<n;i++){const k=i*3;pos[k+1]-=o.sp*dt*(.7+(i%5)*.15);pos[k]+=Math.sin(T*.8+ph[i])*o.sw*dt;if(pos[k+1]<0){pos[k+1]=H;pos[k]=(Math.random()-.5)*36}}g.attributes.position.needsUpdate=true});return p}
+// mariposa: dos alas que aletean y un vuelo en curvas alrededor de un punto
+function butterfly3(w,cx,cz,c,ph){const g=grp(w.sc,[cx,1.5,cz],1.7),wg=gcache('wing',()=>{const c=r=>new THREE.CircleGeometry(r,12).rotateX(-PI/2);return mg([[c(.3),[0,0,-.13]],[c(.2),[-.06,0,.17]]])});// ala de dos lóbulos
+  mk(Cyl(.035,.035,.42,6),K,{r:[PI/2,0,0],ol:0,cs:false,to:g});const W=[];
+  for(const sd of[-1,1]){const pv=grp(g,[0,0,0]);mk(wg,M(c,{side:THREE.DoubleSide}),{p:[sd*.3,0,0],ol:0,cs:false,to:pv});W.push([pv,sd])}
+  let lx=cx,lz=cz;w.upd.push(()=>{const t=T*.5+ph,x=cx+Math.cos(t)*3.2,z=cz+Math.sin(t*1.3)*1.6;g.position.set(x,1.9+Math.sin(T*1.7+ph)*.4,z);
+    g.rotation.y=Math.atan2(x-lx,z-lz);lx=x;lz=z;for(const [pv,sd] of W)pv.rotation.z=sd*Math.sin(T*16+ph)*.9});return g}
 function cloud3(to,x,y,z,s){const g=grp(to,[x,y,z],s);mk(gcache('cloud',()=>mg([[0,0,0,1],[1.1,.3,0,1.2],[2.2,0,0,.9],[1.1,-.2,.5,1]].map(([a,b,c,r])=>[Sph(r,14,10),[a,b,c]]))),'#FFFFFF',{cs:false,rs:false,ol:.04,to:g});return g}
 function balloon3(to,x,z,c,h=2.4){const g=grp(to,[x,0,z]);mk(Cyl(.012,.012,h,4),K,{p:[0,h/2,0],ol:0,cs:false,to:g});mk(Sph(.38,14,12),c,{p:[0,h+.35,0],s:[1,1.2,1],to:g,ol:.03});g.userData.balloon=1;return g}
 
@@ -603,8 +609,9 @@ function roadPts(P,o){const r=[];for(let i=0;i<P.length;i++){if(!i){r.push(P[0])
   if(Math.abs(a[1]-b[1])<.2){for(let k=1;k<=12;k++)r.push([lerp(a[0],b[0],k/12),a[1]])}
   else{const sd=(a[0]+b[0])/2>0?1:-1;for(let k=1;k<=24;k++){const t=k/24,u=1-t;const c1=[a[0]+sd*o,a[1]],c2=[b[0]+sd*o,b[1]];r.push([u*u*u*a[0]+3*u*u*t*c1[0]+3*u*t*t*c2[0]+t*t*t*b[0],u*u*u*a[1]+3*u*u*t*c1[1]+3*u*t*t*c2[1]+t*t*t*b[1]])}}}return r}
 function zoneDecor(w,z){const D=w.sc;
+  if(z==='jardin'){[['#FF8FB1',-8,2],['#FFC93C',4,-3],['#9B8AD9',10,3],['#7FD3F0',-2,-6]].forEach(([c,x,zz],i)=>butterfly3(w,x,zz,c,i*1.7))}// mariposas en el jardín
   if(z==='jardin'||z==='ingles'){for(let i=0;i<14;i++)flower3(D,-15+i*2.3,-8.2+(i%2)*.4,FLC[i%7],.8);for(let i=0;i<9;i++)bush3(D,-15.5+i*3.9,8.6,.8);for(const x of[-17.5,17.5])for(let i=0;i<5;i++)tree3(D,x,-6+i*3,.75,i%2?'primavera':'verano')}
-  if(z==='bosque'){for(let i=0;i<12;i++)tree3(D,-16.5+i*3,-8.6,.85+(i%3)*.15,i%3?'verano':'otoño',i%2);for(const x of[-18,18])for(let i=0;i<5;i++)tree3(D,x,-6+i*3,.8,'verano',i%2);for(let i=0;i<8;i++)rock3(D,-14+i*4,8.7,.5)}
+  if(z==='bosque'){fallPts(w,40,['#F28C38','#E8603C','#F2C14E','#C9772E'],{size:1.5,map:canvasTex(32,32,()=>{ctx.beginPath();ctx.ellipse(16,16,13,7,.6,0,PI*2);ctx.fillStyle='#fff';ctx.fill()},'leaf'),sp:.6,sw:1.3});/* hojas que caen */for(let i=0;i<12;i++)tree3(D,-16.5+i*3,-8.6,.85+(i%3)*.15,i%3?'verano':'otoño',i%2);for(const x of[-18,18])for(let i=0;i<5;i++)tree3(D,x,-6+i*3,.8,'verano',i%2);for(let i=0;i<8;i++)rock3(D,-14+i*4,8.7,.5)}
   if(z==='montana'){[[-15,-22,7,10],[-5,-25,8,12.5],[6,-24,7.5,11],[16,-22,7,9.5]].forEach(([x,zz,r,h])=>{mk(Cone(r,h,10),'#B9C7DA',{p:[x,h/2-.3,zz],to:D,ol:.1}).userData.mount=1;mk(Cone(r*.38,h*.38,10),'#FFFFFF',{p:[x,h-.3-h*.19,zz],to:D,ol:.07}).userData.mount=1});
     for(let i=0;i<10;i++)rock3(D,-16+i*3.6,8.6,.6+(i%3)*.2);fallPts(w,70,['#FFFFFF','#F4FAFF'],{size:.9,map:canvasTex(64,64,()=>{ctx.beginPath();ctx.arc(32,32,20,0,PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=5;ctx.strokeStyle='#9DBFE3';ctx.stroke()},'snow'),sp:.9,sw:.5});/* copos de nieve que caen despacio */for(const x of[-18,18])for(let i=0;i<4;i++)tree3(D,x,-4+i*3,.8,'verano',1)}
   if(z==='fiestas'){fallPts(w,60,DIAC,{size:1,map:canvasTex(32,32,()=>{ctx.fillStyle='#fff';ctx.fillRect(9,4,14,24)},'conf'),sp:.7,sw:.9});/* confeti que cae despacio */for(let i=0;i<10;i++)balloon3(D,-15+i*3.3,-7.5,DIAC[i%7],2.5+(i%3)*.5);for(let i=0;i<8;i++){const b=grp(D,[-14+i*4,0,8]);b.userData.gift=1;mk(Box(.8,.7,.8),DIAC[i%7],{p:[0,.35,0],to:b,ol:.035});mk(Box(.18,.72,.82),'#FFC93C',{p:[0,.35,0],ol:.02,to:b})}}
