@@ -5875,11 +5875,13 @@ let lastGame=null;{const je=SCENES.juego.enter;SCENES.juego.enter=function(o){la
 
 /* ================= EL COFRE DEL TESORO ================= */
 function gradTex(a,b,key){return canvasTex(16,256,g=>{const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,a);gr.addColorStop(1,b);g.fillStyle=gr;g.fillRect(0,0,16,256)},key)}
-function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10});w.sc.background=gradTex('#FFE9C2','#FFD7E4','cofreBg');
+function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10}),nt=skyNow().night;w.sc.background=nt?gradTex('#F3D9E8','#5F6FB4','cofreBgN'):gradTex('#FFE9C2','#FFD7E4','cofreBg');
+  // de noche: cielo de anochecer, estrellas que brillan y luciérnagas
+  if(nt){w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.85});fireflies(w,16,8,1)}
   mk(Cyl(7,7.4,.6,48),'#BFE6A0',{p:[0,-.3,0],s:[1,1,.7],to:w.sc,ol:.1});
   for(let i=0;i<12;i++){const a=i/12*PI*2;if(Math.sin(a)>.55)continue;flower3(w.sc,Math.cos(a)*5.8,Math.sin(a)*3.8,FLC[i%7],.8)}
   // estrellas del fondo: se balancean y ladean en vez de girar enteras (de canto se veían como rayitas sueltas)
-  const stars=[];for(let i=0;i<14;i++){const s=mk(starGeo(.18+(i%3)*.08,.06),'#FFF3B0',{p:[-9+i*1.4,4+(i*37%5)*.8,-6-(i%3)],ol:.02,cs:false,to:w.sc});s.userData.y0=s.position.y;stars.push(s)}
+  const stars=[];for(let i=0;i<14;i++){const s=mk(starGeo(.18+(i%3)*.08,.06),nt?M('#FFF3B0',{emissive:'#C9A000'}):'#FFF3B0',{p:[-9+i*1.4,4+(i*37%5)*.8,-6-(i%3)],ol:.02,cs:false,to:w.sc});s.userData.y0=s.position.y;stars.push(s)}
   const ch=grp(w.sc,[0,0,0]);w.chest=ch;
   mk(rbox(3.2,1.7,2.2,.15),'#B5763F',{p:[0,.85,0],to:ch,ol:.07});
   for(const y of[.55,1.15])mk(Box(3.22,.07,2.22),'#8A5A3C',{p:[0,y,0],ol:0,to:ch});
@@ -5924,12 +5926,12 @@ function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10});w.sc.b
 }
 
 /* ================= LA PORTADA ================= */
-function buildTitle(){const w=newWorld({fov:34,kind:'title',shadow:10});w.sc.background=gradTex('#FFF6E6','#FCE3C0','titleBg');
+function buildTitle(){const w=newWorld({fov:34,kind:'title',shadow:10}),nt=skyNow().night;w.sc.background=nt?gradTex('#F8DCCF','#5F6FB4','titleBgN'):gradTex('#FFF6E6','#FCE3C0','titleBg');// de noche, cielo de anochecer
   mk(Cyl(5.2,5.5,.7,48),'#BFE6A0',{p:[0,-.35,0],s:[1,1,.75],to:w.sc,ol:.1});mk(Cyl(5.6,4.2,1.6,48),'#D9A86C',{p:[0,-1.45,0],s:[1,1,.75],to:w.sc,ol:.1});
   for(let i=0;i<9;i++){const a=i/9*PI*2;flower3(w.sc,Math.cos(a)*4.3,Math.sin(a)*3,FLC[i%7],.8)}
   tree3(w.sc,-3.6,-1.6,.8,'primavera');bush3(w.sc,3.5,-1.4,.9);
   const tito=makeTito();tito.position.set(-.3,0,.6);tito.rotation.y=-.25;w.sc.add(tito);w.tito=tito;
-  butterfly3(w,-3.2,-1,'#FF8FB1',0,{s:1,h:2.6,r:1.8});fallPts(w,24,['#FFB3C7','#FFD1DC','#FFFFFF'],{size:.7,map:canvasTex(32,32,()=>{ctx.beginPath();ctx.ellipse(16,16,13,7,.6,0,PI*2);ctx.fillStyle='#fff';ctx.fill()},'leaf'),sp:.45,sw:.8,h:7,wx:18,wz:8,cx:2,cz:-1});/* pétalos */butterfly3(w,4.2,-.5,'#7FD3F0',3,{s:1,h:1.6,r:1.8});// mariposas en la portada
+  if(nt){w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.85});fireflies(w,14,8,1)}else butterfly3(w,-3.2,-1,'#FF8FB1',0,{s:1,h:2.6,r:1.8});fallPts(w,24,['#FFB3C7','#FFD1DC','#FFFFFF'],{size:.7,map:canvasTex(32,32,()=>{ctx.beginPath();ctx.ellipse(16,16,13,7,.6,0,PI*2);ctx.fillStyle='#fff';ctx.fill()},'leaf'),sp:.45,sw:.8,h:7,wx:18,wz:8,cx:2,cz:-1});/* pétalos */if(!nt)butterfly3(w,4.2,-.5,'#7FD3F0',3,{s:1,h:1.6,r:1.8});// mariposas en la portada
   const qs=[];for(let i=0;i<10;i++){const s=spr(canvasTex(128,128,()=>text('?',64,108,120,LOGOC[i%LOGOC.length],{st:8,sc:'#fff'}),'q'+i),.9,.9,{p:[-8+i*1.8,1+(i*53%7)*.8,-3-(i%3)*1.5],to:w.sc,op:.8});qs.push(s)}
   w.upd.push(dt=>{tito.userData.anim(dt,{});tito.rotation.y=-.25+Math.sin(T*.5)*.35;qs.forEach((q,i)=>{q.position.y+=dt*(.3+(i%3)*.15);if(q.position.y>8)q.position.y=-1;q.material.rotation=Math.sin(T+i)*.2;
     // al pasar por detrás del título y del subtítulo se desvanecen para que se lean bien
