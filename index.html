@@ -5318,19 +5318,21 @@ function walkGround(w){const h=w.ground&&RC.intersectObject(w.ground,false)[0];
 const busy3=w=>!!(w.walk&&!w.walk.free);
 // pasitos suaves mientras pasea (sonido de pisadas, alterna dos notas);
 // al terminar un paseo libre Tito se vuelve a mirar al niño (si no, quedaba de espaldas al caminar hacia el fondo)
-// Tito es un caracol: al caminar deja un rastro brillante que se desvanece (24 discos reutilizables para todo el juego)
+// Tito caracol: al caminar deja un rastro brillante que se desvanece (24 discos reutilizables para todo el juego)
 const TRAIL=[],TRC=new THREE.Raycaster();let trailGeo=null;
-function trailTick(w,tito,dt,walking){
+function trailTick(w,tito,dt,walking,dust){
   if(!trailGeo){trailGeo=new THREE.CircleGeometry(.3,18);trailGeo.rotateX(-PI/2);trailGeo.userData.keep=true}
-  for(const d of TRAIL)if(d.parent===w.sc&&d.visible){d.userData.a-=dt/2.5;if(d.userData.a<=0)d.visible=false;else d.material.opacity=.6*d.userData.a}
-  if(!walking){w.trT=0;return}if((w.trT=(w.trT||0)+dt)<.09)return;w.trT=0;
+  for(const d of TRAIL)if(d.parent===w.sc&&d.visible){const u=d.userData;u.a-=dt/(u.dust?.7:2.5);if(u.a<=0)d.visible=false;else{d.material.opacity=(u.dust?.75:.6)*u.a;if(u.dust)d.scale.setScalar(u.s*(1.7-u.a))}}
+  if(!walking){w.trT=0;return}if((w.trT=(w.trT||0)+dt)<(dust?.24:.09))return;w.trT=0;
   let d=TRAIL.find(d=>d.parent!==w.sc||!d.visible);
   if(!d){if(TRAIL.length<24){d=new THREE.Mesh(trailGeo,new THREE.MeshBasicMaterial({color:'#E4F7FF',transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));d.renderOrder=1;TRAIL.push(d)}
     else d=TRAIL.reduce((a,b)=>a.userData.a<b.userData.a?a:b)}
   // altura del suelo justo debajo (la plaza y los caminos están más altos que el pasto)
   const P=tito.position,inT=o=>{for(;o;o=o.parent)if(o===tito)return true;return false};TRC.set(V3(P.x,P.y+4,P.z),V3(0,-1,0));TRC.camera=w.cam;
   const h=TRC.intersectObjects(w.sc.children,true).find(h=>!h.object.isSprite&&!TRAIL.includes(h.object)&&h.point.y<P.y+.5&&!inT(h.object));
-  if(d.parent!==w.sc)w.sc.add(d);d.scale.setScalar(tito.scale.x);d.position.set(P.x,(h?h.point.y:P.y)+.015,P.z);d.visible=true;d.userData.a=1;d.material.opacity=.6}
+  if(d.parent!==w.sc)w.sc.add(d);d.userData.dust=!!dust;d.userData.s=tito.scale.x*(dust?1.1:1);d.scale.setScalar(d.userData.s);d.material.color.set(dust?'#E6D3A8':'#E4F7FF');
+  // el polvito sale un poco por detrás, donde pisó (si no, queda escondido bajo el animal)
+  const L=w.trL&&w.trL.distanceTo(P)<2?w.trL:P;d.position.set(dust?(P.x+L.x)/2:P.x,(h?h.point.y:P.y)+.015,dust?(P.z+L.z)/2:P.z);w.trL=(w.trL||P.clone()).copy(P);d.visible=true;d.userData.a=1;d.material.opacity=dust?.75:.6}
 function walkTick(w,tito,dt){const k=w.walk;let wk=0;
   if(k){const e=clamp((T-k.t0)/k.dur,0,1),s=e*e*(3-2*e);tito.position.lerpVectors(k.from,k.to,s);wk=1;
     // pasos al ritmo de cada animal (v1.36): saltito blando del conejo, pasos lentos y graves de la tortuga, trote ligero del erizo; el caracol como siempre
@@ -5338,7 +5340,8 @@ function walkTick(w,tito,dt){const k=w.walk;let wk=0;
       if((k.st=(k.st||0)+dt)>=P[0]){k.st=0;w.steps=(w.steps||0)+1;tone(P[1][w.steps%2],P[2],kd==='conejo'?'triangle':'sine',P[3],.8)}}
    if(e>=1){w.walk=null;if(k.free)tito.userData.face=tito.userData.rest;const cb=k.cb;setTimeout(()=>{try{cb()}catch(err){console.error(err)}},60)}}
   const f=tito.userData.face;if(f!=null){let d=f-tito.rotation.y;while(d>PI)d-=PI*2;while(d<-PI)d+=PI*2;tito.rotation.y+=d*Math.min(1,dt*8)}
-  trailTick(w,tito,dt,tito.userData.kind==='caracol'?wk:0);return wk}
+  // el caracol deja su rastro brillante; los demás animales levantan un polvito a cada paso
+  trailTick(w,tito,dt,wk,tito.userData.kind!=='caracol');return wk}
 
 // TITO (rectángulo 2D) y HOUSE_AT siguen al modelo 3D; al volver al 2D se restauran
 const TITO0={x:TITO.x,y:TITO.y,w:TITO.w},HOUSE0=[HOUSE_AT[0],HOUSE_AT[1]];
@@ -5669,6 +5672,7 @@ function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10});w.sc.b
     piv.rotation.x=-op*1.95;lock.visible=op<.15;glow.material.opacity=Math.min(1,op*2)*.9;
     rays.rotation.z=T*.4;rays.children.forEach(r=>r.material.opacity=Math.min(1,op*1.5)*.55);stars.forEach((s,i)=>{s.rotation.y=Math.sin(T*1.2+i)*.55;s.rotation.z=Math.sin(T*.8+i*1.7)*.25;s.position.y=s.userData.y0+Math.cos(T*2+i)*.06});
     tito.userData.anim(dt,{hop:st.openT?st.openT+.2:st.hop})});
+  wobInit(w);
   camRig(w,V3(0,4.6,10),V3(0,2.05,0),.5);return w}
 {const S0=SCENES.cofre,enter0=S0.enter,down0=S0.down;
  Object.assign(S0,{three:true,
@@ -5685,7 +5689,9 @@ function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10});w.sc.b
       {const p=(Math.sin(T*4)+1)/2,s=hv('cf:seguir',hC(1000,800,74));ctx.save();ctx.translate(1000,800);ctx.scale(s*(1+p*.05),s*(1+p*.05));ctx.globalAlpha=.35+.3*p;circ(0,0,84,null,10,'#FFC93C');ctx.globalAlpha=1;circ(0,0,72,'#7CC86E',7);ctx.beginPath();ctx.moveTo(-20,-32);ctx.lineTo(34,0);ctx.lineTo(-20,32);ctx.closePath();fillStroke('#fff',5);ctx.restore()}}
     drawHome();drawCoinHUD();
     if(talking){const bx=TITO.x+TITO.w*.85,by=TITO.y-50;ctx.globalAlpha=.95;card(bx,by,96,72,'#fff',5,28);ctx.globalAlpha=1;speaker(bx+50,by+36,46+Math.sin(T*12)*4)}},
-  down(x,y){if(!this.openT){const u=pickAt(x,y);if(u&&u.id==='chest')return call0(down0,this,800,520);if(u&&u.id==='tito'){this.hop=T;return down0.call(this,x,y)}}
+  down(x,y){if(!this.openT){const u=pickAt(x,y);if(u&&u.id==='chest')return call0(down0,this,800,520);if(u&&u.id==='tito'){this.hop=T;return down0.call(this,x,y)}
+      // las flores alrededor del cofre también responden (lejos del cofre, para no quitarle toques)
+      if(!u&&!atHome(x,y)&&!inR(x,y,800,520,380,360)&&W3&&wobTap(W3,x,y))return}
     return down0.call(this,x,y)}});
  // la casa de Tito por dentro sigue en 2D, pero en su lugar original
 }
