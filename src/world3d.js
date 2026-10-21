@@ -184,17 +184,18 @@ function phone3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.phone=1;const R=
 function frog3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.frog=1;mk(Cyl(1.3,1.3,.06,24),'#7FC8E8',{p:[0,.03,0],s:[1,1,.7],ol:.02,to:g});
   mk(Cyl(.5,.5,.04,16,1,false,.4,PI*2-.6),'#5BB04B',{p:[-.2,.08,0],ol:0,cs:false,to:g});mk(Cyl(.28,.28,.04,12,1,false,1,PI*2-.6),'#5BB04B',{p:[.75,.08,.2],ol:0,cs:false,to:g});
   const f=grp(g,[-.2,.1,0]);mk(Sph(.32,14,10),'#6CC24A',{p:[0,.22,0],s:[1,.7,1.1],to:f,ol:.03});
-  for(const sd of[-1,1]){mk(Sph(.11,10,8),'#6CC24A',{p:[sd*.15,.42,.18],to:f,ol:.02});mk(Sph(.06,8,6),K,{p:[sd*.15,.46,.27],ol:0,cs:false,to:f});mk(Sph(.12,8,6),'#5AAE3C',{p:[sd*.28,.08,.15],s:[1,.5,1.4],ol:.02,cs:false,to:f})}
+  const FE=[],nt=skyNow().night;for(const sd of[-1,1]){mk(Sph(.11,10,8),'#6CC24A',{p:[sd*.15,.42,.18],to:f,ol:.02});FE.push(mk(Sph(.06,8,6),K,{p:[sd*.15,.46,.27],ol:0,cs:false,to:f}));mk(Sph(.12,8,6),'#5AAE3C',{p:[sd*.28,.08,.15],s:[1,.5,1.4],ol:.02,cs:false,to:f})}
   const th=mk(Sph(.12,10,8),'#F2E3A0',{p:[0,.2,.3],s:[1.2,.7,.6],ol:0,cs:false,to:f});
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,q=Math.min(e/.8,1);f.position.y=.1+(e<.8?Math.sin(q*PI)*1.1:0);f.rotation.x=e<.8?-Math.sin(q*PI)*.4:0;
-    th.scale.setScalar(1+Math.max(0,Math.sin(T*5))*.5*((T%3)<1.2?1:0))});return g}
+  const zz=nt?zzz3(w,f,.8):null;w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,q=Math.min(e/.8,1),sl=nt&&e>=.8;f.position.y=.1+(e<.8?Math.sin(q*PI)*1.1:0);f.rotation.x=e<.8?-Math.sin(q*PI)*.4:0;
+    th.scale.setScalar(sl?1:1+Math.max(0,Math.sin(T*5))*.5*((T%3)<1.2?1:0));for(const m of FE)m.scale.y=sl?.15:1;if(zz)zz.forEach(z=>z.visible=sl)});return g}// de noche duerme sobre el nenúfar
 // cangrejo de la playa del mapa: anda de lado de un lado a otro; al tocarlo abre y cierra las pinzas y corre
 function crab3(w,x0,x1,z,s){const g=grp(w.sc,[x0,0,z],s);g.userData.crab=1;g.add(new THREE.Mesh(gcache('chit',()=>Sph(.7,6,4)),FHIT));const C='#F0603C';
-  mk(Sph(.4,14,10),C,{p:[0,.3,0],s:[1.2,.6,.9],to:g,ol:.03});const P=[];
-  for(const sd of[-1,1]){mk(Cyl(.03,.03,.25,5),C,{p:[sd*.13,.55,.18],ol:0,cs:false,to:g});mk(Sph(.07,8,6),'#FFFFFF',{p:[sd*.13,.7,.18],ol:.015,cs:false,to:g});mk(Sph(.035,6,5),K,{p:[sd*.13,.71,.24],ol:0,cs:false,to:g});
+  mk(Sph(.4,14,10),C,{p:[0,.3,0],s:[1.2,.6,.9],to:g,ol:.03});const P=[],CE=[],nt=skyNow().night;
+  for(const sd of[-1,1]){mk(Cyl(.03,.03,.25,5),C,{p:[sd*.13,.55,.18],ol:0,cs:false,to:g});CE.push(mk(Sph(.07,8,6),'#FFFFFF',{p:[sd*.13,.7,.18],ol:.015,cs:false,to:g}),mk(Sph(.035,6,5),K,{p:[sd*.13,.71,.24],ol:0,cs:false,to:g}));
     const cl=grp(g,[sd*.48,.35,.3]);mk(Sph(.16,10,8),C,{s:[1,.8,1.2],to:cl,ol:.02});const j=grp(cl,[0,0,.12]);mk(Box(.07,.06,.2),C,{p:[0,0,.08],ol:.01,cs:false,to:j});P.push(j);
     for(let i=0;i<3;i++)mk(Cyl(.025,.025,.35,4),C,{p:[sd*.42,.18,-.15+i*.15],r:[0,0,sd*1.1],ol:0,cs:false,to:g})}
-  let ph=0;w.upd.push(dt=>{const k=g.userData.wob,e=k==null?9:T-k,fast=e<1.2;ph+=dt*(fast?1.6:.35);g.position.x=x0+(x1-x0)*(.5-.5*Math.cos(ph));
+  const zz=nt?zzz3(w,g,1):null;let ph=0;w.upd.push(dt=>{const k=g.userData.wob,e=k==null?9:T-k,fast=e<1.2,sl=nt&&!fast;ph+=sl?0:dt*(fast?1.6:.35);for(const m of CE)m.scale.y=sl?.2:1;if(zz)zz.forEach(z=>z.visible=sl);// de noche duerme en la arena
+    g.position.x=x0+(x1-x0)*(.5-.5*Math.cos(ph));
     g.position.y=Math.abs(Math.sin(ph*14))*.04;for(const j of P)j.rotation.y=fast?Math.abs(Math.sin(e*16))*.7:Math.max(0,Math.sin(T*3))*.3});return g}
 // tarta de cumpleaños con velas: al tocarla se apagan con un soplido y al rato se vuelven a encender
 function cake3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.cake=1;g.userData.dur=2.5;mk(Cyl(.95,.95,.08,20),'#FFFFFF',{p:[0,.04,0],to:g,ol:.02});
@@ -247,9 +248,10 @@ function burrow3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.burrow=1;g.add(
   const r=grp(g,[0,0,0]),W='#FFFFFF';mk(Sph(.3,14,10),W,{p:[0,.3,0],s:[1,1.1,.95],to:r,ol:.03});
   for(const sd of[-1,1]){const e=grp(r,[sd*.12,.52,-.02]);mk(Sph(.08,8,6),W,{p:[0,.24,0],s:[1,3.2,.6],to:e,ol:.02});mk(Sph(.045,6,5),'#FFB3C7',{p:[0,.24,.03],s:[1,2.6,.4],ol:0,cs:false,to:e});e.rotation.z=-sd*.15;
     mk(Sph(.045,6,5),K,{p:[sd*.11,.36,.25],ol:0,cs:false,to:r})}
-  mk(Sph(.04,6,5),'#FF8FB1',{p:[0,.29,.29],ol:0,cs:false,to:r});
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k;let y;
-    if(e<1.1){const q=e/1.1;y=-.1+Math.sin(q*PI)*1.3;r.rotation.y=q*PI*2}else{const c=T%5.5,o=c<.4?c/.4:c<3.2?1:c<3.6?1-(c-3.2)/.4:0;y=-.75+o*.6;r.rotation.y=c<3.2?Math.sin(T*1.5)*.4:0}
+  mk(Sph(.04,6,5),'#FF8FB1',{p:[0,.29,.29],ol:0,cs:false,to:r});const nt=skyNow().night,zz=nt?zzz3(w,g,.3):null;
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k;let y;if(zz)zz.forEach(z=>z.visible=e>=1.1);
+    if(e<1.1){const q=e/1.1;y=-.1+Math.sin(q*PI)*1.3;r.rotation.y=q*PI*2}else if(nt){y=-.8;r.rotation.y=0}// de noche duerme dentro: solo salen las z
+    else{const c=T%5.5,o=c<.4?c/.4:c<3.2?1:c<3.6?1-(c-3.2)/.4:0;y=-.75+o*.6;r.rotation.y=c<3.2?Math.sin(T*1.5)*.4:0}
     r.position.y=y;r.visible=y>-.7});return g}
 // torre del reloj (como el Big Ben): al tocarla suenan las campanas ding-dong y las agujas dan una vuelta
 function clock3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.clock=1;const C='#D9B77A',D2='#8A6A3C';
