@@ -1144,7 +1144,7 @@ function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10}),nt=sky
   mk(Box(3.2,.1,2.2),'#7A4C30',{p:[0,.02,1.1],ol:.03,to:piv});
   const lock=grp(ch,[0,1.6,1.16]);mk(rbox(.6,.7,.14,.06),'#FFC93C',{to:lock,ol:.035});mk(Cyl(.08,.08,.06,10),K,{p:[0,.08,.08],r:[PI/2,0,0],ol:0,to:lock});
   const rays=grp(w.sc,[0,1.8,-.6]);for(let i=0;i<12;i++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.9,14),new THREE.MeshBasicMaterial({color:i%2?'#FFF3B0':'#FFE08A',transparent:true,opacity:0,depthWrite:false}));m.geometry.translate(0,7,0);m.rotation.z=i/12*PI*2;rays.add(m)}
-  const prt=parrot3(w,-6,-1.4,.85);/* loro pirata junto al cofre */
+  const prt=parrot3(w,-6,-1.4,.85);/* loro pirata junto al cofre */const crb=crab3(w,3.9,4.9,1.8,.75);/* y un cangrejo que pasea por la derecha */
   const tito=makeTito();tito.scale.setScalar(.62);tito.position.set(-4,0,1.1);tito.rotation.y=-.5;w.sc.add(tito);w.tito=tito;w.pick.push(tito);
   ch.userData.id='chest';w.pick.push(ch);
   // antes de abrirse el cofre "respira" para invitar a tocarlo, y crece un poco con el ratón encima
@@ -1153,7 +1153,7 @@ function buildCofre(st){const w=newWorld({fov:36,kind:'cofre',shadow:10}),nt=sky
     const sT=st.openT?1:(st.hov?1.07:1)*(1+Math.sin(T*3)*.025);chS+=(sT-chS)*Math.min(1,dt*10);ch.scale.setScalar(chS);
     piv.rotation.x=-op*1.95;lock.visible=op<.15;glow.material.opacity=Math.min(1,op*2)*.9;
     rays.rotation.z=T*.4;rays.children.forEach(r=>r.material.opacity=Math.min(1,op*1.5)*.55);stars.forEach((s,i)=>{s.rotation.y=Math.sin(T*1.2+i)*.55;s.rotation.z=Math.sin(T*.8+i*1.7)*.25;s.position.y=s.userData.y0+Math.cos(T*2+i)*.06});
-    if(st.openT&&!prt.userData.cheer){prt.userData.cheer=1;prt.userData.wob=st.openT+.5;squawk(.5);squawk(.95)}/* el loro celebra que se abre el cofre */
+    if(st.openT&&!prt.userData.cheer){prt.userData.cheer=1;prt.userData.wob=st.openT+.5;squawk(.5);squawk(.95);crb.userData.wob=st.openT+.8}/* el loro celebra que se abre el cofre */
     tito.userData.anim(dt,{hop:st.openT?st.openT+.2:st.hop})});
   wobInit(w);
   camRig(w,V3(0,4.6,10),V3(0,2.05,0),.5);return w}
