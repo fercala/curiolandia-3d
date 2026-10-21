@@ -130,6 +130,15 @@ function fireflies(w,WX,WZ,sz){const n=24,pos=new Float32Array(n*3),ph=[];for(le
     const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.BufferAttribute(pos,3));
     const ff=new THREE.Points(fg,new THREE.PointsMaterial({color:'#FFF06A',size:sz||2.2,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));ff.raycast=()=>{};w.sc.add(ff);
     w.upd.push(()=>{for(let i=0;i<n;i++){const [x,z,a]=ph[i];pos[i*3]=x+Math.sin(T*.5+a)*1.2;pos[i*3+1]=1.3+Math.sin(T*.9+a*2)*.6;pos[i*3+2]=z+Math.cos(T*.4+a)*1.2}fg.attributes.position.needsUpdate=true;ff.material.opacity=.65+.35*Math.sin(T*3)})}
+// estrellas que titilan en el cielo de noche (tres grupos que brillan a destiempo)
+function skyStars(w,y0,z0,WX,HY){for(let k=0;k<3;k++){const n=12,pos=new Float32Array(n*3);for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*WX;pos[i*3+1]=y0+Math.random()*HY;pos[i*3+2]=z0-Math.random()*2}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    const p=new THREE.Points(g,new THREE.PointsMaterial({color:'#FFF6C8',size:1.5,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));p.raycast=()=>{};w.sc.add(p);
+    w.upd.push(()=>{p.material.opacity=.55+.45*Math.sin(T*2.2+k*2.1)})}
+  // de vez en cuando cruza una estrella fugaz con su estela
+  const n=6,fp=new Float32Array(n*3),fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.BufferAttribute(fp,3));
+  const f=new THREE.Points(fg,new THREE.PointsMaterial({color:'#FFFFFF',size:1.6,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));f.raycast=()=>{};w.sc.add(f);
+  w.upd.push(()=>{const c=T%9,q=c/1.3;f.visible=q<1;if(!f.visible)return;const s0=Math.floor(T/9)%2?1:-1;for(let i=0;i<n;i++){const qq=Math.max(0,q-i*.035);fp[i*3]=s0*(-WX*.4+qq*WX*.8);fp[i*3+1]=y0+HY-qq*HY*.7;fp[i*3+2]=z0}fg.attributes.position.needsUpdate=true;f.material.opacity=Math.sin(q*PI)})}
 // seta de sombrero rojo con lunares; al tocarla se aplasta y rebota como los arbustos
 function mush3(to,x,z,s){const g=grp(to,[x,0,z],s);g.userData.mush=1;mk(Cyl(.16,.2,.5,12),'#FFF6E6',{p:[0,.25,0],to:g,ol:.025});
   const nt=skyNow().night,cap=new THREE.SphereGeometry(.42,16,10,0,PI*2,0,PI/2);/* de noche las setas brillan un poco */mk(cap,nt?M('#E8503C',{emissive:'#6A1A0E'}):'#E8503C',{p:[0,.48,0],s:[1,.75,1],to:g,ol:.03});
@@ -1040,7 +1049,7 @@ function buildZone(z,st){const Z=ZONES[z],P=ZPOS[z],sty=ZSTYLE[z]||ZSTYLE.jardin
   w.ground=slab(w.sc,38,20,sty.g,sty.e);w.gb=[-16,16,-8,5.5];// que Tito no se salga del cuadro
   zoneDecor(w,z);
   // de noche, las zonas también: cielo de noche, un poco menos de luz y luciérnagas en las zonas verdes (como el mapa)
-  if(skyNow().night){w.sc.background=new THREE.Color('#3B4A86');w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.82});if(['jardin','bosque','ingles'].includes(z))fireflies(w,30,14)}
+  if(skyNow().night){w.sc.background=new THREE.Color('#3B4A86');w.sc.children.forEach(o=>{if(o.isLight)o.intensity*=.82});if(['jardin','bosque','ingles'].includes(z))fireflies(w,30,14);skyStars(w,1.2,-18,56,3.4)}
   for(let i=0;i<4;i++)cloud3(w.sc,-20+i*13,10+(i%2)*1.5,-14,.9);
   const main=MAINZ.includes(z),path=z==='fiestas'?FIESTAS:main?pathOf(z):Z.temas,B=w.base={};
   for(const t of Z.temas)B[t.id]=ZX(ZPB[z][t.id].x,ZPB[z][t.id].y);
