@@ -132,8 +132,8 @@ function fireflies(w,WX,WZ,sz){const n=24,pos=new Float32Array(n*3),ph=[];for(le
     w.upd.push(()=>{for(let i=0;i<n;i++){const [x,z,a]=ph[i];pos[i*3]=x+Math.sin(T*.5+a)*1.2;pos[i*3+1]=1.3+Math.sin(T*.9+a*2)*.6;pos[i*3+2]=z+Math.cos(T*.4+a)*1.2}fg.attributes.position.needsUpdate=true;ff.material.opacity=.65+.35*Math.sin(T*3)})}
 // seta de sombrero rojo con lunares; al tocarla se aplasta y rebota como los arbustos
 function mush3(to,x,z,s){const g=grp(to,[x,0,z],s);g.userData.mush=1;mk(Cyl(.16,.2,.5,12),'#FFF6E6',{p:[0,.25,0],to:g,ol:.025});
-  const cap=new THREE.SphereGeometry(.42,16,10,0,PI*2,0,PI/2);mk(cap,'#E8503C',{p:[0,.48,0],s:[1,.75,1],to:g,ol:.03});
-  for(let i=0;i<5;i++){const a=i/5*PI*2;mk(Sph(.06,8,6),'#FFFFFF',{p:[Math.cos(a)*.26,.68,Math.sin(a)*.26],s:[1,.5,1],ol:0,cs:false,to:g})}mk(Sph(.07,8,6),'#FFFFFF',{p:[0,.8,0],s:[1,.5,1],ol:0,cs:false,to:g});return g}
+  const nt=skyNow().night,cap=new THREE.SphereGeometry(.42,16,10,0,PI*2,0,PI/2);/* de noche las setas brillan un poco */mk(cap,nt?M('#E8503C',{emissive:'#6A1A0E'}):'#E8503C',{p:[0,.48,0],s:[1,.75,1],to:g,ol:.03});
+  const dc=nt?M('#FFFFFF',{emissive:'#8FE3FF'}):'#FFFFFF';for(let i=0;i<5;i++){const a=i/5*PI*2;mk(Sph(.06,8,6),dc,{p:[Math.cos(a)*.26,.68,Math.sin(a)*.26],s:[1,.5,1],ol:0,cs:false,to:g})}mk(Sph(.07,8,6),dc,{p:[0,.8,0],s:[1,.5,1],ol:0,cs:false,to:g});return g}
 // autobús rojo de dos pisos que va y viene; al tocarlo da un saltito y pita
 function bus3(w,z){const D=w.sc,b=grp(D,[0,0,z],.9),body=grp(b,[0,0,0]);b.userData.bus=1;
   mk(rbox(3,1.9,1.2,.12),'#D9302C',{p:[0,1.25,0],to:body,ol:.05});mk(Box(3.02,.12,1.22),'#FFF3D6',{p:[0,1.3,0],ol:0,to:body});
@@ -366,12 +366,12 @@ function kite3(w,x,y,z,s){const g=grp(w.sc,[x,y,z],s);g.userData.kite=1;g.userDa
     k.rotation.z=(e<1.4?Math.min(e/1.4,1)*PI*2:0)+Math.sin(T*1.1)*.15;tl.forEach((t,i)=>t.position.x=Math.sin(T*3-i*.8)*.12*(i+1));
     if(e<1.4)g.position.y+=Math.sin(e/1.4*PI)*.5});return g}
 // Mapa (de día): un globo aerostático de rayas flota sobre el mar; al tocarlo se enciende la llama y sube un poco
-function hab3(w,x,y,z,s){const g=grp(w.sc,[x,y,z],s);g.userData.hab=1;g.userData.dur=2.2;
-  ['#FF6B6B','#FFC93C','#5BB8F5','#FF6B6B','#FFC93C','#5BB8F5'].forEach((c,i)=>mk(new THREE.SphereGeometry(1.2,6,14,i*PI/3,PI/3),c,{p:[0,1.6,0],s:[1,1.15,1],ol:.03,to:g}));
+function hab3(w,x,y,z,s){const g=grp(w.sc,[x,y,z],s);g.userData.hab=1;g.userData.dur=2.2;const nt=skyNow().night;/* de noche la llama queda encendida y el globo brilla */
+  ['#FF6B6B','#FFC93C','#5BB8F5','#FF6B6B','#FFC93C','#5BB8F5'].forEach((c,i)=>mk(new THREE.SphereGeometry(1.2,6,14,i*PI/3,PI/3),nt?M(c,{emissive:'#'+new THREE.Color(c).multiplyScalar(.4).getHexString()}):c,{p:[0,1.6,0],s:[1,1.15,1],ol:.03,to:g}));
   mk(Cyl(.45,.25,.5,12),'#FF6B6B',{p:[0,.35,0],ol:.02,cs:false,to:g});mk(Box(.55,.4,.55),'#B07A4A',{p:[0,-.7,0],ol:.03,to:g});
   for(const [a,b] of[[-1,-1],[1,-1],[-1,1],[1,1]])mk(Cyl(.015,.015,.75,3),'#6B4423',{p:[a*.22,-.15,b*.22],ol:0,cs:false,to:g});
   const fl=mk(Cone(.12,.35,8),M('#FFB020',{emissive:'#FF7A00'}),{p:[0,.05,0],ol:0,cs:false,to:g});fl.visible=false;
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k;g.position.x=x+Math.sin(T*.13)*.8;g.position.y=y+Math.sin(T*.6)*.2+(e<2.2?Math.sin(e/2.2*PI)*1.2:0);fl.visible=e<1.2;if(fl.visible)fl.scale.setScalar(1+Math.sin(T*30)*.25)});return g}
+  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k;g.position.x=x+Math.sin(T*.13)*.8;g.position.y=y+Math.sin(T*.6)*.2+(e<2.2?Math.sin(e/2.2*PI)*1.2:0);fl.visible=nt||e<1.2;if(fl.visible)fl.scale.setScalar((e<1.2?1:.6)*(1+Math.sin(T*30)*.25))});return g}
 // Inglés: una tetera para la hora del té; al tocarla tiembla, silba y echa vapor por el pitorro
 function tea3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.tea=1;g.userData.dur=1.8;const b=grp(g,[0,0,0]),C='#5BB8F5';
   mk(Sph(.5,16,12),C,{p:[0,.45,0],s:[1,.85,1],to:b,ol:.03});mk(Sph(.3,14,8,0,PI*2,0,PI/2),'#FFFFFF',{p:[0,.8,0],s:[1,.5,1],to:b,ol:.02});mk(Sph(.08,8,6),'#FFC93C',{p:[0,.97,0],to:b,ol:.01,cs:false});
@@ -843,7 +843,7 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
   // nubes y estrellas se mueven según el tiempo, no por cuadro: igual en una pantalla de 30, 60 o 120 Hz
   for(let i=0;i<6;i++){const c=cloud3(w.sc,-34+i*14,9+(i%3)*1.5,-18+(i%2)*6,1+(i%3)*.3);w.upd.push(dt=>{c.position.x+=.3*dt;if(c.position.x>40)c.position.x=-40})}
   // gaviotas que vuelan en círculos sobre la orilla de la isla
-  crab3(w,-4,3,10.2,1);whale3(w,-21.8,0,.85);dolph3(w,22.9,.5,.9);lighthouse3(w,11.9,9.9,1);palm3(w,-11.4,10,1);if(!skyNow().night)hab3(w,12,2.8,-6,.9);gull3(w,18,10,7,0,1);gull3(w,16,9,8,2.2,1);gull3(w,19,11,6.5,4,-1);
+  crab3(w,-4,3,10.2,1);whale3(w,-21.8,0,.85);dolph3(w,22.9,.5,.9);lighthouse3(w,11.9,9.9,1);palm3(w,-11.4,10,1);hab3(w,12,2.8,-6,.9);gull3(w,18,10,7,0,1);gull3(w,16,9,8,2.2,1);gull3(w,19,11,6.5,4,-1);
   // barquitos
   for(const [x,z,c] of[[-22,4,'#FF6B5E'],[24,-6,'#5B8DEF'],[16,14,'#FFC93C']]){const b=grp(w.sc,[x,-1,z]);mk(Box(1.6,.4,.7),c,{p:[0,.2,0],to:b,ol:.04});mk(Cyl(.04,.04,1.6,6),'#C98A4B',{p:[0,1.1,0],ol:0,to:b});mk(prism(.9,1.2,.05),'#fff',{p:[.1,.5,0],r:[0,0,0],to:b,ol:.02});
     const hb=new THREE.Mesh(Box(2.6,2.4,1.6),FHIT);hb.position.y=.8;b.add(hb);b.userData.boat=1;// al tocarlo, salta dando una vuelta y toca la bocina
