@@ -11,7 +11,7 @@ Juego de temas de Educación Infantil (3, 4 y 5 años) con Tito como guía. HTML
 ## Montar y publicar
 ```sh
 mkdir -p src/web
-sh src/build.sh            # src/artifact.html e src/index.html
+sh src/build.sh            # src/artifact.html y src/index.html
 python3 src/build_web.py   # src/web/index.html, sw.js, manifest
 cp src/web/index.html src/web/sw.js src/web/manifest.webmanifest .
 ```
