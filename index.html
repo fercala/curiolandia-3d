@@ -5287,9 +5287,10 @@ function walkTo(w,tito,to,cb,o={}){const from=tito.position.clone(),d=from.dista
   if(o.zoom){w.camT.pos=w.cb.pos.clone().lerp(to.clone().add(o.zoom),.35);w.camT.look=w.cb.look.clone().lerp(to,.35)}}
 // tocar el suelo vacío (después de pickAt): Tito camina hasta ahí, solo por la cara de arriba del suelo (nunca al mar ni al borde)
 // al tocarlos, los árboles se sacuden, los arbustos se aplastan, las flores saltan y las piedras botan; luego se calman solos; en el mapa, las zonas y las casitas
-const WOBK=o=>o.userData.tree||o.userData.bush||o.userData.flower||o.userData.rock;
+const WOBK=o=>o.userData.tree||o.userData.bush||o.userData.flower||o.userData.rock||o.userData.boat;
 function wobInit(w){w.trees=[];w.sc.traverse(o=>{if(WOBK(o)){o.userData.s0=o.scale.x;o.userData.y0=o.position.y;w.trees.push(o)}});if(!w.trees.length)return;
   w.upd.push(()=>{for(const t of w.trees){const k=t.userData.wob;if(k==null)continue;const e=T-k,s0=t.userData.s0,u=t.userData;
+    if(u.boat){if(e>1.6)u.wob=null;continue}// los barquitos se animan en su propio paso
     if(e>1.6){t.rotation.x=t.rotation.z=0;if(u.bush)t.scale.setScalar(s0);t.position.y=u.y0;if(u.flower){u.flower.rotation.z=0;u.flower.scale.setScalar(1)}t.userData.wob=null;continue}
     if(u.bush){const a=Math.sin(e*14)*.2*Math.exp(-e*3.2);t.scale.set(s0*(1+a*.5),s0*(1-a),s0*(1+a*.5))}// los arbustos se aplastan y rebotan
     else if(u.flower){const q=Math.min(e/.7,1);t.position.y=u.y0+Math.sin(q*PI)*.25*s0;u.flower.rotation.z=q*PI*2;u.flower.scale.setScalar(1+Math.sin(q*PI)*.5)}// las flores dan un saltito girando
@@ -5299,7 +5300,12 @@ function wobInit(w){w.trees=[];w.sc.traverse(o=>{if(WOBK(o)){o.userData.s0=o.sca
 function wobTap(w,x,y){const th=w.trees&&w.trees.length&&RC.intersectObjects(w.trees,true)[0];let t=th&&th.object;while(t&&!WOBK(t))t=t.parent;
   if(!t)return false;const u=t.userData;if(u.wob!=null&&T-u.wob<.3)return true;u.wob=T;
   if(u.bush){tone(330,.18,'sine',.14,1.8);noise(.18,.06,1800)}else if(u.flower){const f=pick([523,587,659,784,880]);tone(f,.3,'sine',.12);tone(f*2,.2,'sine',.05,1,.06)}
-  else if(u.rock){tone(150,.09,'triangle',.12,.7);noise(.06,.1,700)}else{noise(.35,.14,2400);noise(.25,.08,3600,.12)}sparkles(x,y);return true}
+  else if(u.rock){tone(150,.09,'triangle',.12,.7);noise(.06,.1,700)}else if(u.boat){tone(392,.22,'triangle',.12);tone(330,.35,'triangle',.12,1,.26)}else{noise(.35,.14,2400);noise(.25,.08,3600,.12)}sparkles(x,y);return true}
+// tocar el mar (solo en el mapa): un chapuzón con dos ondas que se abren
+function seaTap(w){if(!w.sea)return false;const h=RC.intersectObjects(w.sc.children,true).find(i=>i.object.visible!==false&&!(i.object.material&&i.object.material.visible===false));if(!h||h.object!==w.sea)return false;
+  if(!w.spl){w.spl=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.TorusGeometry(1,.07,6,32),new THREE.MeshBasicMaterial({color:'#fff',transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-PI/2;m.visible=false;w.sc.add(m);return m});
+    w.upd.push(()=>{const e=T-w.splT;w.spl.forEach((m,i)=>{const q=(e-i*.18)/.9;m.visible=q>0&&q<1;if(m.visible){m.scale.setScalar(.3+q*2.2);m.material.opacity=.85*(1-q)}})})}
+  w.splT=T;w.spl.forEach(m=>{m.position.set(h.point.x,-.95,h.point.z)});noise(.28,.14,700);tone(520,.1,'sine',.1,1.8,.04);return true}
 function walkGround(w){const h=w.ground&&RC.intersectObject(w.ground,false)[0];
   if(!(h&&h.face&&h.face.normal.y>.7))return;const B=w.gb;let x=B?clamp(h.point.x,B[0],B[1]):h.point.x,z=B?clamp(h.point.z,B[2],B[3]):h.point.z;
   // si el punto cae detrás o dentro de una casita, Tito se queda delante (o al costado) para que no quede tapado
@@ -5350,7 +5356,7 @@ const MZB={};for(const z of MZ2)MZB[z.id]={x:z.x,y:z.y,r:z.r};
 const MP=(x,y)=>[(x-800)/40,(y-500)/40];
 const MAPPOS={plaza:[790,520],jardin:[360,560],bosque:[1110,300],montana:[1400,560],canciones:[330,310],trazos:[560,250],rutinas:[790,250],album:[1440,250],ingles:[1270,450],fiestas:[560,790],tienda:[800,820],casaTito:[1070,740]};
 function skyNow(){const h=new Date().getHours();return h>=20||h<7?{bg:'#3B4A86',sea:'#3F78B5',night:1}:h>=18?{bg:'#FFD2A6',sea:'#78C3E6',night:0}:{bg:'#BFE9F8',sea:'#7FD3F0',night:0}}
-function sea3(w,c){const g=new THREE.PlaneGeometry(220,160,70,50);g.rotateX(-PI/2);const m=new THREE.Mesh(g,M(c));m.position.y=-1.1;m.receiveShadow=true;w.sc.add(m);
+function sea3(w,c){const g=new THREE.PlaneGeometry(220,160,70,50);g.rotateX(-PI/2);const m=new THREE.Mesh(g,M(c));m.position.y=-1.1;m.receiveShadow=true;w.sc.add(m);w.sea=m;
   // olas: altura y normal calculadas a mano (derivada de la fórmula); computeVertexNormals en cada cuadro costaba ~0,6 ms
   const p=g.attributes.position,nm=g.attributes.normal,b=Float32Array.from(p.array),A=p.array,N=nm.array;w.upd.push(()=>{for(let i=0,j=0;i<p.count;i++,j+=3){const ax=b[j]*.35+T*1.2,az=b[j+2]*.4+T*.9;
     A[j+1]=Math.sin(ax)*.12+Math.cos(az)*.12;const nx=-.042*Math.cos(ax),nz=.048*Math.sin(az),l=1/Math.sqrt(nx*nx+1+nz*nz);N[j]=nx*l;N[j+1]=l;N[j+2]=nz*l}p.needsUpdate=true;nm.needsUpdate=true})}
@@ -5426,7 +5432,8 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
   for(let i=0;i<6;i++){const c=cloud3(w.sc,-34+i*14,9+(i%3)*1.5,-18+(i%2)*6,1+(i%3)*.3);w.upd.push(dt=>{c.position.x+=.3*dt;if(c.position.x>40)c.position.x=-40})}
   // barquitos
   for(const [x,z,c] of[[-22,4,'#FF6B5E'],[24,-6,'#5B8DEF'],[16,14,'#FFC93C']]){const b=grp(w.sc,[x,-1,z]);mk(Box(1.6,.4,.7),c,{p:[0,.2,0],to:b,ol:.04});mk(Cyl(.04,.04,1.6,6),'#C98A4B',{p:[0,1.1,0],ol:0,to:b});mk(prism(.9,1.2,.05),'#fff',{p:[.1,.5,0],r:[0,0,0],to:b,ol:.02});
-    w.upd.push(()=>{b.position.y=-1+Math.sin(T*1.3+x)*.15;b.rotation.z=Math.sin(T*1.1+z)*.08})}
+    const hb=new THREE.Mesh(Box(2.6,2.4,1.6),FHIT);hb.position.y=.8;b.add(hb);b.userData.boat=1;// al tocarlo, salta dando una vuelta y toca la bocina
+    w.upd.push(()=>{const k=b.userData.wob,e=k==null?9:T-k,q=Math.min(e/.8,1);b.position.y=-1+Math.sin(T*1.3+x)*.15+(e<.8?Math.sin(q*PI)*.9:0);b.rotation.z=Math.sin(T*1.1+z)*.08;b.rotation.y=e<.8?q*PI*2:0})}
   // caminos desde la plaza
   const P=MP(...MAPPOS.plaza);
   for(const id in MAPPOS){if(id==='plaza')continue;const Q=MP(...MAPPOS[id]),c=[(P[0]+Q[0])/2+(Q[1]-P[1])*.12,(P[1]+Q[1])/2-(Q[0]-P[0])*.08];ribbon(w.sc,bez(P,c,Q,30),.9,'#FFF3D6',.03,{dash:3})}
@@ -5483,7 +5490,7 @@ function buildMap(st){const sk=skyNow(),w=newWorld({fov:36,bg:sk.bg,kind:'map',s
   down(x,y){const w=W3;if(!w||busy3(w))return;
     if(atHome(x,y)||inCoinHUD(x,y)||dist(x,y,SEGUIR.x,SEGUIR.y)<SEGUIR.r+10)return call0(down0,this,x,y);
     const u=pickAt(x,y);
-    if(!u){if(wobTap(w,x,y))return;SFX.tap();sparkles(x,y);walkGround(w);return}
+    if(!u){if(wobTap(w,x,y)||seaTap(w))return;SFX.tap();sparkles(x,y);walkGround(w);return}
     if(u.id==='tito'){this.hop=T;titoTapSfx();this.prompt(false);return}
     if(u.id==='pipo'){const [px,py]=projO(w.spots.casaTito.userData.pet,1);const h0=[HOUSE_AT[0],HOUSE_AT[1]];HOUSE_AT[0]=px-170;HOUSE_AT[1]=py+10;this.petJump=T;try{down0.call(this,px,py)}finally{HOUSE_AT[0]=h0[0];HOUSE_AT[1]=h0[1]}return}
     const z=mzOf(u.spot);if(!z)return;const open=ZAGE[z.id]?zoneOpen(z.id):spotOpen(z.id);
