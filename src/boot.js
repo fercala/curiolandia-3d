@@ -1,0 +1,1 @@
+Promise.race([Promise.all([document.fonts.load(`700 100px Andika`),document.fonts.load(`700 100px Fredoka`)]),new Promise(r=>setTimeout(r,2500))]).catch(()=>{}).then(()=>{go('title');requestAnimationFrame(frame)});

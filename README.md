@@ -5,3 +5,7 @@ Juego de temas de Educación Infantil (3, 4 y 5 años) en 3D, con Tito como guí
 Jugar: https://fercala.github.io/curiolandia-3d/
 
 Se puede instalar en el móvil o el ordenador (menú del navegador → "Instalar" o "Añadir a pantalla de inicio") y funciona sin conexión.
+
+## Código fuente
+
+Está en `src/`. Para montar la web y trabajar con Claude Code, mira `CLAUDE.md`.
