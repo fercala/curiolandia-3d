@@ -5160,30 +5160,33 @@ function lady3(w,cx,cz,s){const g=grp(w.sc,[cx,0,cz],s);g.userData.lady=1;g.add(
 function bird3(w,cx,cz,s,c){const g=grp(w.sc,[cx,0,cz],s);g.userData.bird=1;g.add(new THREE.Mesh(gcache('chit',()=>Sph(.7,6,4)),FHIT));
   const b=grp(g,[0,0,0]);mk(Sph(.3,14,10),c,{p:[0,.35,0],s:[1,.9,1.25],to:b,ol:.03});mk(Sph(.2,12,8),'#FFF1D6',{p:[0,.3,.12],s:[1,.8,1],ol:0,cs:false,to:b});
   const hd=grp(b,[0,.62,.2]);mk(Sph(.19,12,10),c,{to:hd,ol:.03});mk(Cone(.06,.16,6),'#FFA94D',{p:[0,-.02,.22],r:[PI/2,0,0],ol:0,cs:false,to:hd});
-  for(const sd of[-1,1])mk(Sph(.035,6,5),K,{p:[sd*.11,.05,.13],ol:0,cs:false,to:hd});mk(Box(.18,.04,.3),c,{p:[0,.42,-.38],r:[-.5,0,0],ol:.02,cs:false,to:b});
+  const BE=[],nt=skyNow().night;for(const sd of[-1,1])BE.push(mk(Sph(.035,6,5),K,{p:[sd*.11,.05,.13],ol:0,cs:false,to:hd}));const zz=nt?zzz3(w,g,1):null;mk(Box(.18,.04,.3),c,{p:[0,.42,-.38],r:[-.5,0,0],ol:.02,cs:false,to:b});
   const W=[];for(const sd of[-1,1]){const pv=grp(b,[sd*.25,.42,0]);mk(Box(.32,.04,.26),c,{p:[sd*.16,0,0],ol:.02,cs:false,to:pv});W.push([pv,sd])}
   w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,fl=e<1.6,q=Math.min(e/1.6,1);
     if(fl){const a=q*PI*2;b.position.set(Math.sin(a)*1.4,Math.sin(q*PI)*2.4,(1-Math.cos(a))*.7);b.rotation.y=a+PI/2;hd.rotation.x=0;for(const [pv,sd] of W)pv.rotation.z=sd*Math.sin(T*35)*.7}
+    else if(nt){b.position.set(0,0,0);b.rotation.y=.5;hd.rotation.x=.45;b.scale.set(1,1+Math.sin(T*2)*.03,1);for(const [pv] of W)pv.rotation.z=0}// de noche duerme
     else{const c2=T%3.2,hop=c2>2.6?Math.sin((c2-2.6)/.6*PI):0;b.position.set(Math.sin(T*.4)*.6,hop*.25,0);b.rotation.y=Math.sin(T*.4)>0?.9:-.9;
-      hd.rotation.x=c2<1.2?Math.max(0,Math.sin(c2*PI*2.5))*.7:0;for(const [pv] of W)pv.rotation.z=0}});return g}
+      hd.rotation.x=c2<1.2?Math.max(0,Math.sin(c2*PI*2.5))*.7:0;for(const [pv] of W)pv.rotation.z=0}
+    for(const m of BE)m.scale.y=nt&&!fl?.15:1;if(zz)zz.forEach(q=>q.visible=!fl)});return g}
 // pingüino que pasea de un lado a otro balanceándose; al tocarlo da un saltito aleteando y chilla
 function peng3(w,x0,x1,z,s){const g=grp(w.sc,[x0,0,z],s);g.userData.peng=1;g.add(new THREE.Mesh(gcache('chit',()=>Sph(.7,6,4)),FHIT));
   const b=grp(g,[0,0,0]);mk(Sph(.42,16,12),'#2F3446',{p:[0,.55,0],s:[1,1.35,.95],to:b,ol:.03});mk(Sph(.33,14,10),'#FFFFFF',{p:[0,.5,.14],s:[1,1.3,.8],ol:0,cs:false,to:b});
-  mk(Sph(.28,14,10),'#2F3446',{p:[0,1.18,0],to:b,ol:.03});for(const sd of[-1,1]){mk(Sph(.07,8,6),'#FFFFFF',{p:[sd*.11,1.22,.22],ol:.01,cs:false,to:b});mk(Sph(.035,6,5),K,{p:[sd*.11,1.22,.28],ol:0,cs:false,to:b});
+  mk(Sph(.28,14,10),'#2F3446',{p:[0,1.18,0],to:b,ol:.03});const PE=[],nt=skyNow().night;for(const sd of[-1,1]){PE.push(mk(Sph(.07,8,6),'#FFFFFF',{p:[sd*.11,1.22,.22],ol:.01,cs:false,to:b}),mk(Sph(.035,6,5),K,{p:[sd*.11,1.22,.28],ol:0,cs:false,to:b}));
     mk(Sph(.12,8,6),'#FFA94D',{p:[sd*.15,.04,.12],s:[1,.35,1.5],ol:.01,cs:false,to:b})}
   mk(Cone(.07,.18,6),'#FFA94D',{p:[0,1.14,.3],r:[PI/2,0,0],ol:0,cs:false,to:b});const W=[];
   for(const sd of[-1,1]){const pv=grp(b,[sd*.38,.85,0]);mk(Box(.08,.5,.22),'#2F3446',{p:[0,-.22,0],ol:.02,cs:false,to:pv});W.push([pv,sd])}
-  let ph=0;w.upd.push(dt=>{const k=g.userData.wob,e=k==null?9:T-k,j=e<.9,q=Math.min(e/.9,1);ph+=dt*.25;const c=Math.cos(ph);g.position.x=x0+(x1-x0)*(.5-.5*c);
-    b.rotation.y=j?0:Math.sin(ph)>0?PI/2:-PI/2;b.rotation.z=j?0:Math.sin(T*6)*.12;b.position.y=j?Math.sin(q*PI)*.7:0;for(const [pv,sd] of W)pv.rotation.z=sd*(j?.6+Math.sin(T*30)*.5:.15)});return g}
+  const zz=nt?zzz3(w,g,1.6):null;let ph=0;w.upd.push(dt=>{const k=g.userData.wob,e=k==null?9:T-k,j=e<.9,q=Math.min(e/.9,1);if(!nt)ph+=dt*.25;const c=Math.cos(ph);g.position.x=x0+(x1-x0)*(.5-.5*c);
+    for(const m of PE)m.scale.y=nt&&!j?.15:1;if(zz)zz.forEach(z=>z.visible=!j);// de noche duerme de pie, sin pasear
+    b.rotation.y=j||nt?0:Math.sin(ph)>0?PI/2:-PI/2;b.rotation.z=j||nt?0:Math.sin(T*6)*.12;b.position.y=j?Math.sin(q*PI)*.7:0;for(const [pv,sd] of W)pv.rotation.z=sd*(j?.6+Math.sin(T*30)*.5:.15)});return g}
 // ardilla con una bellota: mueve la cola; al tocarla salta y da una vuelta
 function squir3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.squir=1;const C='#C9772E';
   const b=grp(g,[0,0,0]);mk(Sph(.32,14,10),C,{p:[0,.42,0],s:[1,1.25,.95],to:b,ol:.03});mk(Sph(.2,12,8),'#F2D6A8',{p:[0,.4,.16],s:[1,1.2,.7],ol:0,cs:false,to:b});
-  mk(Sph(.24,14,10),C,{p:[0,.9,.06],to:b,ol:.03});for(const sd of[-1,1]){mk(Cone(.08,.18,6),C,{p:[sd*.13,1.13,.02],ol:.01,cs:false,to:b});mk(Sph(.045,6,5),K,{p:[sd*.1,.95,.25],ol:0,cs:false,to:b})}
+  mk(Sph(.24,14,10),C,{p:[0,.9,.06],to:b,ol:.03});const SE=[],nt=skyNow().night;for(const sd of[-1,1]){mk(Cone(.08,.18,6),C,{p:[sd*.13,1.13,.02],ol:.01,cs:false,to:b});SE.push(mk(Sph(.045,6,5),K,{p:[sd*.1,.95,.25],ol:0,cs:false,to:b}))}
   mk(Sph(.04,6,5),K,{p:[0,.88,.3],ol:0,cs:false,to:b});
   const ac=grp(b,[0,.62,.28]);mk(Sph(.1,10,8),'#A0662E',{s:[1,1.15,1],ol:.01,cs:false,to:ac});mk(Sph(.11,10,6,0,PI*2,0,PI/2),'#6B4423',{p:[0,.05,0],ol:0,cs:false,to:ac});
   const tl=grp(b,[0,.3,-.28]);mk(Sph(.26,12,10),C,{p:[0,.4,-.12],s:[.8,1.5,.7],to:tl,ol:.03});
-  w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,j=e<.8,q=Math.min(e/.8,1);tl.rotation.x=Math.sin(T*3)*.18;
-    b.position.y=j?Math.sin(q*PI)*.9:0;b.rotation.y=j?q*PI*2:0;b.rotation.x=j?0:Math.max(0,Math.sin(T*1.3))*.12});return g}
+  const zz=nt?zzz3(w,g,1.3):null;w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k,j=e<.8,q=Math.min(e/.8,1);tl.rotation.x=nt&&!j?.25:Math.sin(T*3)*.18;
+    b.position.y=j?Math.sin(q*PI)*.9:0;b.rotation.y=j?q*PI*2:0;b.rotation.x=j?0:nt?.15:Math.max(0,Math.sin(T*1.3))*.12;for(const m of SE)m.scale.y=nt&&!j?.15:1;if(zz)zz.forEach(z=>z.visible=!j)});return g}// de noche duerme con la cola quieta
 // madriguera con un conejito que se asoma de vez en cuando; al tocarlo salta fuera y vuelve a meterse
 function burrow3(w,x,z,s){const g=grp(w.sc,[x,0,z],s);g.userData.burrow=1;g.add(new THREE.Mesh(gcache('chit',()=>Sph(.7,6,4)),FHIT));
   mk(new THREE.TorusGeometry(.5,.16,8,20),'#B88A5A',{p:[0,.04,0],r:[PI/2,0,0],s:[1,1,.6],to:g,ol:.02});mk(Cyl(.48,.48,.02,20),'#4A3324',{p:[0,.03,0],ol:0,cs:false,to:g});
@@ -5263,6 +5266,9 @@ function dolph3(w,x,z,s){const g=grp(w.sc,[x,-1.1,z],s);g.rotation.y=PI/2;g.user
   mk(Cone(.22,.45,6),C,{p:[0,.45,0],r:[0,0,-.4],s:[1,1,.3],ol:.02,cs:false,to:b});mk(Box(.2,.08,.8),C,{p:[-1.05,0,0],ol:.02,cs:false,to:b});mk(Sph(.06,6,5),K,{p:[.75,.12,.3],ol:0,cs:false,to:b});
   w.upd.push(()=>{const k=g.userData.wob,e=k==null?9:T-k;let q,fl=0;if(e<1.4){q=e/1.4;fl=1}else{const c=T%7;q=c<1.2?c/1.2:-1}
     if(q<0){b.visible=false;return}b.visible=true;b.position.set((q-.5)*5,-1+Math.sin(q*PI)*(fl?4:2.6),0);b.rotation.z=(.5-q)*2.2-(fl?q*PI*2:0)});return g}
+// "Zzz" que suben y se desvanecen sobre un animalito dormido (de noche)
+function zzz3(w,to,y){const Z=[];for(let i=0;i<2;i++){const q=spr(canvasTex(64,64,()=>text('z',32,52,56,'#FFFFFF',{f:LF,st:8,sc:'#5F6FB4'}),'zzz'),.5,.5,{p:[.2,y,0],to});q.raycast=()=>{};Z.push(q)}
+  w.upd.push(()=>{Z.forEach((q,i)=>{const k=(T*.35+i*.5)%1;q.position.set(.2+k*.5,y+k*1.1,0);q.scale.setScalar(.3+k*.4);q.material.opacity=k<.15?k/.15:1-(k-.15)/.85})});return Z}
 function cloud3(to,x,y,z,s){const g=grp(to,[x,y,z],s);mk(gcache('cloud',()=>mg([[0,0,0,1],[1.1,.3,0,1.2],[2.2,0,0,.9],[1.1,-.2,.5,1]].map(([a,b,c,r])=>[Sph(r,14,10),[a,b,c]]))),'#FFFFFF',{cs:false,rs:false,ol:.04,to:g});return g}
 function balloon3(to,x,z,c,h=2.4){const g=grp(to,[x,0,z]);mk(Cyl(.012,.012,h,4),K,{p:[0,h/2,0],ol:0,cs:false,to:g});mk(Sph(.38,14,12),c,{p:[0,h+.35,0],s:[1,1.2,1],to:g,ol:.03});g.userData.balloon=1;return g}
 
