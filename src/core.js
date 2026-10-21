@@ -328,11 +328,12 @@ function go(n,o={}){
 function burst(x,y,n=24,cols=['#FFC93C','#F58BB4','#7CC86E','#5B8DEF','#FF8A7A','#9B8AD9']){
   for(let i=0;i<n;i++){const a=rnd(0,PI*2),v=rnd(200,620);parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-200,life:rnd(.8,1.5),t:0,c:pick(cols),r:rnd(7,15),rot:rnd(0,6),k:Math.random()<.35?'s':'c'})}
 }
+function heart(x,y,r,f){/* corazoncito para las partículas */ctx.beginPath();ctx.moveTo(x,y+r*.9);ctx.bezierCurveTo(x-r*1.4,y,x-r*.7,y-r*1.1,x,y-r*.35);ctx.bezierCurveTo(x+r*.7,y-r*1.1,x+r*1.4,y,x,y+r*.9);ctx.fillStyle=f;ctx.fill()}
 function sparkles(x,y,n=6){for(let i=0;i<n;i++)parts.push({x:x+rnd(-20,20),y:y+rnd(-20,20),vx:rnd(-80,80),vy:rnd(-160,-40),life:rnd(.4,.8),t:0,c:pick(['#FFC93C','#FFF3B0','#F58BB4']),r:rnd(6,11),rot:0,k:'s',g:0})}
 function drawParts(dt){
   for(const p of parts){p.t+=dt;p.vy+=(p.g??900)*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=dt*6;
     const a=1-p.t/p.life; if(a<=0)continue; ctx.globalAlpha=a;
-    if(p.k==='s')star(p.x,p.y,p.r,p.c,0); else if(p.k==='d'){circ(p.x,p.y,p.r,p.c,0)} else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()}
+    if(p.k==='s')star(p.x,p.y,p.r,p.c,0); else if(p.k==='d'){circ(p.x,p.y,p.r,p.c,0)} else if(p.k==='h'){heart(p.x,p.y,p.r,p.c)} else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()}
   } ctx.globalAlpha=1; parts=parts.filter(p=>p.t<p.life);
 }
 /* ---------- HUD ---------- */
