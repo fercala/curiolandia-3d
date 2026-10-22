@@ -144,11 +144,12 @@ function sunRays(w,x,y,z,c,e){const g=new THREE.Group();g.position.set(x,y,z);w.
   for(let i=0;i<10;i++){const a=i/10*PI*2,r=mk(Box(.16,.5,.06),M(c||'#FFD447',{emissive:e||'#E0A020'}),{p:[Math.cos(a)*1.65,Math.sin(a)*1.65,0],r:[0,0,a-PI/2],ol:0,cs:false,rs:false});r.raycast=()=>{};g.add(r)}
   w.upd.push(()=>{g.rotation.z=T*.25;const k=1+.06*Math.sin(T*2);g.scale.set(k,k,1)})}
 // carita del sol (ojos abiertos) o de la luna (ojos cerrados, dormida)
-function orbFace(w,G,sleep){const EY=[];const g=new THREE.Group();g.position.z=1.02;G.add(g);const K='#5A3A1E',arc=a=>new THREE.TorusGeometry(.13,.035,6,12,PI);
-  for(const sd of[-1,1]){const e=sleep?mk(arc(),K,{p:[sd*.36,.2,0],r:[0,0,PI],ol:0,cs:false,rs:false}):mk(Sph(.09,10,8),K,{p:[sd*.36,.2,0],ol:0,cs:false,rs:false});e.raycast=()=>{};g.add(e);EY.push(e);
+function orbFace(w,G,sleep){const EY=[],OE=[];const g=new THREE.Group();g.position.z=1.02;G.add(g);const K='#5A3A1E',arc=a=>new THREE.TorusGeometry(.13,.035,6,12,PI);
+  for(const sd of[-1,1]){const e=sleep?mk(arc(),K,{p:[sd*.36,.2,0],r:[0,0,PI],ol:0,cs:false,rs:false}):mk(Sph(.09,10,8),K,{p:[sd*.36,.2,0],ol:0,cs:false,rs:false});e.raycast=()=>{};g.add(e);EY.push(e);if(sleep){const o=mk(Sph(.09,10,8),'#5A3A1E',{p:[sd*.36,.2,0],ol:0,cs:false,rs:false});o.visible=false;o.raycast=()=>{};g.add(o);OE.push(o)}
     const c=mk(Sph(.12,10,8),'#FF9A7A',{p:[sd*.58,-.08,-.05],s:[1,.6,.4],ol:0,cs:false,rs:false});c.raycast=()=>{};g.add(c)}
   const m=mk(new THREE.TorusGeometry(sleep?.12:.26,.04,6,14,PI),K,{p:[0,sleep?-.2:-.08,0],r:[0,0,PI],ol:0,cs:false,rs:false});m.raycast=()=>{};g.add(m);
-  if(!sleep)w.upd.push(()=>{const b=T%4.3<.14?.15:1;EY.forEach(e=>e.scale.y=b)})/* el sol parpadea de vez en cuando */}
+  if(!sleep)w.upd.push(()=>{const b=T%4.3<.14?.15:1;EY.forEach(e=>e.scale.y=b)})/* el sol parpadea de vez en cuando */
+  w.upd.push(()=>{const k=G.userData.wob,e=k==null?9:T-k;if(sleep){const aw=e<1.3;EY.forEach(x=>x.visible=!aw);OE.forEach(x=>x.visible=aw)}else{const q=e<1.2?1.4:1;m.scale.set(q,q,1)}})/* al tocarlos: el sol sonríe más y la luna abre los ojos un momento */}
 // luna de las zonas por la noche, con un halo que respira
 function zoneMoon(w,x,y,z,c,e,hc){const G=new THREE.Group();G.position.set(x,y,z);G.userData.orb=c?'sol':'luna';w.sc.add(G);hitS(G,1.4,0);/* se puede tocar */const m=mk(Sph(1.1,20,16),M(c||'#FFF3B0',{emissive:e||'#B8963A'}),{ol:.12,cs:false,rs:false});m.raycast=()=>{};G.add(m);
   const hg=new THREE.BufferGeometry();hg.setAttribute('position',new THREE.BufferAttribute(new Float32Array([x,y,z-.6]),3));
