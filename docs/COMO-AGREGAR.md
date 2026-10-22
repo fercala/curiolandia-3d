@@ -42,12 +42,14 @@ Esta guía explica el **proceso de trabajo** (sección 1) y trae **recetas paso 
 6. **Prueba automática**: `node tests/humo.js src/web`. Debe terminar con `TODO BIEN`. Mira las capturas en `tests/capturas/`.
 7. **Prueba en un móvil** si has tocado algo visual o de rendimiento (el 3D es lo más pesado).
 8. **Frases nuevas**: apúntalas para grabarlas (ver [VOCES.md](VOCES.md)).
-9. **Para publicar**:
+9. **Documenta el cambio** siguiendo [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md): comentarios en el código, documentos de `docs/` que toque y entrada en [CAMBIOS.md](CAMBIOS.md). Comprueba con `python3 tests/comentarios.py` (con el gancho activado, `git commit` lo hace solo: `git config core.hooksPath herramientas/git-hooks`).
+10. **Para publicar**:
    1. Sube la versión `VER` en `src/build_web.py` (`curiolandia3d-v1.N` → `v1.N+1`). **Sin esto los móviles se quedan con la versión anterior.**
    2. Vuelve a montar (paso 4).
    3. Copia a la raíz: `cp src/web/index.html src/web/sw.js src/web/manifest.webmanifest .`
-   4. Commit con un mensaje que diga qué cambia, y push. GitHub Pages publica la raíz de `main` en un par de minutos.
-10. **Si te equivocas** al publicar: `git revert` del commit, vuelve a subir `VER` y publica otra vez.
+   4. Pon la versión en la entrada de [CAMBIOS.md](CAMBIOS.md) (cambia "Sin publicar" por `v1.N (fecha)`).
+   5. Commit con un mensaje que diga qué cambia, y push. GitHub Pages publica la raíz de `main` en un par de minutos.
+11. **Si te equivocas** al publicar: `git revert` del commit, vuelve a subir `VER` y publica otra vez.
 
 ### Cómo orientarte en el código
 - Todo el código está comentado: cada archivo tiene una cabecera que explica qué hace y cada función tiene un comentario encima.
@@ -64,6 +66,7 @@ Esta guía explica el **proceso de trabajo** (sección 1) y trae **recetas paso 
 5. **Sin dependencias nuevas**: nada de npm ni librerías externas en el juego.
 6. **Piensa en niños de 3 a 5 años**: zonas de toque grandes, nada de leer (todo se dice en voz), refuerzo positivo, nada de castigos ni prisas.
 7. **Usa `later()`**, no `setTimeout`, dentro de las escenas y los juegos.
+8. **Documenta cada cambio**: sin comentarios ni documentación al día no se publica. → [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md)
 
 ---
 

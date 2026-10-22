@@ -17,7 +17,9 @@ cp src/web/index.html src/web/sw.js src/web/manifest.webmanifest .
 ```
 Antes, sube `VER` en `src/build_web.py` (`curiolandia3d-v1.N`): es el nombre de la caché del service worker, y sin cambiarlo los móviles siguen con la versión vieja. Los archivos montados dentro de `src/` están en `.gitignore`.
 
-## Documentación
+## Documentación (obligatoria en cada cambio)
+Sigue `docs/POLITICA-DOCUMENTACION.md` en cada modificación, por pequeña que sea: comentario de cabecera en cada función nueva o cambiada (y dentro de la lógica compleja), los documentos de `docs/` que toque el cambio y una entrada en `docs/CAMBIOS.md`. Antes de cada commit, `python3 tests/comentarios.py` debe dar TODO BIEN. Un cambio sin documentar no se publica.
+
 La guía completa está en `docs/`: `ARQUITECTURA.md` (cómo está hecho), `COMO-AGREGAR.md` (proceso y recetas), `ESTADO-GUARDADO.md` (campos de `S`), `VOCES.md` (frases grabadas) y `PROBLEMAS-CONOCIDOS.md`. Todo el código de `src/` lleva comentarios de cabecera en cada función: mantenlos al día cuando cambies algo y comenta igual las funciones nuevas.
 
 ## Reglas

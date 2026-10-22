@@ -18,6 +18,8 @@ Empieza por aquí:
 | [docs/COMO-AGREGAR.md](docs/COMO-AGREGAR.md) | El proceso de trabajo (montar, probar, publicar) y recetas paso a paso: objeto 3D, tema, juego, cuento, dibujo, tienda, escena, zona de adultos. |
 | [docs/ESTADO-GUARDADO.md](docs/ESTADO-GUARDADO.md) | El estado `S` que se guarda en el móvil y cómo no romper las partidas. |
 | [docs/VOCES.md](docs/VOCES.md) | Cómo habla Tito, las frases grabadas y cómo grabar frases nuevas. |
+| [docs/POLITICA-DOCUMENTACION.md](docs/POLITICA-DOCUMENTACION.md) | **Obligatoria**: qué hay que documentar en cada cambio y cómo se comprueba. |
+| [docs/CAMBIOS.md](docs/CAMBIOS.md) | Registro de cambios de cada versión publicada. |
 | [docs/PROBLEMAS-CONOCIDOS.md](docs/PROBLEMAS-CONOCIDOS.md) | Fallos y rarezas detectados que aún no se han arreglado. |
 | [CLAUDE.md](CLAUDE.md) | Resumen de reglas para trabajar con Claude Code. |
 
@@ -32,8 +34,11 @@ cd src/web && python3 -m http.server 8000                           # abre http:
 
 Prueba automática (necesita Playwright): `node tests/humo.js src/web`.
 
-### Tres reglas de oro
+Comprobación de comentarios: `python3 tests/comentarios.py`. Para que se ejecute sola en cada commit: `git config core.hooksPath herramientas/git-hooks`.
+
+### Cuatro reglas de oro
 
 1. No cambies el texto de ninguna frase que ya diga `say()`: cada una tiene su MP3 grabado.
 2. No cambies el estado guardado `S` de forma incompatible: hay partidas guardadas en los móviles.
 3. Sube `VER` en `src/build_web.py` cada vez que publiques.
+4. Ningún cambio está terminado hasta que está documentado: comentarios en el código, `docs/` y `docs/CAMBIOS.md` (ver [la política](docs/POLITICA-DOCUMENTACION.md)).
