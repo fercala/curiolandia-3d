@@ -1,5 +1,5 @@
 import re,os,zipfile
-VER='curiolandia3d-v1.564'
+VER='curiolandia3d-v1.566'
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 src=open('index.html',encoding='utf-8').read()
 src=re.sub(r'<link rel="preconnect"[^>]*>\n?','',src)
