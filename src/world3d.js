@@ -139,6 +139,9 @@ function skyStars(w,y0,z0,WX,HY){for(let k=0;k<3;k++){const n=12,pos=new Float32
   const n=6,fp=new Float32Array(n*3),fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.BufferAttribute(fp,3));
   const f=new THREE.Points(fg,new THREE.PointsMaterial({color:'#FFFFFF',size:1.6,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false}));f.raycast=()=>{};w.sc.add(f);
   w.upd.push(()=>{const c=w.shootT!=null&&T-w.shootT<1.3?T-w.shootT:T%9/* al tocar la luna, sale una enseguida */,q=c/1.3;f.visible=q<1;if(!f.visible)return;const s0=Math.floor(T/9)%2?1:-1;for(let i=0;i<n;i++){const qq=Math.max(0,q-i*.035);fp[i*3]=s0*(-WX*.4+qq*WX*.8);fp[i*3+1]=y0+HY-qq*HY*.7;fp[i*3+2]=z0}fg.attributes.position.needsUpdate=true;f.material.opacity=Math.sin(q*PI);if(w.tito&&q>.15&&q<.85)w.tito.userData.lk={p:new THREE.Vector3(fp[0],fp[1],fp[2]),t:T}/* Tito sigue la estrella fugaz con la mirada */})}
+// tocar el cielo vacío de una zona: de noche nace una estrellita que titila; de día sale una nubecilla de vaho
+function skyTap(x,y){if(skyNow().night){parts.push({x,y,vx:0,vy:-6,life:1.6,t:0,c:'#FFF6C8',r:16,rot:0,k:'s',g:0});for(let i=0;i<4;i++)parts.push({x:x+rnd(-18,18),y:y+rnd(-18,18),vx:rnd(-20,20),vy:rnd(-20,20),life:.9,t:0,c:'#FFFFFF',r:rnd(5,7),rot:0,k:'s',g:0});tone(1760,.35,'sine',.05,1.02);tone(2637,.25,'sine',.025,1,.07)}
+  else{for(let i=0;i<2;i++)parts.push({x,y,vx:0,vy:-10,life:.8,t:0,c:'#FFFFFF',r:12+i*6,rot:0,k:'o',g:0});for(let i=0;i<5;i++)parts.push({x:x+rnd(-15,15),y:y+rnd(-10,10),vx:rnd(-50,50),vy:rnd(-40,10),life:.7,t:0,c:'#FFFFFF',r:rnd(5,8),rot:0,k:'d',g:-20});noise(.18,.05,1200);tone(660,.15,'sine',.04,1.4)}}
 // la Osa Mayor en el cielo de noche de las zonas, entre el título y las monedas
 function bigDipper(w){const S=[[8.6,2.0],[10,1.85],[11.2,1.6],[12.3,1.35],[12.6,.6],[14.1,.45],[14.3,1.2]],z=-19.6,P=S.map(([x,y])=>new THREE.Vector3(x,y,z));
   const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([...P,P[3]]),new THREE.LineBasicMaterial({color:'#AFC0FF',transparent:true,opacity:.35}));ln.raycast=()=>{};w.sc.add(ln);
@@ -1145,7 +1148,7 @@ function buildZone(z,st){const Z=ZONES[z],P=ZPOS[z],sty=ZSTYLE[z]||ZSTYLE.jardin
       if(talking){const bx=TITO.x+TITO.w*.85,by=TITO.y-50;ctx.globalAlpha=.95;card(bx,by,96,72,'#fff',5,28);ctx.globalAlpha=1;speaker(bx+50,by+36,46+Math.sin(T*12)*4)}},
     down(x,y){const w=W3;if(!w||busy3(w))return;
       if(atHome(x,y)||inCoinHUD(x,y))return call0(down0,this,x,y);
-      const u=pickAt(x,y);if(flyTap(w,x,y))return;if(!u){if(wobTap(w,x,y))return;SFX.tap();if(skyNow().night)ffTap(x,y);else sparkles(x,y);walkGround(w);return}
+      const u=pickAt(x,y);if(flyTap(w,x,y))return;if(!u){if(wobTap(w,x,y))return;if(y<260&&!(w.ground&&RC.intersectObject(w.ground,false)[0])){skyTap(x,y);return}/* tocar el cielo vacío */SFX.tap();if(skyNow().night)ffTap(x,y);else sparkles(x,y);walkGround(w);return}
       if(u.id==='tito'){this.hop=T;titoTapSfx();titoHearts(x,y);this.prompt(true);return}
       const t=TEMA[u.tema];if(!t)return;const p=ZPOS[z][t.id];
       if(!temaOpen(t)){this.lockShake={id:t.id,t:T};return call0(down0,this,p.x,p.y)}
