@@ -13,7 +13,7 @@
  *  - Puntero: MX, MY, mouseOn, hovNow, hR, hC, hv, setCursor.
  *  - Tito en 2D: TITO, drawTito(), inTito(), titoKind(), temasDone().
  *  - Sonido: initAudio, setVol, tone, noise, syn, SFX, SOUNDS, ONO, playSound; música: MUSIC, musKey, musicTick.
- *  - Voz: say(), voces grabadas (vozLoad, vozFile, vozPlay, vozStop), pickVoice, talking, kid, PRAISE, praise, cap.
+ *  - Voz: say(), voces grabadas (vozLoad, vozFile, vozGet, vozPlay, vozSeq, sayTTS, vozStop), pickVoice, talking, kid, PRAISE, praise, cap.
  *  - Escenas: scene, sceneName, sceneArg, sceneTok, go(), later(), T, fade, idle, drag, timers.
  *  - Partículas: parts, burst(), sparkles(), heart(), drawParts().
  *  - Interfaz común: HOME, drawHome, atHome, drawRounds, drawLock (candado de adultos), drawHelp (ayudas).
@@ -472,29 +472,74 @@ let VOZ=null,VOZ_DIR='voz/',VOZ_EL=null,VOZ_FIN=null;const VOZ_RATE=.9,VOZ_BL={}
 function vozLoad(cb){const dir=S.voz==='fer'?'voz-fer/':'voz/';VOZ=null;VOZ_DIR=dir;
   try{if(/^https?:/.test(location.protocol))fetch(dir+'manifest.json').then(r=>r.ok?r.json():null).then(m=>{if(VOZ_DIR!==dir)return;if(m&&m.f){const v={};for(const k in m.f)v[vozK(k)]=m.f[k];VOZ=v}cb&&cb()}).catch(()=>{cb&&cb()})}catch(e){}}
 vozLoad();
-// devuelve la lista de audios: la frase entera o, si no está, cada oración por separado ("¡Muy bien!" + "La pelota.")
-// vozFile(texto): lista de mp3 para esa frase, o null. Quita antes ", nombre" del niño (las grabaciones no lo llevan).
-// Si la frase entera no está grabada pero cada oración sí, devuelve las oraciones en orden.
+// vozFile(texto): plan para decir la frase con lo grabado: lista de trozos en orden, cada uno el nombre de un mp3
+// (texto) o {t: texto} para lo que no está grabado (lo dice la voz del navegador). null si no hay nada grabado.
+// Quita antes ", nombre" del niño (las grabaciones no lo llevan; say() lo añade aparte).
+// Si la frase entera no está grabada, la parte en oraciones y busca trozos grabados de izquierda a derecha, cada vez el
+// trozo más largo posible: "¡Súper!" + "¡Sus plumas! Lo tienen calentito." o "¡Muy bien!" + "La pelota.". Así una
+// felicitación al azar (praise) delante de una frase grabada sin ella también suena con MP3. Las oraciones sin grabar
+// (por ejemplo con datos que cambian: "Tienes 12 monedas.") quedan como {t} y se mezclan con las grabadas.
 function vozFile(t){if(!VOZ)return null;t=vozN(S.name?t.split(', '+S.name).join(''):t);const one=VOZ[vozK(t)];if(one)return [one];
-  const parts=(t.match(/[^.!?…]+[.!?…]*/g)||[]).map(vozK).filter(Boolean);if(parts.length<2)return null;const fs=parts.map(k=>VOZ[k]);return fs.every(Boolean)?fs:null}
+  const ss=(t.match(/[^.!?…]+[.!?…]*/g)||[]).map(vozN).filter(s=>vozK(s));if(!ss.length)return null;const fs=[];
+  for(let i=0;i<ss.length;){let j=ss.length,f=null;for(;j>i;j--){f=VOZ[vozK(ss.slice(i,j).join(' '))];if(f)break}// j: fin del trozo más largo grabado que empieza en i
+    if(f){fs.push(f);i=j;continue}
+    const pz=vozPieces(ss[i]);if(pz){fs.push(...pz);i++;continue}// oración con números: por piezas grabadas
+    const l=fs[fs.length-1];if(l&&l.t)l.t+=' '+ss[i];else fs.push({t:ss[i]});i++}// sin grabar: a la voz del navegador
+  return fs.some(f=>typeof f==='string')?fs:null}
+// VOZ_CIEN: cómo se dicen las centenas (101-199 "ciento", 200 "doscientos"...). Cada una es una pieza grabada.
+const VOZ_CIEN=['ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+// vozNum(n): claves de manifiesto para decir el número n con piezas grabadas: "0".."100" tal cual, y de 101 a 999 la
+// centena más el resto ("cuatrocientos" + "53"). null si es más grande o si falta alguna pieza por grabar.
+function vozNum(n){if(VOZ[String(n)])return [String(n)];if(n<101||n>999)return null;const c=VOZ_CIEN[Math.floor(n/100)-1],r=n%100,k=r?[c,String(r)]:[c===VOZ_CIEN[0]?'cien':c];return k.every(x=>VOZ[x])?k:null}
+// vozPieces(oración): solo para oraciones con números (fechas, monedas, estrellas...). Quita los signos (¡!¿?.,:), parte
+// en palabras y las junta en piezas grabadas de izquierda a derecha, cada vez la más larga: "Hoy es jueves 22 de
+// octubre." = "hoy es jueves" + "22" + "de octubre". Los números se dicen con vozNum. Devuelve la lista de mp3, o null
+// si falta alguna pieza (entonces la oración la dice la voz del navegador).
+function vozPieces(s){if(!/\d/.test(s))return null;const w=s.replace(/[¡!¿?.,:;]/g,' ').toLowerCase().split(/\s+/).filter(Boolean),fs=[];
+  for(let i=0;i<w.length;){if(/^\d+$/.test(w[i])){const k=vozNum(+w[i]);if(!k)return null;for(const x of k)fs.push(VOZ[x]);i++;continue}
+    let j=w.length,f=null;for(;j>i;j--){if(w.slice(i,j).some(x=>/^\d+$/.test(x)))continue;f=VOZ[w.slice(i,j).join(' ')];if(f)break}// j: fin de la pieza más larga
+    if(!f)return null;fs.push(f);i=j}
+  return fs}
 // como speechSynthesis.cancel(): cortar una frase también la da por terminada
 // vozStop(): para el MP3 que suena y llama a su "fin" (así quien esperaba el final de la frase sigue).
 function vozStop(){const f=VOZ_FIN;VOZ_FIN=null;if(VOZ_EL){VOZ_EL.onended=VOZ_EL.onerror=null;try{VOZ_EL.pause()}catch(e){}}f&&f()}
 // Truco: se envuelve speechSynthesis.cancel() para que, al cortar la voz (por ejemplo en go()), también se corte el MP3.
 if('speechSynthesis' in window){try{const c0=speechSynthesis.cancel.bind(speechSynthesis);speechSynthesis.cancel=()=>{vozStop();c0()}}catch(e){}}
+// vozGet(archivo): promesa con la URL (blob) del mp3, descargándolo una sola vez (se guarda la promesa en VOZ_BL, así la
+// precarga y la reproducción piden el mismo archivo una sola vez). Si falla, se borra para poder reintentar.
+function vozGet(f){f=VOZ_DIR+f;return VOZ_BL[f]||(VOZ_BL[f]=fetch(f).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>URL.createObjectURL(b)).catch(e=>{delete VOZ_BL[f];throw e}))}
 // vozPlay(archivos, tok, fin, fallo): reproduce los mp3 uno tras otro con el mismo <audio>. Los descarga todos a la vez
 // (precarga) y los guarda como blob en VOZ_BL. Si entretanto empezó otra frase (tok!==sayTok), no suena.
 // Al acabar el último llama a fin(); si algo falla llama a fallo() (say() usa entonces la voz del navegador).
 function vozPlay(fs,tok,fin,fail){
-  const a=VOZ_EL||(VOZ_EL=new Audio()),get=f=>{f=VOZ_DIR+f;// se guarda la promesa: la precarga y el primer paso piden el mismo archivo una sola vez
-    return VOZ_BL[f]||(VOZ_BL[f]=fetch(f).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>URL.createObjectURL(b)).catch(e=>{delete VOZ_BL[f];throw e}))};
+  const a=VOZ_EL||(VOZ_EL=new Audio()),get=vozGet;
   const step=n=>{if(n>=fs.length){VOZ_FIN=null;fin();return}get(fs[n]).then(u=>{if(tok!==sayTok)return;if(n===0)vozStop();a.src=u;a.playbackRate=VOZ_RATE;a.preservesPitch=true;a.volume=Math.min(1,S.vol.voz);VOZ_FIN=fin;
     a.onended=()=>step(n+1);a.onerror=()=>{VOZ_FIN=null;fail()};const p=a.play();if(p)p.catch(()=>{VOZ_FIN=null;fail()})}).catch(()=>{VOZ_FIN=null;fail()})};
   Promise.all(fs.map(get)).catch(()=>{});step(0);
 }
+// sayTTS(texto, tok, luego): dice un trozo con la voz del navegador y después llama a luego() (una sola vez; también si
+// se corta). Si la frase ya no es la actual (tok!==sayTok), no habla. Lo usa vozSeq para el nombre del niño y para las oraciones sin grabar de una frase mezclada.
+// Sin voz del navegador, o si no avisa del final a tiempo, sigue igualmente.
+function sayTTS(tt,tok,next){let go=false;const nx=()=>{if(go)return;go=true;next()};
+  if(!('speechSynthesis' in window)||tok!==sayTok){nx();return}
+  try{const u=new SpeechSynthesisUtterance(tt);if(VOICE){u.voice=VOICE;u.lang=VOICE.lang}else u.lang=S.variant==='es'?'es-ES':'es-AR';
+    u.rate=.9;u.pitch=1.1;u.volume=S.vol.voz;u.onend=nx;u.onerror=nx;speechSynthesis.speak(u)}catch(e){nx();return}
+  setTimeout(nx,1500+tt.length*95)}
+// vozSeq(plan, tok, fin, fallo): dice un plan de vozFile (mp3 y trozos {t}) en orden: los mp3 seguidos se juntan en un
+// solo vozPlay y los {t} los dice sayTTS. Precarga todos los mp3 al empezar. Al acabar llama a fin(); si falla un mp3,
+// a fallo() (say() dice entonces la frase entera con la voz del navegador).
+function vozSeq(plan,tok,fin,fail){plan.forEach(f=>{if(typeof f==='string')vozGet(f).catch(()=>{})});
+  const step=i=>{if(tok!==sayTok||i>=plan.length){fin();return}// cortada por otra frase: también se da por terminada
+    if(plan[i].t!=null){sayTTS(plan[i].t,tok,()=>step(i+1));return}
+    let j=i;while(j<plan.length&&typeof plan[j]==='string')j++;// i..j-1: mp3 seguidos
+    vozPlay(plan.slice(i,j),tok,()=>step(j),fail)};
+  step(0)}
 /* say(texto, cb, o): Tito dice una frase. Es LA función de voz del juego.
    - texto: se pasa por tx() (salvo en inglés, o.en). Con el texto final se busca un MP3 grabado (voz/manifest.json o
      voz-fer/); si lo hay suena el MP3 y, si no, habla la voz del navegador (speechSynthesis).
+     Si solo una parte está grabada, se mezclan: lo grabado con MP3 y el resto (datos que cambian, como fechas o
+     monedas) con la voz del navegador (vozFile/vozSeq). Si lleva el nombre del niño (", nombre"), el nombre lo dice
+     antes la voz del navegador y luego suena lo grabado sin el nombre.
    - cb: se llama al terminar la frase, pero solo si no se ha cambiado de escena mientras tanto (sceneTok).
    - o: en (inglés, voz VOICE_EN, sin tx ni MP3), rate (velocidad), pitch (tono).
    Cada frase nueva corta la anterior (sayTok). Mientras habla, talking=true y la música baja. Hay temporizadores de
@@ -508,7 +553,7 @@ function say(t,cb,o={}){
 // est: duración estimada de la frase en ms (para los temporizadores de seguridad).
   const est=900+t.length*85/(o.rate||1);
   if(window.__fast){if(window.__said)window.__said.push(t);talking=true;setTimeout(fin,30);return}
-// vf: lista de MP3 grabados para la frase (o null/false si no hay, o si la voz está a 0).
+// vf: plan de vozFile para la frase (mp3 grabados y trozos {t}), o null/false si no hay nada grabado o la voz está a 0.
   const vf=!o.en&&S.vol.voz>0&&vozFile(t);
 // Sin MP3 y sin voz del navegador (o con volumen 0): se hace como que habla un rato para que el juego siga.
   if(!vf&&(!('speechSynthesis' in window)||S.vol.voz<=0)){talking=true;setTimeout(fin,Math.min(est,2500));return}
@@ -522,7 +567,10 @@ function say(t,cb,o={}){
     speechSynthesis.speak(u);
   };
 // Con MP3: si falla, se usa speak(). El temporizador final es de seguridad.
-  if(vf){vozPlay(vf,tok,fin,()=>{if(tok===sayTok&&!done)speak()});setTimeout(fin,est/VOZ_RATE+4000);return}
+// Si la frase lleva el nombre del niño (", Lucía", de kid() o praise()), el MP3 grabado no lo tiene: Tito dice antes
+// el nombre con la voz del navegador y después suena lo grabado ("Lucía. ¡Muy bien! ¡Una estrella más!").
+  if(vf){if(S.name&&t.includes(', '+S.name))vf.unshift({t:S.name+'.'});
+    vozSeq(vf,tok,fin,()=>{if(tok===sayTok&&!done)speak()});setTimeout(fin,est/VOZ_RATE+4000+vf.filter(f=>f.t!=null).length*2500);return}
   setTimeout(speak,60);
   setTimeout(fin,est+1500);
 }

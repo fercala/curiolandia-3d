@@ -236,7 +236,7 @@ La receta completa está en [COMO-AGREGAR.md](COMO-AGREGAR.md#3-un-objeto-3d-nue
 
 ## 10. Voz e idioma
 
-- `say(texto, alAcabar)` hace hablar a Tito. Busca un **MP3 grabado** para ese texto exacto en `voz/manifest.json` (o `voz-fer/` si se eligió la Voz de Fer). Si no lo encuentra, usa la voz del navegador.
+- `say(texto, alAcabar)` hace hablar a Tito. Busca un **MP3 grabado** para ese texto exacto en `voz/manifest.json` (o `voz-fer/` si se eligió la Voz de Fer). Si solo hay grabada una parte, mezcla: lo grabado con MP3 y el resto con la voz del navegador; las oraciones con números se arman con piezas grabadas ("hoy es jueves" + "22" + "de octubre"). El nombre del niño lo dice la voz del navegador antes de lo grabado. Detalles en [VOCES.md](VOCES.md).
 - Muchos textos del código están escritos en **español rioplatense** ("Tocá", "Buscá") porque el juego nació así; `tx()` los convierte al **castellano de España** cuando la variante es España (`S.variant='es'`). `V(['rioplatense', 'España'])` elige entre dos versiones cuando el cambio es grande.
 - **Regla de oro: no cambies el texto de ninguna frase que ya dice `say()`**, porque perdería su MP3. Las frases nuevas se escriben en castellano de España y se apuntan para grabarlas.
 

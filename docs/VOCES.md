@@ -8,12 +8,14 @@ Tito habla con **frases grabadas en MP3**. Si una frase no tiene grabación, la 
 
 1. Pasa el texto por `tx()` (convierte del español rioplatense al de España si la variante es España; ver abajo). Con `{en: 1}` (Rincón del inglés) no lo convierte y usa una voz inglesa.
 2. Corta la frase que estuviera sonando.
-3. Busca el MP3 con `vozFile(texto)` en el manifiesto de la voz elegida:
+3. Prepara un **plan** con `vozFile(texto)` en el manifiesto de la voz elegida:
    - `voz/manifest.json` (voz principal) o `voz-fer/manifest.json` si en la zona de adultos se eligió la "Voz de Fer" (`S.voz = 'fer'`).
    - El manifiesto es `{"v":1, "f": {"texto exacto": "archivo.mp3", ...}}`.
    - La búsqueda ignora mayúsculas y el punto final, y quita el nombre del niño si va detrás de una coma ("¡Muy bien, Lucía!" → busca "¡Muy bien!").
-   - Si no está la frase entera, prueba **oración por oración**.
-4. Si hay MP3, lo reproduce (`vozPlay`); si no, usa `speechSynthesis` del navegador.
+   - Si no está la frase entera, la parte en oraciones y va de izquierda a derecha cogiendo cada vez el **trozo grabado más largo**: "¡Súper! ¡Sus plumas! Lo tienen calentito." = "¡Súper!" + "¡Sus plumas! Lo tienen calentito.". Por eso basta con grabar lo que va detrás de una felicitación de `PRAISE`.
+   - Una oración con números que no esté grabada entera se arma con **piezas** (`vozPieces`): quita los signos y junta palabras grabadas sueltas, y los números con `vozNum` ("0" a "100" grabados tal cual y, de 101 a 999, la centena más el resto: "cuatrocientos" + "53"). Ejemplo: "Hoy es jueves 22 de octubre." = "hoy es jueves" + "22" + "de octubre".
+   - Lo que siga sin grabar queda como trozo `{t: texto}` para la voz del navegador. Si no hay nada grabado, `vozFile` devuelve `null`.
+4. Si hay plan, lo dice `vozSeq`: los MP3 seguidos con `vozPlay` y los trozos `{t}` con `sayTTS` (voz del navegador). Si la frase llevaba el nombre del niño, `say()` pone el nombre delante, con la voz del navegador ("Lucía. ¡Muy bien! ¡Una estrella más!"), porque los nombres no se pueden grabar de antemano. Si no hay plan, dice la frase entera con `speechSynthesis`.
 5. Al terminar llama a `alAcabar`, **solo si el niño sigue en la misma escena**.
 
 Mientras habla, Tito mueve la boca y la música baja de volumen.
@@ -40,13 +42,17 @@ El juego nació en español rioplatense ("Tocá", "Buscá", "¿Cómo te llamás?
    grep -o '"La regadera[^"]*"' voz/manifest.json
    ```
 4. Cada frase nueva **se apunta para grabarla** (ver abajo). Mientras no se grabe, la dirá la voz del navegador: el juego funciona, pero suena peor.
-5. Evita frases con partes variables (números, nombres de artículos) dentro de la misma oración: nunca tendrán un MP3 exacto. Mejor partirlas en oraciones fijas o reutilizar frases cortas grabadas ("Uno", "Dos"...).
+5. Si una frase lleva datos que cambian (números, fechas), pon el dato en una oración aparte con palabras fijas alrededor ("Tienes 12 monedas."): así se arma con piezas grabadas. Apunta para grabar las piezas nuevas (las palabras de alrededor, en minúsculas y sin signos). Los nombres de artículos son finitos: graba la oración entera para cada uno.
 
-## 4. Cómo se graba una frase nueva
+## 4. Buscar todas las frases sin voz
+
+[`herramientas/voces/auditoria/`](../herramientas/voces/auditoria/LEEME.md) juega todos los juegos y recorre todas las escenas con un robot, apunta cada frase que dice Tito y prepara la lista de lo que falta por grabar (frases, piezas y números), sin el nombre del niño. Úsalo después de cambios grandes o antes de una tanda de grabación.
+
+## 5. Cómo se graba una frase nueva
 
 Las voces se generan en el ordenador de Fernando con **Voicebox** (un programa de síntesis de voz que funciona en local) y los scripts de [`herramientas/voces/`](../herramientas/voces/):
 
-1. **Apunta cada frase nueva** al final de `herramientas/voces/frases-curiolandia-nuevas.txt`: una por línea, sin repetir, con el texto exacto que dirá Tito en castellano de España (ya pasado por `tx()`; puedes copiarlo de `window.__said`). Antes comprueba que no esté ya grabada (`grep` en `voz/manifest.json`). Esa lista es la que se le pasa a Fernando para grabar. Las frases que ya están en ella siguen pendientes.
+1. **Apunta cada frase nueva** al final de `herramientas/voces/frases-curiolandia-nuevas.txt`: una por línea, sin repetir, con el texto exacto que dirá Tito en castellano de España (ya pasado por `tx()`; puedes copiarlo de `window.__said`). Antes comprueba que no esté ya grabada (`grep` en `voz/manifest.json`). Esa lista es la que se le pasa a Fernando para grabar. Las frases que ya están en ella siguen pendientes. Las **piezas** para oraciones con números ("hoy es jueves", "monedas") van en minúsculas y sin signos, y los números con cifras ("22"): el texto de la línea es la clave del manifiesto, así que se graban tal cual.
 2. En Windows, con Voicebox abierto, se ejecuta `generar-curiolandia-nuevas.bat` (lee la lista de frases nuevas). Llama a `generar-voces.ps1`, que crea un `.wav` por frase con el nombre `md5(frase)[:12].wav`. Si se cierra, al volver a abrirlo sigue donde lo dejó. `generar-curiolandia.bat` hace lo mismo con la lista completa.
 3. Se convierten los WAV en MP3 y se regenera el manifiesto con `preparar_voz.py`:
    ```sh
