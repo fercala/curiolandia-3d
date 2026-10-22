@@ -167,7 +167,8 @@ function orbFace(w,G,sleep){const EY=[],OE=[];const g=new THREE.Group();g.positi
 function zoneMoon(w,x,y,z,c,e,hc){const G=new THREE.Group();G.position.set(x,y,z);G.userData.orb=c?'sol':'luna';w.sc.add(G);hitS(G,1.4,0);/* se puede tocar */const m=mk(Sph(1.1,20,16),M(c||'#FFF3B0',{emissive:e||'#B8963A'}),{ol:.12,cs:false,rs:false});m.raycast=()=>{};G.add(m);
   const hg=new THREE.BufferGeometry();hg.setAttribute('position',new THREE.BufferAttribute(new Float32Array([x,y,z-.6]),3));
   const h=new THREE.Points(hg,new THREE.PointsMaterial({color:hc||'#FFF1A8',size:7,blending:THREE.AdditiveBlending,map:softTex(),transparent:true,depthWrite:false,opacity:.5}));h.raycast=()=>{};w.sc.add(h);
-  w.upd.push(()=>{const q=Math.sin(T*1.3);h.material.size=7+q*.9;h.material.opacity=.45+.12*q});return G}
+  w.upd.push(()=>{const q=Math.sin(T*1.3);h.material.size=7+q*.9;h.material.opacity=.45+.12*q});
+  {const hr=new Date().getHours();if(!c||hr>=7&&hr<11){let dn=0;w.upd.push(()=>{if(!dn&&w.tito&&T>.8){dn=1;w.tito.userData.lk={p:G.position.clone(),t:T}}})}}/* al llegar por la mañana Tito mira al sol, y de noche a la luna */return G}
 // seta de sombrero rojo con lunares; al tocarla se aplasta y rebota como los arbustos
 function mush3(to,x,z,s){const g=grp(to,[x,0,z],s);g.userData.mush=1;mk(Cyl(.16,.2,.5,12),'#FFF6E6',{p:[0,.25,0],to:g,ol:.025});
   const nt=skyNow().night,cap=new THREE.SphereGeometry(.42,16,10,0,PI*2,0,PI/2);/* de noche las setas brillan un poco */mk(cap,nt?M('#E8503C',{emissive:'#6A1A0E'}):'#E8503C',{p:[0,.48,0],s:[1,.75,1],to:g,ol:.03});
