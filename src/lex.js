@@ -1,4 +1,14 @@
 /* ================= PALABRAS NUEVAS (v2) ================= */
+/*
+ * lex.js: amplía el vocabulario de core.js. Va justo después de core.js y solo AÑADE cosas a sus globales:
+ *  - LEX: nombre con artículo (en rioplatense) de los dibujos nuevos: {claveDelDibujo: 'el nombre'}.
+ *  - LEX2: palabras que cambian demasiado entre variantes: {clave: ['rioplatense', 'España']}. Tiene prioridad sobre LEX.
+ *  - SOUNDS: sonidos sintetizados de animales, vehículos e instrumentos nuevos (con syn, tone y noise de core.js).
+ *  - ONO: la onomatopeya que dice Tito para cada sonido nuevo (tiene MP3 grabado: no cambies el texto).
+ *  - _tuRe: más pares [rioplatense, España] para tx().
+ * No define globales nuevas. Para un dibujo nuevo: añade su clave en LEX (y en LEX2 si en España se dice muy distinto);
+ * si suena, añade su función en SOUNDS y su onomatopeya en ONO. Las claves 'emo:...' son las emociones de la asamblea.
+ */
 Object.assign(LEX,{
  escuela:'la escuela',parque:'el parque',piscina:'la pileta',tienda:'la tienda',hospital:'el hospital',calendario:'el calendario',semaforo:'el semáforo',pasoCebra:'el paso de cebra',
  bombera:'la bombera',medico:'el médico',policia:'la policía',panadero:'el panadero',cocinera:'la cocinera',cartero:'el cartero',granjera:'la granjera',peluquero:'el peluquero',
@@ -25,12 +35,14 @@ Object.assign(LEX,{
  candado:'el candado',cofre:'el cofre del tesoro',sombreroCopa:'el sombrero de copa',monio:'el moño',gorroFiesta:'el gorrito de fiesta',
  'emo:alegria':'la alegría','emo:tristeza':'la tristeza','emo:enojo':'el enojo','emo:miedo':'el miedo','emo:sorpresa':'la sorpresa','emo:calma':'la calma','emo:verguenza':'la vergüenza'
 });
+// LEX2: [rioplatense, España] de las palabras que tx() no sabría cambiar bien (cambia el artículo o la palabra entera).
 Object.assign(LEX2,{escuela:['la escuela','el cole'],piscina:['la pileta','la piscina'],fonendo:['el estetoscopio','el fonendo'],patrullero:['el patrullero','el coche de policía'],metro:['el subte','el metro'],
  stop:['la señal de pare','la señal de stop'],maleta:['la valija','la maleta'],patata:['la papa','la patata'],pimiento:['el morrón','el pimiento'],pina:['el ananá','la piña'],bombilla:['la lamparita','la bombilla'],
  dulces:['las golosinas','las chucherías'],brik:['el cartón de leche','el brik de leche'],periodico:['el diario','el periódico'],cascara:['la cáscara de banana','la piel del plátano'],grifo:['la canilla','el grifo'],
  banador:['la malla','el bañador'],tarta:['la torta de cumpleaños','la tarta de cumpleaños'],pijama:['el piyama','el pijama'],estanteria:['la biblioteca','la estantería'],cometa:['el barrilete','la cometa'],
  columpio:['la hamaca','el columpio'],'emo:enojo':['el enojo','el enfado'],almuerzo:['el almuerzo','la comida'],cerdito:['el chanchito','el cerdito']});
 // sonidos nuevos
+// sonidos nuevos: misma clave que el dibujo; ver syn() en core.js para el significado de cada campo.
 Object.assign(SOUNDS,{
   ambulancia:()=>{for(let i=0;i<4;i++)syn({f:i%2?660:880,d:.38,type:'square',lp:2000,v:.18,delay:i*.4})},
   camionBomberos:()=>{syn({f:500,f2:1100,d:.9,type:'sawtooth',lp:1800,v:.2});syn({f:1100,f2:500,d:.9,type:'sawtooth',lp:1800,v:.2,delay:.9})},
@@ -54,9 +66,12 @@ Object.assign(SOUNDS,{
   jirafa:()=>{syn({f:300,f2:260,d:.4,type:'sine',lp:600,v:.2})},
   cebra:()=>{syn({f:600,f2:300,d:.7,vib:14,vibA:80,lp:2200,v:.25,att:.05})}
 });
+// onomatopeyas de los sonidos nuevos (las dice la voz con say()).
 Object.assign(ONO,{ambulancia:'¡Niinoo, niinoo!',camionBomberos:'¡Uuuiiiuuu!',patrullero:'¡Uiu, uiu, uiu!',helicoptero:'¡Tacatacataca!',submarino:'¡Piiing!',tractor:'¡Put, put, put!',globoAire:'¡Fsssh!',
  metro:'¡Tucutú, tucutú!',campana:'¡Talán, talán!',tambor:'¡Pum, pum, pum!',pinguino:'¡Cua, cua!',osoPolar:'¡Grrrooo!',lobo:'¡Auuuuu!',buho:'¡Uh, uh!',tigre:'¡Grrraaa!',conejo:'¡Snif, snif!',cocodrilo:'¡Clac, clac!',camello:'¡Gruuu!',morsa:'¡Oh, oh!',cebra:'¡Iiiii!'});
 // palabras rioplatenses nuevas que cambian en España
+// Función que se ejecuta una vez: convierte cada par de add en expresión regular (igual que _tuRe en core.js) y lo añade al
+// final de _tuRe, así que se aplica DESPUÉS de los pares de TU. Las expresiones largas van antes que las cortas.
 (function(){const add=[['las golosinas','las chucherías'],['golosinas','chucherías'],['la valija','la maleta'],['valija','maleta'],['el subte','el metro'],['subte','metro'],['el morrón','el pimiento'],['morrón','pimiento'],
   ['el ananá','la piña'],['ananá','piña'],['la lamparita','la bombilla'],['lamparita','bombilla'],['la malla','el bañador'],['el piyama','el pijama'],['piyama','pijama'],['el barrilete','la cometa'],['barrilete','cometa'],
   ['la vereda','la acera'],['vereda','acera'],['la torta','la tarta'],['torta','tarta'],['el diario','el periódico'],['la hamaca','el columpio'],['el balde','el cubo'],['manejar','conducir'],['manejamos','conducimos'],

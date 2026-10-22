@@ -1,8 +1,32 @@
+// ==========================================================================
+// pics-a.js: dibujos de lugares, oficios, objetos y vehículos (sobre todo para 4 años).
+// ==========================================================================
+// Añade dibujos a PICS (Object.assign sobre PICS, con clave:`...svg...`). Formato de un dibujo (SVG con
+// centro en 0,0 dentro de -62..62) y cómo se busca por su nombre con pic(clave,...): ver la cabecera
+// de pics-base.js. Las funciones de ayuda de este archivo devuelven trozos de SVG (cadenas) y solo
+// se llaman al cargar, para construir los dibujos. Depende de K, sw() y eye() de pics-base.js.
+// También usa person() de pics-new.js para los oficios.
+// Ayudas (prefijo PA_ para no chocar con otros archivos): PA_oct, PA_win, PA_P, PA_star, PA_hat,
+// PA_heart, PA_spiral, PA_wh, PA_lens.
+// Dibujos: escuela, hospital, parque, piscina, tienda, calendario, semáforo, paso de cebra, stop,
+// mapa; oficios (bombera, médico, policía, panadero, cocinera, cartero, granjera, peluquero) y sus
+// herramientas; cosas de los sentidos; vehículos (ambulancia, camión de bomberos, submarino...).
+// ==========================================================================
 /* ---------- Dibujos PA: lugares, oficios, objetos y vehiculos ---------- */
+// Devuelve los 8 puntos (texto 'x,y x,y ...') de un octógono de radio r centrado en (0,cy). Para la señal de stop.
 const PA_oct=(r,cy)=>[...Array(8)].map((_,i)=>{const a=(22.5+45*i)*Math.PI/180;return `${(r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`}).join(' ');
+// Ventana SVG azul con su cruz, con la esquina de arriba a la izquierda en (x,y) y tamaño w x h.
 const PA_win=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#BFEAF7" ${sw(4)}/><path d="M${x+w/2} ${y} V${y+h} M${x} ${y+h/2} H${x+w}" ${sw(2.5)}/>`;
 
 /* persona con brazos, ropa, sombrero y objetos extra (basada en person()) */
+// Persona con extras para los oficios. o = opciones de person() (pics-new.js). x = extras:
+//   R / L = [camino SVG del brazo derecho / izquierdo, x de la mano, y de la mano] para moverlo;
+//   mid = SVG que va entre el cuerpo y los brazos (chaleco, delantal...);
+//   hold = SVG que va encima de los brazos (lo que lleva en la mano);
+//   top = SVG que va encima de todo (gorro, casco...);
+//   T = altura extra del sombrero: si no cabe en el cuadro, encoge la figura con los pies fijos.
+// Funciona retocando el texto SVG que devuelve person() con replace() y búsquedas de texto, y
+// añade un contorno oscuro a las mangas. Si se cambia person(), estas búsquedas pueden fallar.
 const PA_P=(o,x={})=>{let s=person(o);
  if(x.R)s=s.replace('M20 -6 Q30 10 28 26',x.R[0]).replace('<circle cx="28" cy="28"',`<circle cx="${x.R[1]}" cy="${x.R[2]}"`);
  if(x.L)s=s.replace('M-20 -6 Q-30 10 -28 26',x.L[0]).replace('<circle cx="-28" cy="28"',`<circle cx="${x.L[1]}" cy="${x.L[2]}"`);
@@ -13,15 +37,22 @@ const PA_P=(o,x={})=>{let s=person(o);
  s=s.replace(/<\/g>$/,(x.top||'')+'</g>');
  if(x.T){const rt=1.08*x.T-2.32,f=Math.min(1,114/(56-rt)),ty=56-56*f;s=`<g transform="translate(0 ${ty.toFixed(1)}) scale(${f.toFixed(3)})">${s}</g>`}
  return s};
+// Estrella SVG de 5 puntas centrada en (cx,cy), radio r y color c.
 const PA_star=(cx,cy,r,c)=>`<polygon points="${[...Array(10)].map((_,i)=>{const a=(-90+36*i)*Math.PI/180,q=i%2?r*.45:r;return `${(cx+q*Math.cos(a)).toFixed(1)},${(cy+q*Math.sin(a)).toFixed(1)}`}).join(' ')}" fill="${c}" ${sw(2)}/>`;
+// PA_hat: gorro blanco de cocinero (SVG fijo).
 const PA_hat=`<path d="M-14 -48 Q-28 -54 -22 -68 Q-20 -82 -6 -78 Q2 -90 12 -78 Q26 -80 24 -66 Q28 -54 14 -48 Z" fill="#FFFFFF" ${sw(4)}/><rect x="-15" y="-50" width="30" height="10" rx="2" fill="#FFFFFF" ${sw(4)}/>`;
 
+// Corazón SVG centrado en (x,y), tamaño r, color c y grosor de contorno w.
 const PA_heart=(x,y,r,c,w=3)=>`<path d="M${x} ${y+r*.9} C${x-r*1.6} ${y-r*.1} ${x-r*.9} ${y-r*1.3} ${x} ${y-r*.45} C${x+r*.9} ${y-r*1.3} ${x+r*1.6} ${y-r*.1} ${x} ${y+r*.9} Z" fill="${c}" ${sw(w)}/>`;
+// Devuelve el camino SVG (atributo d) de una espiral de n medias vueltas que empieza en (cx,cy) y se abre st en cada vuelta. Para la manguera enrollada.
 const PA_spiral=(cx,cy,st,n)=>{let d=`M${cx} ${cy}`,x=cx;for(let i=1;i<=n;i++){const r=st*i/2;x=i%2?cx+st*(i+1)/2:cx-st*i/2;d+=` A${r} ${r} 0 0 1 ${x} ${cy}`}return d};
 
+// Rueda SVG (neumático gris y llanta clara) centrada en (x,y) con radio r.
 const PA_wh=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#5B5F6B" ${sw()}/><circle cx="${x}" cy="${y}" r="${r*.4}" fill="#E4ECF4" ${sw(2.5)}/>`;
+// Globo de aire caliente SVG (forma de gota invertida) de semiancho b y color c.
 const PA_lens=(b,c)=>{const w=13*b/46;return `<path d="M0 -58 C${b*.74} -58 ${b} -34 ${b} -14 C${b*.96} 4 ${w*1.5} 16 ${w} 22 H${-w} C${-w*1.5} 16 ${-b*.96} 4 ${-b} -14 C${-b} -34 ${-b*.74} -58 0 -58 Z" fill="${c}" ${sw(b>40?5:3)}/>`};
 
+// Dibujos de este archivo: lugares, señales, oficios, herramientas y vehículos.
 Object.assign(PICS,{
 escuela:`<rect x="-54" y="-2" width="108" height="56" fill="#FFD66B" ${sw()}/>`+
  `<path d="M-58 0 L-50 -12 H50 L58 0 Z" fill="#FF6B5E" ${sw()}/>`+

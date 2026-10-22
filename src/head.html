@@ -1,7 +1,14 @@
+<!-- head.html: el principio de la página. build.sh lo pone delante de todos los .js (que van en un único <script>).
+     Contiene: título, fuentes, estilos (CSS), los dos lienzos del juego, Three.js y los paneles HTML
+     (nombre, empezar de nuevo y zona de adultos). build_web.py cambia las fuentes de Google y Three.js por copias
+     locales para que la web funcione sin internet. -->
 <title>Curiolandia 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@500;600;700&display=swap">
+<!-- Estilos: html/body sin márgenes ni desplazamiento (el juego ocupa toda la pantalla); #gl y #cv, los lienzos;
+     #adult, el panel de la zona de adultos (adult.js: .row filas, .opt opciones, .note notas, .tm temas, .cal asambleas,
+     .pill etiquetas de la tabla de habilidades); #nameDlg y #resetDlg, los diálogos del nombre y de empezar de nuevo. -->
 <style>
 :root{--paper:#FFF6E6;--ink:#4A3428;--lav:#9B8AD9;color-scheme:light}
 html,body{margin:0;height:100%;background:#2E2420;overflow:hidden;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -43,9 +50,15 @@ html,body{margin:0;height:100%;background:#2E2420;overflow:hidden;overscroll-beh
 #adult .cal{display:flex;gap:6px;flex-wrap:wrap}#adult .cal span{background:#fff;border-radius:12px;padding:4px 8px;text-align:center;font-size:13px;min-width:54px}#adult .cal b{font-size:20px;display:block}
 #adult select{font:inherit;padding:6px 10px;border:2px solid var(--ink);border-radius:12px;background:#fff}
 </style>
+<!-- Dos lienzos uno encima del otro: #gl (debajo) es donde Three.js dibuja el mundo 3D (world3d.js);
+     #cv (encima) es el lienzo 2D de core.js, donde se dibujan las escenas 2D y la interfaz sobre el 3D. -->
 <canvas id="gl"></canvas>
 <canvas id="cv"></canvas>
+<!-- Three.js r128, la librería 3D (en la web publicada se usa la copia local three.min.js). -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Diálogo para escribir el nombre de quien juega (openNameDlg en adult.js). -->
 <div id="nameDlg" hidden><div class="panel"><h2>¿Cómo se llama quien juega?</h2><p style="margin:0;font-size:15px;color:#7A6252">Tito lo va a decir en voz alta. Se puede dejar vacío.</p><input id="nm-in" maxlength="20" autocomplete="off" placeholder="Nombre"><div class="row"><button id="nm-ok" type="button">Listo</button><button id="nm-x" type="button">Cancelar</button></div></div></div>
+<!-- Diálogo para empezar de nuevo (openResetDlg y doReset en adult.js). -->
 <div id="resetDlg" class="dlg" hidden><div class="panel"><h2>¿Empezar de nuevo?</h2><p style="margin:0">Se borra todo el progreso: temas, estrellas, figuritas, asambleas, el nombre y la edad. Se conservan el idioma, el volumen y el límite de tiempo.</p><div class="row"><button id="rs-yes" type="button" style="background:#E2574C;color:#fff">Sí, borrar todo</button><button id="rs-no" type="button">No</button></div></div></div>
+<!-- Zona de adultos: openAdult() (adult.js) rellena .body con todo el contenido cada vez que se abre. -->
 <div id="adult" hidden><div class="panel"><header><h2>Zona de adultos</h2><button id="a-close">Volver al juego</button></header><div class="body"></div></div></div>

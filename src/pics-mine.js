@@ -1,3 +1,12 @@
+// ==========================================================================
+// pics-mine.js: iconos propios de la versión 2 (notas, carpa, pizarra, casaCaracol, manos,
+// dientes, estrellas): los usan las canciones, rutinas y trazos (extras.js), zonas.js y tienda.js.
+// ==========================================================================
+// Añade dibujos a PICS con Object.assign(PICS,{clave:`...svg...`}). Formato de un dibujo (SVG con
+// centro en 0,0 dentro de -62..62) y cómo se busca por su nombre con pic(clave,...): ver la cabecera
+// de pics-base.js.
+// Es el último archivo de dibujos en build.sh, así que si repite una clave, gana el de aquí.
+// ==========================================================================
 /* ---------- íconos propios de la v2 ---------- */
 Object.assign(PICS,{
 notas:`<path d="M-26 34 V-30 L34 -44 V22" fill="none" ${sw(7)}/><path d="M-26 -14 L34 -28" fill="none" ${sw(7)}/><ellipse cx="-38" cy="34" rx="16" ry="12" fill="#9B8AD9" ${sw()} transform="rotate(-20 -38 34)"/><ellipse cx="22" cy="22" rx="16" ry="12" fill="#F58BB4" ${sw()} transform="rotate(-20 22 22)"/><path d="M-50 -46 l6 -10 l6 10 M44 -54 l5 -8 l5 8" fill="none" stroke="#FFC93C" stroke-width="4" stroke-linecap="round"/>`,

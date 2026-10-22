@@ -1,11 +1,27 @@
+// ==========================================================================
+// pics-c.js: dibujos para 5 años: cuerpo por dentro, comida, espacio, dinosaurios, naturaleza.
+// ==========================================================================
+// Añade dibujos a PICS (Object.assign sobre PICS, con clave:`...svg...`). Formato de un dibujo (SVG con
+// centro en 0,0 dentro de -62..62) y cómo se busca por su nombre con pic(clave,...): ver la cabecera
+// de pics-base.js. Las funciones de ayuda de este archivo devuelven trozos de SVG (cadenas) y solo
+// se llaman al cargar, para construir los dibujos. Depende de K, sw() y eye() de pics-base.js.
+// Ayudas (prefijo PC_): PC_bn (hueso), PC_cheeks, PC_plate.
+// Dibujos: esqueleto, hueso, órganos, alimentos, planetas, dinosaurios, fósil, volcán, rayo,
+// termómetro y animales (camello, pulpo, búho, lobo, golondrina).
+// ==========================================================================
 /* ---------- Dibujos PC: cuerpo, comida, espacio, dinosaurios, naturaleza ---------- */
 /* hueso con extremos redondeados de (x1,y1) a (x2,y2): contorno fusionado */
+// Hueso SVG de (x1,y1) a (x2,y2) con grosor w, color c y contorno st. Pinta dos veces las mismas
+// formas (con contorno y sin él) para que el contorno quede solo por fuera y los extremos parezcan una pieza.
 const PC_bn=(x1,y1,x2,y2,w=7,c="#FFFFFF",st=7)=>{const L=Math.hypot(x2-x1,y2-y1),a=Math.atan2(y2-y1,x2-x1)*180/Math.PI,r=(w*.6).toFixed(1),o=(w*.42).toFixed(1);
 const s=`<circle cx="0" cy="-${o}" r="${r}"/><circle cx="0" cy="${o}" r="${r}"/><circle cx="${L.toFixed(1)}" cy="-${o}" r="${r}"/><circle cx="${L.toFixed(1)}" cy="${o}" r="${r}"/><rect x="0" y="${-w/2}" width="${L.toFixed(1)}" height="${w}"/>`;
 return `<g transform="translate(${x1} ${y1}) rotate(${a.toFixed(1)})"><g fill="${c}" ${sw(st)}>${s}</g><g fill="${c}">${s}</g></g>`;};
+// Dos mejillas SVG a distancia d a cada lado de (x,y), radio r, color c y opacidad o.
 const PC_cheeks=(x,y,d,r=5,c="#FF8A7A",o=.5)=>`<circle cx="${x-d}" cy="${y}" r="${r}" fill="${c}" opacity="${o}"/><circle cx="${x+d}" cy="${y}" r="${r}" fill="${c}" opacity="${o}"/>`;
+// Plato SVG visto de lado (dos elipses) a la altura cy, con radios rx y ry.
 const PC_plate=(cy=18,rx=58,ry=26)=>`<ellipse cx="0" cy="${cy}" rx="${rx}" ry="${ry}" fill="#FFFFFF" ${sw()}/><ellipse cx="0" cy="${cy-2}" rx="${rx*.68}" ry="${ry*.58}" fill="#F1E9DC"/>`;
 
+// Dibujos de este archivo (ver la lista de la cabecera).
 Object.assign(PICS,{
 esqueleto:`${PC_bn(-12,-4,-28,8,6.5)}${PC_bn(-28,8,-36,24,6.5)}<circle cx="-38" cy="29" r="6" fill="#FFFFFF" ${sw(3.5)}/>${PC_bn(12,-4,30,-10,6.5)}${PC_bn(30,-10,40,-26,6.5)}<circle cx="42" cy="-31" r="6" fill="#FFFFFF" ${sw(3.5)}/>${PC_bn(-8,26,-11,38,7)}${PC_bn(-11,38,-12,49,7)}${PC_bn(8,26,11,38,7)}${PC_bn(11,38,12,49,7)}<ellipse cx="-16" cy="53" rx="9" ry="4.5" fill="#FFFFFF" ${sw(3.5)}/><ellipse cx="16" cy="53" rx="9" ry="4.5" fill="#FFFFFF" ${sw(3.5)}/><rect x="-4.5" y="-14" width="9" height="38" rx="3" fill="#FFFFFF" ${sw(3.5)}/><path d="M-3 -8 C-14 -10 -23 -4 -22 5 C-21 13 -15 17 -8 17 L-3 13 Z M3 -8 C14 -10 23 -4 22 5 C21 13 15 17 8 17 L3 13 Z" fill="#FFFFFF" ${sw(3.5)}/><path d="M-4 -1 Q-13 -4 -21 1 M-4 7 Q-12 4 -20 10 M4 -1 Q13 -4 21 1 M4 7 Q12 4 20 10" fill="none" ${sw(3)}/><path d="M-4.5 -10 h9 M-4.5 0 h9 M-4.5 8 h9 M-4.5 16 h9" stroke="${K}" stroke-width="2"/><path d="M-17 21 Q-19 32 -7 32 L0 28 L7 32 Q19 32 17 21 Q0 16 -17 21 Z" fill="#FFFFFF" ${sw(3.5)}/><path d="M-22 -34 A22 22 0 1 1 22 -34 Q22 -23 14 -19 V-14 Q14 -10 10 -10 H-10 Q-14 -10 -14 -14 V-19 Q-22 -23 -22 -34 Z" fill="#FFFFFF" ${sw()}/>${eye(-8.5,-35,6.5)}${eye(8.5,-35,6.5)}<path d="M-2.5 -25 h5 l-2.5 4 Z" fill="${K}" ${sw(2)}/><path d="M-8 -17 q8 5 16 0" fill="none" ${sw(3)}/><path d="M-3 -15.5 v3 M3 -15.5 v3" ${sw(2.5)}/>${PC_cheeks(0,-24,15,3.5)}`,
 hueso:`<g transform="rotate(-32)">${(()=>{const s=`<circle cx="-40" cy="-11" r="13"/><circle cx="-40" cy="11" r="13"/><circle cx="40" cy="-11" r="13"/><circle cx="40" cy="11" r="13"/><rect x="-40" y="-10" width="80" height="20"/>`;return `<g fill="#FFF6E6" ${sw(10)}>${s}</g><g fill="#FFF6E6">${s}</g>`})()}<path d="M-26 -3 H24" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/><path d="M-30 6 H30" stroke="#E4D3B8" stroke-width="4" stroke-linecap="round"/></g>`,

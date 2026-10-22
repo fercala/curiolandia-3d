@@ -1,12 +1,32 @@
+// ==========================================================================
+// pics-d.js: dibujos de reciclaje, fiestas, cuentos y aseo (5 años, fiestas y rutinas).
+// ==========================================================================
+// Añade dibujos a PICS (Object.assign sobre PICS, con clave:`...svg...`). Formato de un dibujo (SVG con
+// centro en 0,0 dentro de -62..62) y cómo se busca por su nombre con pic(clave,...): ver la cabecera
+// de pics-base.js. Las funciones de ayuda de este archivo devuelven trozos de SVG (cadenas) y solo
+// se llaman al cargar, para construir los dibujos. Depende de K, sw() y eye() de pics-base.js.
+// Ayudas (prefijo PD_): PD_drop, PD_burst, PD_curl, PD_star, PD_spark, PD_house, PD_cube.
+// Dibujos: envases y residuos (para los contenedores), grifo, ropa de playa y nieve, fiestas
+// (corona, antifaz, tarta, árbol de Navidad, fuegos...), los tres cerditos (casaPaja, casaMadera,
+// casaLadrillo), cosas de aseo (jabón, pasta de dientes, vaso) y de dormir (pijama).
+// ==========================================================================
 /* ---------- Dibujos D: reciclaje, fiestas, cuentos, aseo (viewBox -62 -62 124 124) ---------- */
+// Gota SVG con la parte redonda centrada en (x,y), radio r y color c.
 const PD_drop=(x,y,r,c)=>`<path d="M${x} ${y-r*1.9} Q${x+r} ${y-r*.6} ${x+r} ${y} A${r} ${r} 0 0 1 ${x-r} ${y} Q${x-r} ${y-r*.6} ${x} ${y-r*1.9} Z" fill="${c}" ${sw(4)}/>`;
+// Estallido de fuegos artificiales SVG: n rayos alrededor de (cx,cy) de radio r, colores c1 y c2, girado rot (radianes).
 const PD_burst=(cx,cy,r,n,c1,c2,rot=0)=>{let a='',b='';for(let i=0;i<n;i++){const t=rot+i*2*Math.PI/n,x1=cx+Math.cos(t)*r*.32,y1=cy+Math.sin(t)*r*.32,x2=cx+Math.cos(t)*r*.8,y2=cy+Math.sin(t)*r*.8;a+=`M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} `;b+=`<circle cx="${(cx+Math.cos(t)*r*.92).toFixed(1)}" cy="${(cy+Math.sin(t)*r*.92).toFixed(1)}" r="${(r*.1).toFixed(1)}" fill="${i%2?c2:c1}" ${sw(2.5)}/>`}return `<path d="${a}" stroke="${K}" stroke-width="${(r*.17+4).toFixed(1)}" stroke-linecap="round"/><path d="${a}" stroke="${c1}" stroke-width="${(r*.17).toFixed(1)}" stroke-linecap="round"/>${b}<circle cx="${cx}" cy="${cy}" r="${(r*.16).toFixed(1)}" fill="${c2}" ${sw(3)}/>`};
+// Serpentina SVG: un muelle de 'loops' vueltas de radio r que va de (x0,y0) a (x1,y1), con contorno y color c.
 const PD_curl=(x0,y0,x1,y1,r,loops,c)=>{let d='';const N=80;for(let i=0;i<=N;i++){const t=i/N,k=t*loops*2*Math.PI;const x=x0+(x1-x0)*t+r*Math.sin(k),y=y0+(y1-y0)*t-r*Math.cos(k)+r;d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' '}return `<path d="${d}" fill="none" stroke="${K}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`};
+// Estrella SVG de 5 puntas en (cx,cy), radios exterior R e interior r, color c y contorno w.
 const PD_star=(cx,cy,R,r,c,w=4)=>{let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,q=i%2?r:R;d+=(i?'L':'M')+(cx+Math.cos(a)*q).toFixed(1)+' '+(cy+Math.sin(a)*q).toFixed(1)+' '}return `<path d="${d}Z" fill="${c}" ${sw(w)}/>`};
+// Destello SVG de 4 puntas (brillo) en (x,y), tamaño r y color c.
 const PD_spark=(x,y,r,c='#FFD66B')=>`<path d="M${x} ${y-r} Q${x} ${y} ${x+r} ${y} Q${x} ${y} ${x} ${y+r} Q${x} ${y} ${x-r} ${y} Q${x} ${y} ${x} ${y-r} Z" fill="${c}" ${sw(3)}/>`;
+// Casita SVG: wall = color de la pared, roof = color del tejado, deco/roofDeco = SVG extra de la pared y del tejado, extra = SVG detrás.
 const PD_house=(wall,roof,deco,roofDeco,extra='')=>`${extra}<rect x="-40" y="-2" width="80" height="54" fill="${wall}" ${sw()}/>${deco}<path d="M-52 2 L0 -50 L52 2 Z" fill="${roof}" ${sw()}/>${roofDeco}`;
+// Cubo de juguete en perspectiva SVG: esquina (x,y), lado s, colores de frente f, arriba t y lado sd, e icon = SVG en la cara.
 const PD_cube=(x,y,s,f,t,sd,icon)=>{const d=s*.3;return `<path d="M${x} ${y} L${x+d} ${y-d} H${x+s+d} L${x+s} ${y} Z" fill="${t}" ${sw(4)}/><path d="M${x+s} ${y} L${x+s+d} ${y-d} V${y+s-d} L${x+s} ${y+s} Z" fill="${sd}" ${sw(4)}/><rect x="${x}" y="${y}" width="${s}" height="${s}" rx="3" fill="${f}" ${sw(4)}/><g transform="translate(${x+s/2} ${y+s/2})">${icon}</g>`};
 
+// Dibujos de este archivo (ver la lista de la cabecera).
 Object.assign(PICS,{
 botellaPlastico:`<path d="M-11 -44 H11 V-36 Q30 -28 30 -8 V48 Q30 56 21 56 H-21 Q-30 56 -30 48 V-8 Q-30 -28 -11 -36 Z" fill="#7FD3F0" ${sw()}/><rect x="-30" y="4" width="60" height="24" fill="#5BB8E6" ${sw(4)}/><path d="M-20 16 q5 -6 10 0 t10 0 t10 0 t10 0" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/><path d="M-30 40 H30 M-30 -10 H30" fill="none" ${sw(3)}/><path d="M-20 -20 V-14 M-20 36 V46" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/><rect x="-14" y="-58" width="28" height="16" rx="4" fill="#5B8DEF" ${sw(4)}/><path d="M-6 -54 V-46 M0 -54 V-46 M6 -54 V-46" stroke="${K}" stroke-width="2.5" stroke-linecap="round"/>`,
 lata:`<path d="M-32 -44 V44 A32 10 0 0 0 32 44 V-44 Z" fill="#FF5A5A" ${sw()}/><path d="M-32 -8 Q-16 -20 0 -8 T32 -8 V8 Q16 -4 0 8 T-32 8 Z" fill="#FFFFFF"/><path d="M-32 -8 Q-16 -20 0 -8 T32 -8 M32 8 Q16 -4 0 8 T-32 8" fill="none" ${sw(3)}/><path d="M-32 36 A32 10 0 0 0 32 36" fill="none" ${sw(3)}/><path d="M-22 -30 V-18 M-22 20 V30" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity=".6"/><ellipse cx="0" cy="-44" rx="32" ry="10" fill="#C9D1D9" ${sw()}/><ellipse cx="0" cy="-44" rx="22" ry="5" fill="#B8B0A6" ${sw(3)}/><path d="M-4 -46 h14 q4 0 4 3 q0 3 -4 3 h-14 Z" fill="#E4E8EC" ${sw(3)}/>`,

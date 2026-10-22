@@ -1,4 +1,33 @@
 /* ================= CUENTOS: un cuento ilustrado por tema, narrado por Tito ================= */
+// ==========================================================================
+// cuentos.js: un cuento ilustrado por cada tema de 3, 4 y 5 años, narrado por Tito.
+// ==========================================================================
+// Solo DATOS: no tiene funciones. Define la global CUENTOS.
+// Quién lo usa: extras.js recorre T3, T4 y T5 y, si CUENTOS[tema.id] existe, añade al FINAL de
+// los juegos del tema {t:'cuento', icon:'libro', name:'El cuento'}; al abrir ese juego llama a
+// Story(CUENTOS[tema.id], {}, onDone) (comps2.js), que pasa las páginas y luego hace las preguntas.
+// Depende de: BG (temas.js / temas4.js) para los fondos y PICS (pics-*.js) para los dibujos.
+//
+// FORMATO: CUENTOS['id del tema'] = {title, pages, qs}
+//   title   título del cuento: texto o [rioplatense, España].
+//   pages   lista de páginas. Cada página es {bg, items, say}:
+//             bg     nombre de un fondo de BG ('aula', 'parque', 'noche'...); si no existe se usa
+//                    BG.conceptos.
+//             items  dibujos de la página: [clave de PICS, x, y, tamaño, volteado]. x,y = centro en la
+//                    pantalla de 1600x900 (el dibujo se balancea suavemente arriba y abajo); tamaño en px;
+//                    volteado (opcional) = true para dibujarlo mirando al otro lado. La clave también
+//                    puede ser una carita 'emo:alegria'.
+//             say    lo que lee Tito en esa página: texto o [rioplatense, España]. En la primera página
+//                    Tito dice antes "Escucha el cuento: <título>. ".
+//   qs      preguntas al final (lo normal: 2 o 3). Cada una es {q, ok, opts, okSay}:
+//             q      pregunta (texto o [rioplatense, España]);
+//             ok     clave de PICS de la respuesta correcta;
+//             opts   claves de PICS de todas las opciones (incluida la correcta; se barajan);
+//             okSay  (opcional) frase tras acertar (Tito antes dice un elogio).
+// Cada pregunta acertada da una estrella del juego; los aciertos se apuntan con la clave 'cuentos'.
+// ¡No cambies ningún texto de say, title, q ni okSay: todos tienen MP3 grabado!
+// Las frases nuevas se escriben en castellano de España y se apuntan para grabarlas.
+// ==========================================================================
 const CUENTOS={
 
 /* ---------------- 3 AÑOS: EL JARDÍN ---------------- */

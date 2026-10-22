@@ -1,12 +1,37 @@
+// ==========================================================================
+// pics-new.js: dibujos nuevos de Curiolandia (temas de 3 años, familia) y Tito.
+// ==========================================================================
+// Añade dibujos a PICS con Object.assign(PICS,{...}). Formato de un dibujo y cómo se busca por
+// su nombre: ver la cabecera de pics-base.js. Aquí muchos dibujos se escriben con plantillas
+// `...${...}...` que llaman a funciones de ayuda; la cadena final se calcula una sola vez al cargar.
+// Globales: leaf(), cloudP(), mitt, crayon(), MQD, mq(), person(), BEBE (ayudas), y los dibujos de
+// Tito con su propio marco 240x200: TITO_SVG (caracol), ERIZO_SVG, TORTUGA_SVG, CONEJO_SVG
+// (los usan core.js, icons.js y tienda.js).
+// Depende de: K, sw() y eye() de pics-base.js. pics-a.js reutiliza person().
+// Nota: la línea siguiente dice viewBox -60 -60 120 120, pero core.js pinta todos los dibujos de
+// PICS con viewBox -62 -62 124 124 (el mismo centro, un poco más de margen).
+// ==========================================================================
 /* ---------- Dibujos nuevos de Curiolandia (viewBox -60 -60 120 120) ---------- */
+// Hoja de árbol SVG: c = color de la hoja, c2 = color de los nervios.
 const leaf=(c,c2)=>`<path d="M-44 44 Q-60 -20 0 -50 Q48 -60 46 -46 Q56 10 -44 44 Z" fill="${c}" ${sw()}/><path d="M-44 44 Q0 0 34 -40 M-14 10 l-14 -20 M0 -6 l-6 -24 M8 -16 l20 4 M-6 2 l26 6" fill="none" stroke="${c2}" stroke-width="4" stroke-linecap="round"/><path d="M-44 44 l-10 10" ${sw(5)}/>`;
+// Nube SVG de color c, desplazada dy hacia abajo.
 const cloudP=(c,dy=0)=>`<g transform="translate(0 ${dy})"><path d="M-40 10 Q-58 10 -56 -8 Q-54 -26 -34 -24 Q-30 -48 -4 -46 Q18 -46 24 -28 Q46 -34 52 -14 Q58 10 36 10 Z" fill="${c}" ${sw()}/></g>`;
+// mitt: manopla verde (SVG fijo), para el dibujo de los guantes.
 const mitt=`<path d="M-18 40 V-10 Q-20 -40 2 -40 Q22 -40 20 -10 V40 Z" fill="#7CC86E" ${sw()}/><path d="M-18 4 Q-34 -6 -32 -22 Q-28 -30 -18 -20" fill="#7CC86E" ${sw()}/><rect x="-22" y="30" width="46" height="18" rx="6" fill="#FFF3B0" ${sw(4)}/>`;
+// Lápiz de cera SVG: c = color del cuerpo, c2 = color de la punta, a = giro en grados, x = posición horizontal.
 const crayon=(c,c2,a,x)=>`<g transform="translate(${x} 4) rotate(${a})"><rect x="-9" y="-36" width="18" height="74" rx="3" fill="${c}" ${sw(4)}/><path d="M-9 -36 L0 -54 L9 -36 Z" fill="${c2}" ${sw(4)}/><rect x="-9" y="-16" width="18" height="10" fill="#fff" opacity=".6"/><rect x="-9" y="18" width="18" height="10" fill="#fff" opacity=".6"/></g>`;
+// MQD: posiciones de los puntos negros de la mariquita; mq(n) dibuja una mariquita con n puntos.
 const MQD=[[-20,-8],[20,-8],[-18,24],[18,24],[-26,8],[26,8]];
+// Mariquita SVG con n puntos (posiciones en MQD).
 const mq=n=>`<path d="M-6 -48 q-8 -12 -16 -10 M6 -48 q8 -12 16 -10" fill="none" ${sw(3)}/><circle cx="0" cy="-36" r="16" fill="${K}"/><ellipse cy="8" rx="42" ry="42" fill="#FF5A5A" ${sw()}/><path d="M0 -34 V50" ${sw(4)}/>${MQD.slice(0,n).map(([a,b])=>`<circle cx="${a}" cy="${b}" r="8" fill="${K}"/>`).join('')}<circle cx="-6" cy="-40" r="3.5" fill="#fff"/><circle cx="6" cy="-40" r="3.5" fill="#fff"/>`;
 
 /* personas: cuerpo entero, con los pies en y=54 */
+// Dibuja una persona de cuerpo entero (SVG) con los pies en y=54. Opciones en o:
+//   skin, hair = colores de piel y pelo; style = peinado ('long', 'pig' coletas, 'bun' moño,
+//   'curly' rizado, 'bald' calvo; otro = corto); shirt, pants = colores de ropa; dress = vestido
+//   en vez de pantalón; glasses = gafas; beard = color de la barba; cane = bastón;
+//   s = tamaño (menos de .9 = niño, con la cabeza más grande).
+// Devuelve la cadena SVG escalada para que los pies queden siempre abajo del cuadro.
 function person(o){
   const s=o.s||1, sk=o.skin, hr=o.hair, sh=o.shirt||'#5B8DEF', pn=o.pants||'#4A78D0';
   const kid=s<.9, hy=kid?-26:-30, hrad=kid?19:16;
@@ -28,8 +53,10 @@ function person(o){
   const g=`${hairB}${legs}<path d="M-16 50 h-6 M16 50 h6" ${sw(7)}/>${body}${arms}${extra}<circle cx="0" cy="${hy}" r="${hrad}" fill="${sk}" ${sw()}/>${face}${beard}${glasses}${hairF}`;
   const k=1.08*s;return `<g transform="translate(0 ${(56-54*k).toFixed(1)}) scale(${k.toFixed(3)})">${g}</g>`;
 }
+// BEBE: dibujo SVG del bebé (se usa escalado en PICS.bebe).
 const BEBE=`<ellipse cx="0" cy="30" rx="30" ry="24" fill="#FFE08A" ${sw()}/><path d="M-26 22 q-12 10 -6 22 M26 22 q12 10 6 22" fill="none" stroke="#FFE08A" stroke-width="12" stroke-linecap="round"/><path d="M-26 22 q-12 10 -6 22 M26 22 q12 10 6 22" fill="none" ${sw(2)} opacity="0"/><circle cx="-34" cy="44" r="7" fill="#F2C29B" ${sw(3)}/><circle cx="34" cy="44" r="7" fill="#F2C29B" ${sw(3)}/><circle cx="0" cy="-14" r="30" fill="#F2C29B" ${sw()}/><path d="M-4 -44 q6 -8 10 2" fill="none" ${sw(4)}/>${eye(-10,-16,4)}${eye(10,-16,4)}<circle cx="0" cy="-2" r="7" fill="#7FD3F0" ${sw(3)}/><circle cx="-20" cy="-6" r="5" fill="#FF8A7A" opacity=".5"/><circle cx="20" cy="-6" r="5" fill="#FF8A7A" opacity=".5"/>`;
 
+// Dibujos de los temas de 3 años, la familia y las personas (mamá, papá, maestra, nene...).
 Object.assign(PICS,{
 hoja:leaf('#7CC86E','#4E9A44'),
 hojaNaranja:leaf('#FFA94D','#D9762A'),
@@ -108,7 +135,11 @@ nene:person({skin:'#F2C29B',hair:'#8A5A3C',style:'short',shirt:'#FF8A7A',pants:'
 });
 
 /* ---------- Tito, el caracol (viewBox 0 0 240 200) ---------- */
+// TITO_SPIRAL: el camino SVG de la espiral del caparazón de Tito, calculado una vez:
+// 91 puntos en 2,3 vueltas con el radio creciendo de 6 a 52, alrededor de (96,100).
 const TITO_SPIRAL=(()=>{let d='';for(let i=0;i<=90;i++){const a=i/90*Math.PI*2*2.3,r=6+i/90*46;d+=(i?'L':'M')+(96+Math.cos(a)*r).toFixed(1)+' '+(100+Math.sin(a)*r).toFixed(1)+' '}return d})();
+// TITO_SVG: Tito caracol (marco 240x200, mirando a la derecha). Los colores #FFA94D / #D9762A del
+// caparazón son "marcadores": la tienda (tienda.js) los sustituye para pintarlo de otro color.
 const TITO_SVG=`<path d="M14 184 Q8 160 40 158 L150 158 Q158 120 166 86 Q172 60 196 58 Q224 58 226 92 Q228 140 218 168 Q212 190 186 190 L30 190 Q14 190 14 184 Z" fill="#9BD86A" ${sw(6)}/>
 <path d="M40 176 H150" stroke="#7CC04E" stroke-width="5" stroke-linecap="round"/>
 <path d="M188 62 Q182 42 176 24 M208 62 Q214 42 222 24" fill="none" ${sw(6)}/>
@@ -166,4 +197,5 @@ const CONEJO_SVG=`<circle cx="34" cy="158" r="15" fill="#fff" ${sw(5)}/>
 <path d="M214 120 q6 6 12 0" fill="none" ${sw(4)}/>
 <circle cx="180" cy="114" r="6" fill="#FF8A7A" opacity=".5"/>`;
 
+// Icono 'formas' (círculo, cuadrado y triángulo) para los Rincones de los Conceptos.
 Object.assign(PICS,{formas:`<circle cx="-26" cy="-20" r="26" fill="#FF8A7A" ${sw()}/><rect x="6" y="-46" width="46" height="46" rx="6" fill="#5B8DEF" ${sw()}/><path d="M-8 50 L18 6 L44 50 Z" fill="#7CC86E" ${sw()}/>`});

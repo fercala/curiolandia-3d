@@ -6,6 +6,34 @@ Jugar: https://fercala.github.io/curiolandia-3d/
 
 Se puede instalar en el móvil o el ordenador (menú del navegador → "Instalar" o "Añadir a pantalla de inicio") y funciona sin conexión.
 
-## Código fuente
+## Para programadores
 
-Está en `src/`. Para montar la web y trabajar con Claude Code, mira `CLAUDE.md`.
+El juego es HTML + JavaScript puro (sin npm ni frameworks) con Three.js r128 para el 3D. El código fuente está en `src/` y todo está comentado en castellano.
+
+Empieza por aquí:
+
+| Documento | Qué cuenta |
+|---|---|
+| [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) | Cómo está hecho el juego: archivos, escenas, capa 3D, flujo del niño, recompensas. **Léelo primero.** |
+| [docs/COMO-AGREGAR.md](docs/COMO-AGREGAR.md) | El proceso de trabajo (montar, probar, publicar) y recetas paso a paso: objeto 3D, tema, juego, cuento, dibujo, tienda, escena, zona de adultos. |
+| [docs/ESTADO-GUARDADO.md](docs/ESTADO-GUARDADO.md) | El estado `S` que se guarda en el móvil y cómo no romper las partidas. |
+| [docs/VOCES.md](docs/VOCES.md) | Cómo habla Tito, las frases grabadas y cómo grabar frases nuevas. |
+| [docs/PROBLEMAS-CONOCIDOS.md](docs/PROBLEMAS-CONOCIDOS.md) | Fallos y rarezas detectados que aún no se han arreglado. |
+| [CLAUDE.md](CLAUDE.md) | Resumen de reglas para trabajar con Claude Code. |
+
+### Arranque rápido
+
+```sh
+mkdir -p src/web
+cp -r fonts voz voz-fer icon-*.png apple-touch-icon.png src/web/   # solo la primera vez
+sh src/build.sh && python3 src/build_web.py
+cd src/web && python3 -m http.server 8000                           # abre http://localhost:8000
+```
+
+Prueba automática (necesita Playwright): `node tests/humo.js src/web`.
+
+### Tres reglas de oro
+
+1. No cambies el texto de ninguna frase que ya diga `say()`: cada una tiene su MP3 grabado.
+2. No cambies el estado guardado `S` de forma incompatible: hay partidas guardadas en los móviles.
+3. Sube `VER` en `src/build_web.py` cada vez que publiques.

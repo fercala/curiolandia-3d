@@ -1,42 +1,94 @@
+// ==========================================================================
+// temas5.js: los 12 temas de 5 años (la Montaña) y su Rincón de los Conceptos.
+// ==========================================================================
+// Archivo de DATOS, con el mismo formato de tema y de juego que temas.js (mira allí la
+// explicación completa de cada campo: id, n, icon, c, trim, bg, season, intro, words, games).
+// Define estas globales:
+//   - Cosas dibujadas y ayudas: seasonOfMonth(), monthCard(), numObj(), thermo(), binDraw(), binOf(),
+//     fern2(), capullo, hojaHuevos, rowOf(), trunk(), bookOf().
+//   - Listas de datos de los juegos: SEAS_IC, SEAS_C, MSAY, BINS, BINSAY, habZ, pVivo, pNoVivo, NECES,
+//     NOVIVOS, MIX, FORMQ, FCOL, FILA, ORD, PESO.
+//   - T5 (temas de 5 años) y C5 (rincón de 5 años).
+// Depende de: core.js (dibujo, say, V, AGE, nRounds, nOpts, MESES, NUM, estacionDe...), temas.js y
+// temas4.js (BG, fondos, shape2, zoneIcon, palm, fern, plateN...), comps.js / comps2.js (componentes
+// de juego: Arrastra, ChoiceGame, Secuencia, Une, Series, Gira, Cruce, Apaga, Lens...) y PICS.
+// Recuerda: no cambies ninguna frase que se diga con say() (tienen MP3 grabado).
 /* ================= TEMAS DE 5 AÑOS: LA MONTAÑA ================= */
+// Estación del año del mes m (0 = enero ... 11 = diciembre), mirando el día 15 de ese mes
+// con estacionDe() (core.js, que tiene en cuenta el hemisferio).
 const seasonOfMonth=m=>estacionDe(new Date(2026,m,15));
+// SEAS_IC = dibujo y SEAS_C = color de fondo de cada estación, para las tarjetas de los meses.
 const SEAS_IC={otoño:'hojaNaranja',invierno:'copo',primavera:'flor',verano:'sol'},SEAS_C={otoño:'#FFD6A0',invierno:'#D6EEFA',primavera:'#FBD3E4',verano:'#FFF0A8'};
+// Hoja de calendario del mes i (0..11, nombres en MESES), con el color y el dibujo de su estación.
+// Devuelve una cosa dibujada {name, m, draw}.
 const monthCard=i=>({name:MESES[i],m:i,draw:(x,y,s)=>{const e=seasonOfMonth(i);card(x-s*.46,y-s*.34,s*.92,s*.7,SEAS_C[e],5,s*.1);card(x-s*.46,y-s*.34,s*.92,s*.16,'#FF8A7A',5,s*.06);
   circ(x-s*.26,y-s*.34,s*.04,'#fff',3);circ(x+s*.26,y-s*.34,s*.04,'#fff',3);pic(SEAS_IC[e],x-s*.27,y+s*.12,s*.28);const nm=MESES[i].toUpperCase();text(nm,x+s*.1,y+s*.18,s*(nm.length>7?.105:nm.length>5?.13:.15),K,{f:LF})}});
+// Tarjeta con el número n: {name (el número en palabras, NUM), n, draw}. Para sumar y restar.
 const numObj=n=>({name:NUM[n],n,draw:(x,y,s)=>numCard(n,x,y,s*.92)});
+// MSAY: frase de Tito para cada mes (de enero a diciembre), en "conocer".
 const MSAY=['Enero. Es el primer mes del año.','Febrero. Es el mes más cortito.','Marzo.','Abril.','Mayo.','Junio.','Julio.','Agosto.','Septiembre.','Octubre.','Noviembre.','Diciembre. Es el último mes del año.'];
+// Termómetro con el nivel lv (0 a 1): por encima de .5 es "alto" (con sol) y si no "bajo" (con copo).
+// Devuelve {name, lv, draw}.
 const thermo=(lv)=>({name:lv>.5?'el termómetro alto':'el termómetro bajo',lv,draw:(x,y,s)=>{card(x-s*.1,y-s*.42,s*.2,s*.7,'#fff',6,s*.1);circ(x,y+s*.3,s*.14,'#FF5A5A',6);card(x-s*.05,y+s*.24-s*.62*lv,s*.1,s*.62*lv+s*.04,'#FF5A5A',0,s*.05);
   for(let j=0;j<5;j++){ctx.beginPath();ctx.moveTo(x+s*.1,y-s*.34+j*s*.12);ctx.lineTo(x+s*.18,y-s*.34+j*s*.12);ctx.lineWidth=4;ctx.strokeStyle=K;ctx.stroke()}
   pic(lv>.5?'sol':'copo',x+s*.32,y-s*.24,s*.26)}});
+// Devuelve la función draw(z,hl) de una zona con forma de contenedor de reciclaje de color c;
+// lb(x,y,s) pinta la etiqueta (qué se tira en él). Se ilumina cuando hl es verdadero.
 const binDraw=(c,lb)=>(z,hl)=>{const {x,y}=z;ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=36}ctx.beginPath();ctx.moveTo(x-110,y-90);ctx.lineTo(x+110,y-90);ctx.lineTo(x+92,y+130);ctx.lineTo(x-92,y+130);ctx.closePath();fillStroke(c,7);ctx.restore();
   card(x-124,y-128,248,44,c,7,14);card(x-40,y-150,80,26,c,6,10);ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=8;for(const dx of[-50,0,50]){ctx.beginPath();ctx.moveTo(x+dx,y-60);ctx.lineTo(x+dx*.85,y+100);ctx.stroke()}
   card(x-62,y-50,124,124,'#fff',5,24);lb(x,y+12,104)};
+// BINS: contenedores de reciclaje por color: {c = color, n = nombre, it = claves de PICS que van en
+// él, lb = etiqueta}. BINSAY = frase que explica cada contenedor.
 const BINS={amarillo:{c:'#FFD34E',n:'el contenedor amarillo',it:['botellaPlastico','lata','brik'],lb:(x,y,s)=>{pic('botellaPlastico',x-s*.2,y,s*.7);pic('lata',x+s*.22,y+s*.08,s*.55)}},
   azul:{c:'#5B8DEF',n:'el contenedor azul',it:['periodico','cajaCarton'],lb:(x,y,s)=>pic('periodico',x,y,s*.9)},
   verde:{c:'#5FA84E',n:'el contenedor verde',it:['botellaVidrio','frasco'],lb:(x,y,s)=>pic('botellaVidrio',x,y,s*.9)},
   marron:{c:'#A86B43',n:'el contenedor marrón',it:['cascara','restoManzana'],lb:(x,y,s)=>pic('restoManzana',x,y,s*.9)}};
 const BINSAY={amarillo:'En el amarillo van los envases: botellas de plástico, latas y cartones de leche.',azul:'En el azul va el papel y el cartón.',verde:'En el verde va el vidrio.',marron:'En el marrón van los restos de comida.'};
+// Devuelve el color del contenedor (clave de BINS) donde va el dibujo k, o undefined.
 const binOf=k=>Object.keys(BINS).find(b=>BINS[b].it.includes(k));
+// Helecho como icon(x,y,s) de una zona (adapta fern() de temas4.js).
 const fern2=(x,y,s)=>fern(x,y+s*.3,s/150,'#7CC86E');
+// habZ: hábitats para "¿Dónde vive?": {c = color, ic = icono, nm = nombre, it = animales que viven ahí}.
 const habZ={mar:{c:'#9ED9F5',ic:zoneIcon('ballena'),nm:'el mar',it:['pulpo','ballena','pez','estrellaMar']},polo:{c:'#E3F2FA',ic:zoneIcon('iglu'),nm:'el polo',it:['pinguino','osoPolar','foca','morsa']},
   selva:{c:'#C9EBB5',ic:(x,y,s)=>palm(x-10,y+s*.45,s*.0042),nm:'la selva',it:['mono','tigre','cocodrilo','jirafa']},bosque:{c:'#DDF3D2',ic:(x,y,s)=>tree(x,y+s*.38,s/260,'verano'),nm:'el bosque',it:['buho','lobo','ardilla','erizo']},
   desierto:{c:'#FFE8B0',ic:zoneIcon('cactus'),nm:'el desierto',it:['camello']}};
+// capullo y hojaHuevos: cosas dibujadas {name, draw} para el ciclo de la mariposa.
 const capullo={name:'el capullo',draw:(x,y,s)=>{card(x-s*.46,y-s*.46,s*.92,s*.92,'#FFFBF2',0,s*.12);ctx.beginPath();ctx.moveTo(x-s*.4,y-s*.3);ctx.lineTo(x+s*.4,y-s*.36);ctx.lineWidth=s*.05;ctx.strokeStyle='#A86B43';ctx.lineCap='round';ctx.stroke();ell(x,y+s*.02,s*.12,s*.28,'#C9B06B',5);for(let j=-2;j<=2;j++){ctx.beginPath();ctx.moveTo(x-s*.1,y+j*s*.09);ctx.quadraticCurveTo(x,y+j*s*.09+s*.03,x+s*.1,y+j*s*.09);ctx.lineWidth=3;ctx.strokeStyle='rgba(74,52,40,.4)';ctx.stroke()}}};
 const hojaHuevos={name:'los huevitos en la hoja',draw:(x,y,s)=>{card(x-s*.46,y-s*.46,s*.92,s*.92,'#FFFBF2',0,s*.12);ctx.save();ctx.translate(x,y);ctx.rotate(-.4);ell(0,0,s*.38,s*.2,'#7CC86E',5);ctx.beginPath();ctx.moveTo(-s*.36,0);ctx.lineTo(s*.36,0);ctx.lineWidth=4;ctx.strokeStyle='#5FA84E';ctx.stroke();for(let j=0;j<5;j++)circ(-s*.18+j*s*.09,-s*.06+(j%2)*s*.1,s*.035,'#FFF3B0',3);ctx.restore()}};
+// Datos de "Los seres vivos": pVivo / pNoVivo = cosas vivas / no vivas;
+// NECES = [ser vivo, [lo que necesita], [pregunta, respuesta]]; NOVIVOS = opciones falsas.
 const pVivo=['perro','flor','pez','mariposa','arbol','pajaro','plantita','gato','nene'],pNoVivo=['piedra','pelota','auto','silla','lapiz','robot','reloj','zapato'];
 const NECES=[['plantita',['gota','sol'],['¿Qué necesita la planta para vivir?','La planta necesita agua y sol.']],['perro',['plato','gota'],['¿Qué necesita el perro para vivir?','El perro necesita comida y agua.']],['pez',['gota','plato'],['¿Qué necesita el pez para vivir?','El pez necesita agua limpia y comida.']],['nene',['plato','cama'],['¿Qué necesitamos las personas para vivir?','Necesitamos comer y dormir.']]];
 const NOVIVOS=['pelota','tele','robot','auto','trenJuguete','guitarra'];
+// MIX: mezclas de colores [color 1, color 2, resultado] (claves de COLORES).
 const MIX=[['rojo','amarillo','naranja'],['azul','amarillo','verde'],['rojo','azul','violeta'],['rojo','blanco','rosa'],['blanco','negro','gris']];
+// FORMQ: preguntas de formas [dibujo, forma correcta, pregunta]. FCOL: color de cada forma.
 const FORMQ=[['huevo','ovalo','¿Qué forma tiene el huevo?'],['cometa','rombo','¿Qué forma tiene el barrilete?'],['pelota','circulo','¿Qué forma tiene la pelota?'],['reloj','circulo','¿Qué forma tiene el reloj?'],['libro','rectangulo','¿Qué forma tiene el libro?'],['gorroFiesta','triangulo','¿Qué forma tiene el gorro de fiesta?'],['cuadro','cuadrado','¿Qué forma tiene el cuadro?'],['sandia','ovalo','¿Qué forma tiene la sandía?']];
 const FCOL={circulo:'#FF8A7A',cuadrado:'#5BB8E6',triangulo:'#FFD66B',rectangulo:'#7CC86E',ovalo:'#F58BB4',rombo:'#9B8AD9'};
+// Pinta una fila de cosas ks centrada en (x,y), cada una de tamaño s y separadas gap.
+// Si se pasa fx(k,x,y,s,j), la usa para pintar cada una en vez de thing().
 function rowOf(ks,x,y,s,gap=18,fx){const n=ks.length;ks.forEach((k,j)=>{const xx=x-(n-1)*(s+gap)/2+j*(s+gap);fx?fx(k,xx,y,s,j):thing(k,xx,y,s)})}
+// FILA: animales para "Primero y último"; ORD: ordinales ("el primero"...);
+// PESO: parejas [pesado, ligero] para "Pesado y liviano".
 const FILA=['pato','perro','gato','conejo','oveja','cerdo','vaca','caballo','gallina','oso'];
 const ORD=['el primero','el segundo','el tercero','el cuarto','el quinto'];
 const PESO=[['elefante','pluma'],['camion','globo'],['piedra','hojaNaranja'],['sandia','uva'],['oso','pajaro'],['ballena','pez']];
+// Tronco grueso (w>.5) o delgado: {name, draw}. Para "grueso y delgado".
 const trunk=(w,c='#A86B43')=>({name:w>.5?'el tronco grueso':'el tronco delgado',draw:(x,y,s)=>{const ww=s*(w>.5?.42:.12);card(x-ww/2,y-s*.36,ww,s*.72,c,6,ww*.2);ell(x,y-s*.36,ww/2,s*.05,'#E9D1A6',5)}});
+// Libro grueso (w>.5) o delgado: {name, draw}. Para "grueso y delgado".
 const bookOf=(w)=>({name:w>.5?'el libro grueso':'el libro delgado',draw:(x,y,s)=>{const h=s*(w>.5?.34:.07);card(x-s*.36,y-h/2,s*.72,h,'#FFF6E6',5,6);card(x-s*.4,y-h/2-s*.04,s*.8,s*.06,'#5B8DEF',5,6);card(x-s*.4,y+h/2-s*.02,s*.8,s*.06,'#5B8DEF',5,6)}});
+// Nombre del dibujo 'hoja' (para W_ y nameT).
 Object.assign(LEX,{hoja:'la hoja'});
 
+// ---------------------------------------------------------------------------
+// T5: LOS 12 TEMAS DE 5 AÑOS (el camino de la Montaña, en este orden). Formato: ver T3 en temas.js.
+//   5A-T1 Los meses del año · 5A-T2 Mi cuerpo por dentro · 5A-T3 El otoño y los cambios ·
+//   5A-T4 Comer sano · 5A-T5 Las fiestas del año · 5A-T6 El universo · 5A-T7 Los dinosaurios ·
+//   5A-T8 Los animales y dónde viven · 5A-T9 El tiempo y el clima · 5A-T10 Los seres vivos ·
+//   5A-T11 Cuidamos el planeta · 5A-T12 De viaje con cuidado
+// Además de Arrastra y ChoiceGame, aquí se usan Lens (lupa / rayos X: base, cover, inside),
+// Secuencia (ordenar viñetas), Une (unir parejas), Gira, Cruce, Apaga y Excava.
+// ---------------------------------------------------------------------------
 const T5=[
 {id:'5A-T1',n:'Los meses del año',icon:'calendario',c:'#FF8A7A',trim:1,bg:BG.semana,
  words:MESES.map((m,i)=>Object.assign(monthCard(i),{label:m,say:MSAY[i]})),intro:'El año tiene doce meses. Tocá cada uno para conocerlo.',
@@ -198,6 +250,8 @@ const T5=[
 ];
 
 /* ---------- Rincón de los Conceptos (5 años) ---------- */
+// C5: Rincón de los Conceptos de 5 años (mezclar colores, formas, sumar, restar, primero y último,
+// derecha/izquierda/entre, pesado/ligero/grueso/delgado y series difíciles). Formato de tema con concepts:true.
 const C5={id:'5A-C',n:'Rincón de los Conceptos',icon:'formas',c:'#9B8AD9',trim:0,bg:BG.conceptos,concepts:true,
  games:[
   {t:'mezclas',icon:'pinturas',name:'Mezclar colores',make:(d,t)=>ChoiceGame({rounds:nRounds(),bg:t.bg,key:()=>'mezclas',y:680,

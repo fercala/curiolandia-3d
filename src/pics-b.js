@@ -1,24 +1,53 @@
+// ==========================================================================
+// pics-b.js: dibujos para 4 años (otoño, huerta, comidas, polo, sabana, bichos, plantas, emociones).
+// ==========================================================================
+// Añade dibujos a PICS (Object.assign sobre PICS, con clave:`...svg...`). Formato de un dibujo (SVG con
+// centro en 0,0 dentro de -62..62) y cómo se busca por su nombre con pic(clave,...): ver la cabecera
+// de pics-base.js. Las funciones de ayuda de este archivo devuelven trozos de SVG (cadenas) y solo
+// se llaman al cargar, para construir los dibujos. Depende de K, sw() y eye() de pics-base.js.
+// Ayudas (prefijo PB_): PB_f, PB_ell, PB_scal, PB_M, PB_spk, PB_hatch, PB_mound, PB_seed, PB_roots,
+// PB_stem, PB_lf, PB_leaves, PB_tom, PB_block, PB_cheek.
+// Dibujos: nuez, granada, calabaza, bellota, erizo, verduras y frutas nuevas, las cuatro comidas
+// del día, animales del polo y de la sabana, bichitos, la secuencia de crecimiento de una planta
+// (semilla, brote, plantita, plantaFlor, plantaFruto), situaciones de emociones y el icono emociones.
+// ==========================================================================
 /* ---------- Dibujos nuevos B (viewBox -62 -62 124 124) ---------- */
+// Redondea n a un decimal y lo devuelve como texto (para que el SVG no lleve números larguísimos).
 const PB_f=n=>(Math.round(n*10)/10).toString();
+// Devuelve n+1 puntos [x,y] sobre una elipse de centro (cx,cy) y radios rx, ry, entre los ángulos a0 y a1 (en grados).
 const PB_ell=(cx,cy,rx,ry,a0,a1,n)=>{const p=[];for(let i=0;i<=n;i++){const a=(a0+(a1-a0)*i/n)*Math.PI/180;p.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry])}return p};
 /* bumpy edge through pts (bumps bulge away from cx,cy); returns path commands without the initial M */
+// Devuelve un borde ondulado (comandos Q) que pasa por los puntos pts, con las ondas hacia fuera del centro (cx,cy); k = cuánto sobresalen.
 const PB_scal=(pts,cx,cy,k=.45)=>{let d='';for(let i=1;i<pts.length;i++){const[a,b]=pts[i-1],[c,e]=pts[i];const mx=(a+c)/2,my=(b+e)/2,dx=c-a,dy=e-b,L=Math.hypot(dx,dy)||1;let nx=dy/L,ny=-dx/L;if(nx*(mx-cx)+ny*(my-cy)<0){nx=-nx;ny=-ny}d+=`Q${PB_f(mx+nx*L*k)} ${PB_f(my+ny*L*k)} ${PB_f(c)} ${PB_f(e)} `}return d};
+// Devuelve el comando SVG 'M x y' para empezar un camino en el punto p.
 const PB_M=p=>`M${PB_f(p[0])} ${PB_f(p[1])} `;
 /* spiky outline: alternate tips/valleys along an ellipse arc */
+// Devuelve los puntos de un borde con n pinchos sobre una elipse (alterna punta y hueco; f = profundidad del hueco). Para el erizo.
 const PB_spk=(cx,cy,rx,ry,a0,a1,n,f=.8)=>{const p=[];for(let i=0;i<=2*n;i++){const a=(a0+(a1-a0)*i/(2*n))*Math.PI/180,r=i%2?1:f;p.push(`${PB_f(cx+Math.cos(a)*rx*r)} ${PB_f(cy+Math.sin(a)*ry*r)}`)}return p};
 /* parallel lines inside an ellipse (no clipping needed) */
+// Devuelve líneas paralelas (separadas step, inclinadas deg grados) recortadas dentro de una elipse, calculando dónde corta cada línea a la elipse (ecuación de segundo grado). Para la piña y la cebra.
 const PB_hatch=(cx,cy,rx,ry,step,deg)=>{const a=deg*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),nx=-uy,ny=ux,R=Math.max(rx,ry);let d='';for(let o=-R+step/2;o<R;o+=step){const px=nx*o,py=ny*o,A=ux*ux/rx/rx+uy*uy/ry/ry,B=2*(px*ux/rx/rx+py*uy/ry/ry),C=px*px/rx/rx+py*py/ry/ry-1,D=B*B-4*A*C;if(D<=0)continue;const t1=(-B-Math.sqrt(D))/2/A,t2=(-B+Math.sqrt(D))/2/A;d+=`M${PB_f(cx+px+t1*ux)} ${PB_f(cy+py+t1*uy)} L${PB_f(cx+px+t2*ux)} ${PB_f(cy+py+t2*uy)} `}return d};
 /* growth sequence: same soil mound */
+// PB_mound: montoncito de tierra común a toda la secuencia de crecimiento de la planta.
 const PB_mound=`<path d="M-57 56 C-48 -6 48 -6 57 56 Z" fill="#A86B43" ${sw()}/><g fill="#8A5A3C"><ellipse cx="-36" cy="44" rx="5" ry="3.5"/><ellipse cx="34" cy="30" rx="4" ry="3"/><ellipse cx="40" cy="48" rx="5" ry="3.5"/><ellipse cx="-26" cy="24" rx="3.5" ry="2.5"/><circle cx="-44" cy="30" r="2"/><circle cx="18" cy="48" r="2"/><circle cx="-12" cy="50" r="2"/><circle cx="22" cy="20" r="2"/></g>`;
+// Semilla SVG enterrada; open = true la dibuja abriéndose.
 const PB_seed=(open)=>`<g transform="rotate(-20 0 38)"><ellipse cx="0" cy="38" rx="13" ry="9" fill="#FFE08A" ${sw(3.5)}/>${open?`<path d="M-4 30 l3 4 l-2 4" fill="none" ${sw(2.5)}/>`:`<path d="M-6 36 q6 -4 12 0" fill="none" stroke="#E8B84A" stroke-width="3" stroke-linecap="round"/>`}</g>`;
+// Raíces SVG: las n primeras de una lista de 5.
 const PB_roots=n=>`<path d="${['M-2 44 Q-8 50 -12 55','M4 44 Q10 50 14 55','M0 45 V55','M-6 42 Q-18 46 -24 54','M6 42 Q18 46 24 54'].slice(0,n).join(' ')}" fill="none" stroke="#FFF6E6" stroke-width="3" stroke-linecap="round"/>`;
+// Tallo SVG desde la tierra (y=34) hasta la altura y.
 const PB_stem=y=>`<path d="M0 34 Q-4 ${PB_f((34+y)/2)} 0 ${y}" fill="none" ${sw(10)}/><path d="M0 34 Q-4 ${PB_f((34+y)/2)} 0 ${y}" fill="none" stroke="#5FA84E" stroke-width="5" stroke-linecap="round"/>`;
+// Hoja SVG en (x,y), tamaño s; d = 1 hacia la derecha, -1 hacia la izquierda.
 const PB_lf=(x,y,s,d)=>`<path transform="translate(${x} ${y}) scale(${d*s} ${s})" d="M0 0 Q12 -16 30 -10 Q20 8 0 0 Z" fill="#7CC86E" ${sw(4/s)}/><path transform="translate(${x} ${y}) scale(${d*s} ${s})" d="M2 -1 Q14 -7 24 -8" fill="none" stroke="#5FA84E" stroke-width="${PB_f(3/s)}" stroke-linecap="round"/>`;
+// Pares de hojas a los dos lados del tallo: lv = lista de [altura, tamaño].
 const PB_leaves=lv=>lv.map(([y,s])=>PB_lf(0,y,s,-1)+PB_lf(0,y-3,s,1)).join('');
+// Tomate colgando de una rama que sale de (0,0) y llega a (x,y).
 const PB_tom=(x,y)=>`<path d="M0 0 Q${PB_f(x*.4)} ${PB_f(y*.3)} ${x} ${y-9}" fill="none" stroke="#5FA84E" stroke-width="3.5" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="10.5" fill="#FF5A5A" ${sw(3.5)}/><path d="M${x-6} ${y-8} L${x-2} ${y-7} L${x} ${y-12} L${x+2} ${y-7} L${x+6} ${y-8} L${x+2} ${y-4} L${x-2} ${y-4} Z" fill="#7CC86E" stroke="${K}" stroke-width="2" stroke-linejoin="round"/><circle cx="${x-4}" cy="${y+1}" r="2.5" fill="#FFB0A8"/>`;
+// Bloque de construcción SVG en (x,y), girado a grados, color c con el centro c2. Para la torre rota.
 const PB_block=(x,y,a,c,c2)=>`<g transform="translate(${x} ${y}) rotate(${a})"><rect x="-13" y="-13" width="26" height="26" rx="4" fill="${c}" ${sw(4)}/><rect x="-6.5" y="-6.5" width="13" height="13" rx="2" fill="${c2}"/></g>`;
+// Mejilla sonrosada SVG (círculo semitransparente) en (x,y).
 const PB_cheek=(x,y,r=5)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#FF8A7A" opacity=".5"/>`;
 
+// Dibujos de este archivo (ver la lista de la cabecera).
 Object.assign(PICS,{
 nuez:`<path d="M0 -52 Q30 -54 42 -28 Q54 0 42 30 Q30 54 0 54 Q-30 54 -42 30 Q-54 0 -42 -28 Q-30 -54 0 -52 Z" fill="#D9A15E" ${sw()}/><path d="M-3 -58 L0 -52 L3 -58" fill="none" ${sw(4)}/><path d="M0 -52 Q-8 0 0 54" fill="none" ${sw(5)}/><g fill="none" stroke="#A86B43" stroke-width="4.5" stroke-linecap="round"><path d="M-26 -36 q8 4 4 12 q-4 8 6 12"/><path d="M-38 -6 q10 -2 12 8 q2 10 12 8"/><path d="M-30 26 q8 -2 10 8"/><path d="M-12 -20 q-6 8 0 14"/><path d="M22 -36 q-8 6 -2 14 q6 8 -4 14"/><path d="M36 -4 q-10 0 -10 10 q0 10 -12 10"/><path d="M28 30 q-10 0 -10 10"/><path d="M12 -10 q6 6 0 14"/></g>`,
 granada:`<path d="M4 -32 L0 -50 L10 -42 L18 -54 L24 -40 L34 -48 L30 -30 Z" fill="#E04F44" ${sw(4)}/><circle cx="17" cy="-8" r="33" fill="#E04F44" ${sw()}/><path d="M34 -26 q10 10 8 24" fill="none" stroke="#FF8A7A" stroke-width="5" stroke-linecap="round"/><circle cx="-16" cy="20" r="38" fill="#E04F44" ${sw()}/><circle cx="-16" cy="20" r="30" fill="#FFE0C2" ${sw(3)}/><path d="M-16 -8 Q-12 20 -16 48 M-44 20 Q-16 16 12 20" fill="none" stroke="#F2C29B" stroke-width="3"/>${[[-28,8],[-4,8],[-28,32],[-4,32]].map(([x,y])=>[[-6,-5],[2,-7],[7,1],[-1,1],[-7,5],[3,8]].map(([a,b])=>`<circle cx="${x+a}" cy="${y+b}" r="4.8" fill="#FF3B4A" stroke="#B3283A" stroke-width="1.5"/>`).join('')).join('')}${[[-28,8],[-4,8],[-28,32],[-4,32]].map(([x,y])=>`<circle cx="${x-7}" cy="${y-7}" r="1.4" fill="#FFFFFF"/><circle cx="${x+1}" cy="${y-1}" r="1.4" fill="#FFFFFF"/>`).join('')}`,

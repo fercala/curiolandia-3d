@@ -1,11 +1,52 @@
 /* ================= TEMAS DE 3 AÑOS ================= */
+// ==========================================================================
+// temas.js: los 12 temas de 3 años (el Jardín) y su Rincón de los Conceptos.
+// ==========================================================================
+// Es sobre todo un archivo de DATOS. Define estas globales, que usan otros archivos:
+//   - floor(), grass(), fallingDeco(): ayudas para pintar fondos (también las usan temas4/temas5/extras).
+//   - BG: objeto con las funciones de fondo de cada tema (temas4.js le añade más).
+//   - swatch(), shape(), snowPart(), plateOf(), dayNight(): "cosas dibujadas" para los juegos.
+//   - roomZone(), mochilaZone, mesaZone, corralZone, pradoZone, kidZone(), panelZone(), sizeSlot():
+//     zonas donde se sueltan las cosas en los juegos de arrastrar (Arrastra, comps.js).
+//   - vestir(): fábrica del juego "vestir al nene".
+//   - T3 (lista de temas de 3 años), C3 (Rincón de los Conceptos de 3 años), COLS3.
+//   - makeGame(g,t,onDone): crea el juego g del tema t (extras.js e ingles.js la amplían).
+//   - GICON: icono por defecto de algunos tipos de juego.
+// Depende de: core.js (ctx, W, H, T, K, PI, sky, card, circ, ell, rr, fillStroke, text, pic, say,
+//   V, tx, W_, cap, shuffle, pick, ri, AGE, nRounds, LEX, LEX2, COLORES, SFX...), comps.js (Arrastra,
+//   ChoiceGame, Conocer, Busca, Memoria, Cuerpo, Puzzle, Atrapa, Cuenta, Excava, Riega, Pinta, nameT,
+//   drawKid, isPl, colorAdj) y los dibujos PICS (pics-*.js). Lo usan scenes.js (TEMAS, TEMA,
+//   SCENES.juego llama a makeGame), zonas.js (ZONES.jardin), adult.js, extras.js y cuentos.js.
+//
+// Textos: los textos se escriben en rioplatense ("Tocá", "la seño") y tx() (core.js/lex.js) los pasa
+// a castellano de España cuando S.variant==='es'. Si una frase cambia mucho, se pone una lista
+// [rioplatense, España] y V() elige. ¡No cambies ninguna frase que se diga con say()! Cada una
+// tiene su MP3 grabado (voz/manifest.json), y el MP3 se busca por el texto exacto.
+//
+// Palabras nuevas para nombrar dibujos (W_(), nameT()): LEX = 'k' -> nombre con artículo;
+// LEX2 = 'k' -> [rioplatense, España].
 Object.assign(LEX,{lancha:'la lancha',helicoptero:'el helicóptero'});
 Object.assign(LEX2,{pinturas:['los crayones','las pinturas']});
 
+// ---------------------------------------------------------------------------
+// FONDOS. Cada fondo es una función sin parámetros que pinta la pantalla entera
+// (1600x900) en el canvas 2D. Se llama en CADA cuadro, así que puede animarse con T
+// (segundos desde que arrancó el juego).
+// ---------------------------------------------------------------------------
 /* ---------- fondos ---------- */
+// Pinta un suelo liso de color c desde la altura y hasta abajo del todo.
 function floor(y,c){ctx.fillStyle=c;ctx.fillRect(0,y,W,H-y)}
+// Pinta un césped con el borde de arriba ondulado (curvas cada 80 px) desde la altura y
+// hasta abajo. c = color (verde claro por defecto).
 function grass(y,c='#9FDC8F'){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(0,y);for(let x=0;x<=W;x+=80)ctx.quadraticCurveTo(x+40,y-14,x+80,y);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill()}
+// Pinta n hojitas (elipses) semitransparentes que caen y giran por la pantalla.
+// cols = lista de colores que se reparten entre las hojas; sp = velocidad.
+// La posición sale de (i*número + T*velocidad) % tamaño: así cada hoja tiene su sitio
+// y vuelve a entrar por arriba al salir por abajo, sin guardar estado.
 function fallingDeco(cols,n=10,sp=30){for(let i=0;i<n;i++){const x=(i*173+T*sp*(i%3+1))%1700-50,y=(i*97+T*sp*1.4)%1000-50;ctx.save();ctx.translate(x,y);ctx.rotate(T+i);ctx.globalAlpha=.35;ell(0,0,16,9,cols[i%cols.length],0);ctx.restore()}ctx.globalAlpha=1}
+// BG: fondos de los temas, por nombre. BG.aula, BG.cuerpo... Cada uno es una función
+// sin parámetros (ver arriba). Un tema lo usa como bg:BG.aula, y los cuentos por su nombre
+// (bg:'aula' en cuentos.js). temas4.js añade más con Object.assign(BG,{...}).
 const BG={
   aula(){sky('#FFF3D6','#FCE7C8');floor(700,'#E9C99A');card(1020,36,500,120,'#3E6B4E',8,12);text('A  B  C  1  2  3',1270,118,52,'#fff',{f:LF});for(let i=0;i<6;i++){ctx.save();ctx.translate(330+i*120,60);ctx.rotate(Math.sin(T+i)*.05);ctx.beginPath();ctx.moveTo(-40,0);ctx.lineTo(40,0);ctx.lineTo(0,56);ctx.closePath();fillStroke(DIAC[i],4);ctx.restore()}},
   cuerpo(){sky('#FFE9EC','#FFD7DC');floor(760,'#F5C1C9');for(let i=0;i<10;i++)circ((i*211)%1600,(i*137)%700+40,18,'rgba(255,255,255,.5)',0)},
@@ -22,9 +63,22 @@ const BG={
   conceptos(){sky('#F3ECFF','#FFF6E6');floor(740,'#E4D3B8');for(let i=0;i<6;i++){ctx.globalAlpha=.25;const x=(i*277)%1600,y=(i*151)%600+40;i%2?circ(x,y,40,DIAC[i],0):(rr(x-36,y-36,72,72,10),fillStroke(DIAC[i],0));ctx.globalAlpha=1}}
 };
 
+// ---------------------------------------------------------------------------
+// "COSAS" DIBUJADAS. En los juegos, una cosa puede ser:
+//   - una cadena: la clave de un dibujo de PICS (por ejemplo 'manzana'); se dibuja con pic();
+//   - un objeto {name, draw(x,y,s), ...}: name = cómo lo nombra Tito (con artículo),
+//     draw = función que lo pinta centrado en (x,y) dentro de un cuadrado de lado s.
+// thing(k,x,y,s) en comps.js sabe pintar las dos, y nameT(k) sabe nombrarlas.
+// ---------------------------------------------------------------------------
 /* ---------- piezas dibujadas para algunos juegos ---------- */
+// Mancha de pintura del color c (clave de COLORES: 'rojo', 'azul'...).
+// Devuelve una cosa dibujada {name, draw}; el borde es un círculo con ondas (seno).
 const swatch=c=>({name:COLORES[c].n,draw:(x,y,s)=>{ctx.save();ctx.translate(x,y);ctx.beginPath();for(let i=0;i<=24;i++){const a=i/24*PI*2,r=s*.36*(1+.12*Math.sin(i*2.3));ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();fillStroke(COLORES[c].c,6);circ(-s*.1,-s*.1,s*.06,'rgba(255,255,255,.6)',0);ctx.restore()}});
+// Forma geométrica para 3 años: f = 'circulo' o 'cuadrado' (cualquier otro valor
+// dibuja un cuadrado), c = color de relleno. Devuelve una cosa dibujada {name, draw}.
 const shape=(f,c)=>({name:f==='circulo'?'el círculo':'el cuadrado',draw:(x,y,s)=>{if(f==='circulo')circ(x,y,s*.38,c,6);else card(x-s*.36,y-s*.36,s*.72,s*.72,c,6,8)}});
+// Pieza del muñeco de nieve: id = 'base', 'medio', 'cabeza', 'sombrero' o 'nariz'.
+// Devuelve {name, id, draw}. draw dibuja la pieza a escala s/170 (170 es el tamaño de referencia).
 const snowPart=(id)=>({name:{base:'la bola grande',medio:'la bola mediana',cabeza:'la cabeza',sombrero:'el sombrero',nariz:'la nariz de zanahoria'}[id],id,
   draw:(x,y,s)=>{const k=s/170;ctx.save();ctx.translate(x,y);ctx.scale(k,k);
     if(id==='base')circ(0,0,80,'#fff',7);if(id==='medio')circ(0,0,62,'#fff',7);
@@ -32,24 +86,55 @@ const snowPart=(id)=>({name:{base:'la bola grande',medio:'la bola mediana',cabez
     if(id==='sombrero'){card(-34,-56,68,62,K,0,6);card(-56,0,112,18,K,0,8);card(-34,-14,68,12,'#FF6B5E',0,2)}
     if(id==='nariz'){ctx.beginPath();ctx.moveTo(-30,-10);ctx.lineTo(40,0);ctx.lineTo(-30,10);ctx.closePath();fillStroke('#FFA94D',5)}
     ctx.restore()}});
+// Plato con n galletas (de 1 a 10; las posiciones están en la lista P).
+// name = 'muchas galletas' si n>4, si no 'pocas galletas'. Para el juego "Mucho y poco".
 const plateOf=n=>({name:n>4?'muchas galletas':'pocas galletas',draw:(x,y,s)=>{pic('plato',x,y+s*.14,s*1.05);const P=[[0,0],[-.2,.02],[.2,.02],[-.1,-.1],[.1,-.1],[0,-.2],[-.3,-.06],[.3,-.06],[-.2,-.2],[.2,-.2]];for(let i=0;i<n;i++)pic('galleta',x+P[i][0]*s,y+P[i][1]*s,s*.26)}});
+// Cuadro de paisaje de día (d verdadero: sol y nube) o de noche (d falso: luna y
+// estrellas). Devuelve {name, draw}. Para el juego "Día y noche".
 const dayNight=d=>({name:d?'de día':'de noche',draw:(x,y,s)=>{ctx.save();rr(x-s/2+8,y-s/2+8,s-16,s-16,30);ctx.clip();ctx.fillStyle=d?'#9ED9F5':'#2E3F7A';ctx.fillRect(x-s/2,y-s/2,s,s);
   if(d){pic('sol',x+s*.18,y-s*.18,s*.38);cloud(x-s*.36,y-s*.02,s*.0035,'#fff')}else{pic('luna',x+s*.18,y-s*.2,s*.36);for(let i=0;i<6;i++)star(x-s*.4+i*s*.13,y-s*.3+(i%2)*s*.18,7,'#FFE08A',0)}
   ctx.fillStyle=d?'#9FDC8F':'#3D5A3E';ctx.fillRect(x-s/2,y+s*.22,s,s*.3);ctx.restore()}});
 
+// ---------------------------------------------------------------------------
+// ZONAS para Arrastra (comps.js). Una zona es un objeto con:
+//   id        nombre de la zona; cada cosa a arrastrar dice a qué zona va (item.zone).
+//   x,y,w,h   centro y tamaño del área donde se puede soltar.
+//   draw(z,hl) la pinta; hl = true cuando el niño arrastra algo por encima (se ilumina).
+//   slot(n)   devuelve [x,y]: dónde se coloca la cosa número n que se suelta ahí.
+//   ps        escala de las cosas ya colocadas (1 = tamaño normal).
+//   c, icon   (opcionales) si no hay draw, Arrastra pinta una canasta de color c con icon(x,y,s).
+//   nm        (opcional) nombre para las frases ("en la cocina").
+// ---------------------------------------------------------------------------
 /* ---------- zonas dibujadas ---------- */
+// Zona con forma de habitación: tarjeta de color c con el dibujo icon (clave de PICS)
+// en una esquina. nm = [nombre, 'en ...'] para las frases de Tito. Usada en "Mi casa".
 const roomZone=(id,x,y,w,h,c,icon,nm)=>({id,x,y,w,h,nm,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=34}card(x-w/2,y-h/2,w,h,c,7,26);ctx.restore();ctx.save();ctx.beginPath();ctx.moveTo(x-w/2,y+h*.25);ctx.lineTo(x+w/2,y+h*.25);ctx.lineWidth=5;ctx.strokeStyle='rgba(74,52,40,.25)';ctx.stroke();ctx.restore();card(x-w/2+14,y-h/2+14,90,90,'#fff',5,22);pic(icon,x-w/2+59,y-h/2+59,76)},
   slot:(n)=>[x-w*.12+(n%3)*w*.24,y+h*.06+Math.floor(n/3)*-60],ps:.62});
+// Zonas fijas: dentro de la mochila / fuera, en la mesa (juego "guarda" de Mi escuela).
 const mochilaZone={id:'dentro',x:600,y:450,w:380,h:420,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=40}pic('mochila',600,450,470);ctx.restore();ell(600,330,120,30,'#2E4E9A',5)},slot:n=>[540+(n%3)*60,440+Math.floor(n/3)*50],ps:.55};
 const mesaZone={id:'fuera',x:1210,y:440,w:480,h:260,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=34}card(970,460,480,40,'#C98A4B',7,10);ctx.restore();card(1000,500,30,150,'#A86B43',6,6);card(1390,500,30,150,'#A86B43',6,6)},slot:n=>[1060+n*110,400],ps:.7};
+// Zonas fijas: dentro del corral / fuera, en el prado (juego "corral" de la granja).
 const corralZone={id:'dentro',x:600,y:470,w:520,h:330,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=40}card(340,305,520,330,'#E8D49A',0,30);ctx.restore();ctx.strokeStyle='#A86B43';ctx.lineWidth=12;ctx.lineCap='round';for(let i=0;i<=8;i++){ctx.beginPath();ctx.moveTo(340+i*65,280);ctx.lineTo(340+i*65,650);ctx.stroke()}
   ctx.lineWidth=10;for(const yy of[320,600]){ctx.beginPath();ctx.moveTo(330,yy);ctx.lineTo(870,yy);ctx.stroke()}ctx.lineWidth=5;ctx.strokeStyle=K;ctx.strokeRect(340,305,520,330)},slot:n=>[430+(n%3)*170,420+Math.floor(n/3)*130],ps:.75};
 const pradoZone={id:'fuera',x:1230,y:470,w:520,h:330,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=40}card(970,305,520,330,'rgba(124,200,110,.35)',5,30);ctx.restore();for(let i=0;i<6;i++)flower(1010+i*85,610,10,FLC[i],2)},slot:n=>[1070+(n%3)*160,420+Math.floor(n/3)*130],ps:.75};
+// Zona "el nene": dibuja al niño con la ropa que lleva puesta. wear = objeto {clave:1}
+// con la ropa ya colocada (lo rellena vestir()). ps:.01 porque la ropa no se ve como cosa suelta.
 const kidZone=(wear)=>({id:'kid',x:1000,y:560,w:420,h:700,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=40}drawKid(1000,880,1.15,{wear});ctx.restore()},slot:()=>[1000,500],ps:.01});
+// Zona libre con dibujo propio: draw(x,y,w,h) pinta el fondo de la zona.
+// Las cosas soltadas se reparten en filas de 5. Usada en "Armá tu familia" (la casa).
 const panelZone=(id,x,y,w,h,draw)=>({id,x,y,w,h,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=36}draw(x,y,w,h);ctx.restore()},slot:n=>[x-w*.38+(n%5)*w*.19,y+(Math.floor(n/5)%2?-40:110)],ps:1.15});
+// Hueco punteado cuadrado de lado s en (x,430), para ordenar por tamaño
+// (de pequeño a grande). Lo usan los juegos "ordena" de 3 y 4 años.
 const sizeSlot=(id,x,s)=>({id,x,y:430,w:s,h:s,draw:(z,hl)=>{ctx.save();if(hl){ctx.shadowColor='#FFC93C';ctx.shadowBlur=30}ctx.setLineDash([14,12]);rr(x-s/2,430-s/2,s,s,24);fillStroke('rgba(255,255,255,.7)',6,hl?'#FFC93C':'#B8A890');ctx.setLineDash([]);ctx.restore()},slot:()=>[x,430],ps:s/170});
 
 /* ---------- vestir al nene ---------- */
+// Fábrica del juego "vestir al nene" (otoño, invierno, verano...).
+//   okK = ropa que sí va (claves de PICS); badK = ropa que no va; ask = frase inicial;
+//   why(k) = frase que explica por qué la prenda k no va.
+// Devuelve una función make(onDone,t) lista para poner en games:[{t:'viste',make:vestir(...)}].
+// Cada ronda elige 3 o 4 prendas buenas (según la edad) y 2 malas; las buenas van a la zona
+// 'kid' y las malas a la zona 'no' (no existe, así que se rechazan y Tito dice why).
+// Al colocar una prenda se apunta en wear (y kidZone la dibuja puesta) y se dice su nombre.
 function vestir(okK,badK,ask,why){
   return (onDone,t)=>{const wear={};const R=2;
     return Arrastra({rounds:R,key:'vestir',noCard:false,bg:t.bg,sayPick:true,
@@ -62,6 +147,58 @@ function vestir(okK,badK,ask,why){
 // los que no van tienen zona 'no' y se rechazan con una explicación
 
 /* ---------- los 12 temas ---------- */
+// ---------------------------------------------------------------------------
+// T3: LOS 12 TEMAS DE 3 AÑOS (el camino del Jardín, en este orden).
+//   3A-T1 Mi escuela · 3A-T2 Mi cuerpo · 3A-T3 Los colores · 3A-T4 El otoño ·
+//   3A-T5 Mi familia · 3A-T6 El invierno y la ropa · 3A-T7 Las frutas y el desayuno ·
+//   3A-T8 Mi casa · 3A-T9 Los animales de la granja · 3A-T10 La primavera ·
+//   3A-T11 Los transportes · 3A-T12 El verano y la playa
+//
+// FORMATO DE UN TEMA (igual en T4, T5, C3, C4, C5 y en extras.js):
+//   id      identificador fijo: '3A-T1' = 3 años, tema 1; '3A-C' = rincón. Es la clave del
+//           progreso guardado S.temas[id] y de CUENTOS[id]: NO se puede cambiar.
+//   n       nombre que se ve y que dice Tito: texto o [rioplatense, España].
+//   icon    clave de PICS del dibujo de la casita (también es pegatina del álbum).
+//   c       color del tejado de la casita.
+//   trim    trimestre del curso (1, 2 o 3; 0 en los rincones). Es informativo: ningún
+//           archivo lo lee ahora mismo.
+//   bg      función de fondo (BG.xxx) que usan sus juegos.
+//   season  (opcional) 'otoño', 'invierno', 'primavera' o 'verano': Tito recomienda ese tema
+//           en esa estación (scenes.js).
+//   intro   (opcional) frase con la que empieza el juego "conocer".
+//   concepts (opcional) true en el Rincón de los Conceptos: no está en el camino y se abre
+//           al terminar 3 casitas (zonas.js).
+//   words   las palabras del tema. Cada una es {k, say, label, ex} o una cosa dibujada:
+//             k     clave del dibujo en PICS (y de su nombre en LEX/LEX2);
+//             say   (opcional) frase de Tito al tocarla en "conocer" (texto o [rio, España]);
+//                   si falta dice el nombre: "La mochila.";
+//             label (opcional) palabra escrita en grande en la ficha (si falta, el nombre sin artículo);
+//             ex    (opcional) lista de claves de PICS que se enseñan como ejemplos debajo;
+//             name/draw (opcional) en vez de k, para palabras dibujadas a mano (swatch(), dayCard()...).
+//           Las palabras alimentan los juegos genéricos (conocer, busca, memoria) y las pegatinas
+//           que se ganan al terminar un juego por primera vez.
+//   games   lista de juegos de la casita, en orden. Cada juego es un objeto:
+//             t     tipo de juego. 'conocer', 'busca' y 'memoria' se arman solos con las words
+//                   (ver makeGame); 'cancion' (con song) y 'cuento' los arma extras.js.
+//                   Cualquier otro tipo necesita make.
+//             icon  (opcional) clave de PICS para el botón del juego (gIcon en scenes.js).
+//             name  (opcional) nombre del juego que dice Tito; si falta, GNAME[t] (scenes.js).
+//             make(onDone,t) (opcional) crea el juego: recibe la función que hay que llamar al
+//                   terminar y el propio tema, y devuelve el objeto del juego (normalmente con un
+//                   componente de comps.js / comps2.js: Arrastra, ChoiceGame, Cuenta, Pinta...).
+//           ¡OJO! El progreso se guarda por posición: S.temas[id].g[número de juego]. No quites ni
+//           reordenes juegos de un tema ya publicado; añade los nuevos al final. Además extras.js
+//           añade al final {t:'cuento'} a cada tema que tiene cuento.
+//
+// Los dos componentes más usados reciben esta configuración (detalle en comps.js):
+//   Arrastra({rounds, total, key, bg, why(it,z), placeSay(it,z), sayPick, noCard, gen(i)})
+//     gen(i) devuelve la ronda i: {ask, zones:[zonas], items:[{k, zone, s, x, y}], tray:{x0,x1,y},
+//     steps (opcional: órdenes de una en una {k, zone, say, ok}), okAll, onPlace, free, drawExtra}.
+//   ChoiceGame({rounds, bg, key(), y, big, ref(r), gen(i)})
+//     gen(i) devuelve {words:[opciones], ok:[las correctas], ask, okSay(w), badSay(w), ...}.
+//   key es el nombre con el que se apuntan aciertos y fallos para la zona de adultos.
+//   AGE() (3, 4 o 5) sirve para poner más o menos cosas según la edad elegida.
+// ---------------------------------------------------------------------------
 const T3=[
 {id:'3A-T1',n:['Mi escuela','Mi cole'],icon:'mochila',c:'#5B8DEF',trim:1,bg:BG.aula,
  words:[{k:'mochila',say:['La mochila. Acá llevo mis cosas a la escuela.','La mochila. Aquí llevo mis cosas al cole.']},{k:'mesa',say:'La mesa. En la mesa pintamos y comemos.'},{k:'silla',say:'La silla. Me siento en la silla.'},
@@ -175,9 +312,14 @@ const T3=[
   {t:'cuenta',icon:'estrellaMar',make:(d,t)=>Cuenta({pool:['concha','estrellaMar','helado','pez'],bg:t.bg},d)},
   {t:'excava',icon:'pala',make:(d,t)=>Excava({pool:['concha','estrellaMar','pala','cubo','pez','caracol'],bg:t.bg},d)}]}
 ];
+// COLS3: [clave de PICS, color] de cosas de un color claro. La usan "pinta", "clasifica"
+// y "burbujas" de Los colores (color = clave de COLORES).
 const COLS3=[['fresa','rojo'],['tomate','rojo'],['manzana','rojo'],['sol','amarillo'],['banana','amarillo'],['pato','amarillo'],['ballena','azul'],['gota','azul'],['pajaro','azul'],['rana','verde'],['hoja','verde'],['pera','verde']];
 
 /* ---------- Rincón de los Conceptos (3 años) ---------- */
+// C3: Rincón de los Conceptos de 3 años (grande/pequeño, arriba/abajo, contar, formas,
+// mucho/poco, día/noche). Mismo formato que un tema, sin words y con concepts:true.
+// Todos sus juegos llevan make y name.
 const C3={id:'3A-C',n:'Rincón de los Conceptos',icon:'estrella',c:'#9B8AD9',trim:0,bg:BG.conceptos,concepts:true,
  games:[
   {t:'tamano',icon:'elefante',name:'Grande y pequeño',make:(d,t)=>{const pool=['elefante','oso','pelota','casa','arbol','pato','manzana'];return ChoiceGame({rounds:nRounds(),bg:t.bg,key:()=>'grande-pequeno',y:520,big:true,
@@ -202,6 +344,11 @@ const C3={id:'3A-C',n:'Rincón de los Conceptos',icon:'estrella',c:'#9B8AD9',tri
       return {words:[D,N],ok:[q[1]?D:N],ask:q[0],okSay:()=>q[1]?'¡De día!':'¡De noche!',badSay:()=>q[1]?'Ese es de noche. Mirá el otro.':'Ese es de día. Mirá el otro.'}}},d)}]};
 
 /* juegos genéricos que se arman con las palabras del tema */
+// Crea el juego g del tema t. onDone = función a la que llama el juego al terminar.
+// Si el juego trae make, lo usa. Si no, arma los genéricos con las words del tema:
+// 'conocer' (Conocer), 'busca' (Busca, "¿Dónde está...?") y 'memoria' (Memoria).
+// Devuelve el objeto del juego (con enter, draw, down, up, move...), que maneja SCENES.juego.
+// extras.js e ingles.js la envuelven para añadir 'cancion', 'cuento' y los juegos de inglés.
 function makeGame(g,t,onDone){
   if(g.make)return g.make(onDone,t);
   const ks=t.words.map(w=>w.k).filter(Boolean);
@@ -209,4 +356,6 @@ function makeGame(g,t,onDone){
   if(g.t==='busca')return Busca({items:ks,bg:t.bg,key:t.id},onDone);
   if(g.t==='memoria')return Memoria({pool:ks,bg:t.bg},onDone);
 }
+// GICON: icono por defecto de algunos tipos de juego (clave de PICS). Ojo: ahora mismo
+// ningún archivo la usa; el icono real lo decide gIcon() en scenes.js.
 const GICON={conocer:'ojo',busca:'ojo',memoria:'regalo',sonido:'tren'};

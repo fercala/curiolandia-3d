@@ -1,15 +1,35 @@
+// ==========================================================================
+// pics-e.js: dibujos de la tienda de Tito (tienda.js): monedas, cofre, muebles y juguetes.
+// ==========================================================================
+// Añade dibujos a PICS (Object.assign sobre PICS, con clave:`...svg...`). Formato de un dibujo (SVG con
+// centro en 0,0 dentro de -62..62) y cómo se busca por su nombre con pic(clave,...): ver la cabecera
+// de pics-base.js. Las funciones de ayuda de este archivo devuelven trozos de SVG (cadenas) y solo
+// se llaman al cargar, para construir los dibujos. Depende de K, sw() y eye() de pics-base.js.
+// Ayudas (prefijo PE_): PE_star, PE_coin, PE_flat, PE_pile, PE_book, PE_bar, PE_beach, PE_clip.
+// Dibujos: moneda, monedas, cofre, vale, candado, muebles y adornos de la casa de Tito, juguetes,
+// instrumentos, mascota, cosas del jardín y sombreros.
+// ==========================================================================
 /* ---------- Dibujos de la tienda de Tito (prefijo PE_) ---------- */
+// Devuelve los puntos (texto 'x,y ...') de una estrella de n puntas en (cx,cy), radios R y r.
 const PE_star=(cx,cy,R,r=R*.5,n=5)=>{const p=[];for(let i=0;i<2*n;i++){const a=-Math.PI/2+i*Math.PI/n,q=i%2?r:R;p.push((cx+q*Math.cos(a)).toFixed(1)+','+(cy+q*Math.sin(a)).toFixed(1))}return p.join(' ')};
 /* moneda de frente: disco dorado, borde oscuro, estrella en relieve, brillo */
+// Moneda de frente SVG en (x,y) con radio R y contorno o (todas las medidas se escalan con R/54).
 const PE_coin=(x,y,R,o=5)=>{const k=R/54,f=v=>(v*k).toFixed(1);
 return `<g transform="translate(${x} ${y})"><circle r="${R}" fill="#F2A93B" ${sw(o)}/><circle r="${f(40)}" fill="#FFC93C" stroke="#D88A1E" stroke-width="${Math.max(1.5,3.5*k).toFixed(1)}"/><polygon points="${PE_star(2.5*k,3*k,28*k,13.5*k)}" fill="#E39A22"/><polygon points="${PE_star(0,0,28*k,13.5*k)}" fill="#FFE08A" stroke="#D88A1E" stroke-width="${Math.max(1.2,2.5*k).toFixed(1)}" stroke-linejoin="round"/><ellipse cx="${f(-33)}" cy="${f(-33)}" rx="${f(5)}" ry="${f(12)}" transform="rotate(45 ${f(-33)} ${f(-33)})" fill="#FFFFFF" opacity=".85"/><circle cx="${f(-45)}" cy="${f(-14)}" r="${f(3.5)}" fill="#FFFFFF" opacity=".85"/></g>`};
 /* moneda de canto, para pilas: x centro, y base */
+// Moneda de canto SVG (cilindro bajo): centro x, base y, radios rx/ry y altura h.
 const PE_flat=(x,y,rx,ry,h,o=4)=>`<path d="M${x-rx} ${y-h} V${y} A${rx} ${ry} 0 0 0 ${x+rx} ${y} V${y-h} Z" fill="#E8A92A" ${sw(o)}/><ellipse cx="${x}" cy="${y-h}" rx="${rx}" ry="${ry}" fill="#FFC93C" ${sw(o)}/>`;
+// Pila de n monedas de canto con la base en (x,y).
 const PE_pile=(x,y,n,rx=26,ry=9,h=10)=>{let s='';for(let i=0;i<n;i++)s+=PE_flat(x,y-i*h,rx,ry,h);const t=y-n*h;return s+`<ellipse cx="${x}" cy="${t}" rx="${rx*.55}" ry="${ry*.5}" fill="#FFE08A"/>`};
+// Libro de lomo SVG para la estantería: esquina de abajo a la izquierda en (x,y), tamaño w x h, color c.
 const PE_book=(x,y,w,h,c)=>`<rect x="${x}" y="${y-h}" width="${w}" height="${h}" rx="1.5" fill="${c}" ${sw(3)}/><path d="M${x+2} ${y-h+5} h${w-4}" stroke="#FFFFFF" stroke-width="2.5" opacity=".7"/>`;
 
+// Barra SVG redondeada de grosor w y color c entre (x1,y1) y (x2,y2) (patas, palos).
 const PE_bar=(x1,y1,x2,y2,w,c,o=4)=>{const L=Math.hypot(x2-x1,y2-y1),a=Math.atan2(y2-y1,x2-x1)*180/Math.PI-90;return `<rect x="${-w/2}" y="${-w/2}" width="${w}" height="${(L+w).toFixed(1)}" rx="${w/2}" fill="${c}" ${sw(o)} transform="translate(${x1} ${y1}) rotate(${a.toFixed(1)})"/>`};
 /* pelota de playa: gajos proyectados de una esfera inclinada hacia quien mira */
+// Pelota de playa SVG de radio R, inclinada al grados hacia quien mira, con un gajo por color de cols.
+// Proyecta los meridianos de una esfera a 2D (P = paso de latitud/longitud a x,y; end = dónde se esconde
+// cada meridiano por detrás) y une los puntos de cada gajo en un polígono.
 const PE_beach=(R,al,cols)=>{const a=al*Math.PI/180,n=cols.length,f=v=>v.toFixed(1);
 const P=(lat,lon)=>{const x=Math.cos(lat)*Math.sin(lon),y=-Math.sin(lat),z=Math.cos(lat)*Math.cos(lon);return f(x*R)+','+f((y*Math.cos(a)+z*Math.sin(a))*R)};
 const end=th=>Math.atan(-Math.cos(th)/Math.tan(a));
@@ -19,8 +39,10 @@ const c75=Math.cos(75*Math.PI/180);
 return s+`<ellipse cx="0" cy="${f(-R*Math.sin(75*Math.PI/180)*Math.cos(a))}" rx="${f(R*c75)}" ry="${f(R*c75*Math.sin(a))}" fill="#FFFFFF" ${sw(3)}/><circle r="${R}" fill="none" ${sw()}/>`};
 
 /* recorte de un poligono por otro convexo (Sutherland-Hodgman) */
+// Recorta el polígono sub (lista de [x,y]) por el polígono convexo clip (algoritmo de Sutherland-Hodgman) y devuelve el polígono resultante.
 const PE_clip=(sub,clip)=>{let out=sub;for(let i=0;i<clip.length;i++){const A=clip[i],B=clip[(i+1)%clip.length],inn=p=>(B[0]-A[0])*(p[1]-A[1])-(B[1]-A[1])*(p[0]-A[0])>=0,X=(p,q)=>{const a1=B[1]-A[1],b1=A[0]-B[0],c1=a1*A[0]+b1*A[1],a2=q[1]-p[1],b2=p[0]-q[0],c2=a2*p[0]+b2*p[1],d=a1*b2-a2*b1;return[(b2*c1-b1*c2)/d,(a1*c2-a2*c1)/d]};const inp=out;out=[];for(let j=0;j<inp.length;j++){const P=inp[j],Q=inp[(j+1)%inp.length];if(inn(Q)){if(!inn(P))out.push(X(P,Q));out.push(Q)}else if(inn(P))out.push(X(P,Q))}}return out.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')};
 
+// Dibujos de la tienda (ver la lista de la cabecera).
 Object.assign(PICS,{
 moneda:PE_coin(0,0,54),
 monedas:PE_pile(-28,44,4)+PE_pile(26,46,7)+`<g transform="rotate(-12 26 -36)">${PE_coin(26,-36,19,4)}</g>`+PE_coin(-2,26,27,4.5),

@@ -17,7 +17,11 @@ cp src/web/index.html src/web/sw.js src/web/manifest.webmanifest .
 ```
 Antes, sube `VER` en `src/build_web.py` (`curiolandia3d-v1.N`): es el nombre de la caché del service worker, y sin cambiarlo los móviles siguen con la versión vieja. Los archivos montados dentro de `src/` están en `.gitignore`.
 
+## Documentación
+La guía completa está en `docs/`: `ARQUITECTURA.md` (cómo está hecho), `COMO-AGREGAR.md` (proceso y recetas), `ESTADO-GUARDADO.md` (campos de `S`), `VOCES.md` (frases grabadas) y `PROBLEMAS-CONOCIDOS.md`. Todo el código de `src/` lleva comentarios de cabecera en cada función: mantenlos al día cuando cambies algo y comenta igual las funciones nuevas.
+
 ## Reglas
 - No cambies el texto de ninguna frase que ya diga `say()`: cada frase tiene su MP3 grabado (`voz/manifest.json`, `voz-fer/manifest.json`) y si cambia el texto se pierde el audio. Las frases nuevas se escriben en castellano de España y se apuntan para grabarlas.
 - No cambies el estado guardado `S` de forma incompatible: hay partidas guardadas en los móviles.
-- Para probar, abre `index.html` con un servidor local (por ejemplo `python3 -m http.server`).
+- Las frases nuevas se apuntan en `herramientas/voces/frases-curiolandia-nuevas.txt` para grabarlas.
+- Para probar, abre `src/web/index.html` con un servidor local (por ejemplo `python3 -m http.server`) y ejecuta `node tests/humo.js src/web`.

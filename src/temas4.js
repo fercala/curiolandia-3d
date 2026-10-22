@@ -1,8 +1,32 @@
+// ==========================================================================
+// temas4.js: los 12 temas de 4 años (el Bosque) y su Rincón de los Conceptos.
+// ==========================================================================
+// Archivo de DATOS, con el mismo formato de tema y de juego que temas.js (mira allí la
+// explicación completa de cada campo: id, n, icon, c, trim, bg, season, intro, words, games).
+// Define estas globales:
+//   - bunting(), fern(), acacia(), palm(): ayudas de dibujo para fondos (las usa también temas5.js).
+//   - Fondos nuevos en BG: semana, bosque, polo, sabana, selva, mar, espacio, noche, huerta, calle,
+//     prehistoria, fiesta, bano, dormitorio, desierto, lluvia, parque (los usan temas5, extras y cuentos).
+//   - Cosas dibujadas: dayCard(), locomotive(), seasonTree(), shape2(), towerOf(), pencilOf(),
+//     posScene(), momentScene(), plateN(); zoneIcon() para iconos de zona; plantDraw().
+//   - Listas de datos de los juegos: DSAY, ESTS, SENT, SENTQ, EMO4, EMOADJ, SITS, FRUTAS, VERDURAS,
+//     OFICIOS, ADIV, SALVAJES, DOMESTICOS, PLANT_PARTS, COLS4. Añade 4 colores a COLORES.
+//   - T4 (temas de 4 años), C4 (rincón de 4 años) y z_x().
+// Depende de: core.js (dibujo, say, V, AGE, nRounds, nOpts, DIASL, ESTACIONES, NUM, EMO...), temas.js
+// (BG, floor, grass, swatch, sizeSlot, vestir), comps.js / comps2.js (los componentes de juego) y PICS.
+// Recuerda: no cambies ninguna frase que se diga con say() (tienen MP3 grabado).
 /* ================= FONDOS NUEVOS ================= */
+// Guirnalda de banderines de fiesta a lo ancho de la pantalla, colgada a la altura y.
+// n = número de banderines (colores de DIAC).
 function bunting(y,n=16){ctx.beginPath();ctx.moveTo(0,y);for(let i=0;i<=n;i++)ctx.quadraticCurveTo(i*W/n-W/n/2,y+30,i*W/n,y);ctx.lineWidth=4;ctx.strokeStyle=K;ctx.stroke();for(let i=0;i<n;i++){const x=i*W/n+W/n/2;ctx.beginPath();ctx.moveTo(x-30,y+16);ctx.lineTo(x+30,y+16);ctx.lineTo(x,y+70);ctx.closePath();fillStroke(DIAC[i%7],4)}}
+// Helecho de 7 hojas en abanico con la base en (x,y), escala s y color c.
 function fern(x,y,s,c='#5FA84E'){ctx.save();ctx.translate(x,y);ctx.scale(s,s);for(let i=-3;i<=3;i++){ctx.save();ctx.rotate(i*.32);ell(0,-60,16,62,c,4);ctx.restore()}ctx.restore()}
+// Acacia de la sabana (tronco en Y y copa plana) con la base en (x,y) y escala s.
 function acacia(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.lineCap='round';ctx.lineWidth=18;ctx.strokeStyle='#8A5A3C';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-120);ctx.lineTo(-50,-180);ctx.moveTo(0,-120);ctx.lineTo(60,-185);ctx.stroke();ell(0,-200,170,40,'#7CB342',5);ctx.restore()}
+// Palmera (tronco curvo y 6 hojas) con la base en (x,y) y escala s.
 function palm(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.beginPath();ctx.moveTo(-8,0);ctx.quadraticCurveTo(20,-100,10,-200);ctx.lineTo(26,-200);ctx.quadraticCurveTo(36,-100,10,0);ctx.closePath();fillStroke('#C98A4B',5);for(let i=0;i<6;i++){ctx.save();ctx.translate(18,-205);ctx.rotate(-PI+i*PI/5);ell(60,0,64,16,'#5FA84E',4);ctx.restore()}ctx.restore()}
+// Fondos nuevos que se añaden al objeto BG de temas.js. Mismo formato: funciones sin
+// parámetros que pintan la pantalla entera en cada cuadro (pueden animarse con T).
 Object.assign(BG,{
   semana(){sky('#FFF3D6','#FCE7C8');floor(720,'#E9C99A');bunting(30)},
   bosque(){sky('#DDF3D2','#F4FBEA');for(let i=0;i<9;i++)tree(80+i*190,640+(i%2)*30,1.2+(i%3)*.2,i%3?'primavera':'verano');grass(700,'#9FDC8F')},
@@ -24,47 +48,92 @@ Object.assign(BG,{
 });
 
 /* ================= TEMAS DE 4 AÑOS: EL BOSQUE ================= */
+// Vagón/tarjeta del día de la semana i (0 = lunes ... 6 = domingo, nombres en DIASL).
+// Devuelve una cosa dibujada {name, day, draw}; el sábado y el domingo llevan estrella.
 const dayCard=i=>({name:'el '+DIASL[i],day:i,draw:(x,y,s)=>{card(x-s*.44,y-s*.34,s*.88,s*.62,DIAC[i],6,s*.1);card(x-s*.36,y-s*.26,s*.72,s*.32,'#fff',4,s*.06);const nm=DIASL[i].toUpperCase();text(nm,x,y-s*.03,s*(nm.length>7?.12:.15),K,{f:LF});circ(x-s*.24,y+s*.3,s*.08,'#5B5F6B',4);circ(x+s*.24,y+s*.3,s*.08,'#5B5F6B',4);if(i>=5)star(x+s*.3,y-s*.36,s*.08,'#FFC93C',3)}});
+// DSAY: frase de Tito para cada día de la semana (de lunes a domingo), en "conocer".
 const DSAY=['El lunes. Es el primer día de la semana. ¡Volvemos a la escuela!','El martes. Viene después del lunes.','El miércoles. Estamos en la mitad de la semana.','El jueves. ¡Ya falta poquito para el fin de semana!','El viernes. Es el último día de escuela de la semana.','El sábado. ¡Es fin de semana! No hay escuela.','El domingo. Descansamos y estamos en familia.'];
+// Locomotora con humo animado, centrada en (x,y) con escala s (juego "El tren de los días").
 function locomotive(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);card(-80,-70,150,120,'#FF6B5E',7,20);card(-60,-130,60,70,'#5B5F6B',6,8);card(20,-40,60,50,'#BFEAF7',5,8);circ(-50,62,24,'#5B5F6B',6);circ(30,62,24,'#5B5F6B',6);for(let i=0;i<3;i++){ctx.globalAlpha=.5;circ(-30+i*10,-150-i*34-((T*30)%34),16+i*6,'#fff',3,'#B8B0A6')}ctx.globalAlpha=1;ctx.restore()}
+// ESTS: nombre con artículo de cada estación (clave = nombre de ESTACIONES).
 const ESTS={otoño:'el otoño',invierno:'el invierno',primavera:'la primavera',verano:'el verano'};
+// Árbol de la estación e ('otoño', 'invierno'...): cosa dibujada {name, draw} usando tree() de core.js.
 const seasonTree=e=>({name:ESTS[e],draw:(x,y,s)=>tree(x,y+s*.28,s/290,e)});
+// Forma geométrica f ('circulo', 'cuadrado', 'triangulo', 'rectangulo', 'ovalo' o 'rombo')
+// rellena de color c. Devuelve {name, f, draw}. También la usa temas5.js.
 const shape2=(f,c)=>({name:{circulo:'el círculo',cuadrado:'el cuadrado',triangulo:'el triángulo',rectangulo:'el rectángulo',ovalo:'el óvalo',rombo:'el rombo'}[f],f,draw:(x,y,s)=>{ctx.beginPath();
   if(f==='circulo')ctx.arc(x,y,s*.38,0,PI*2);else if(f==='cuadrado')rr(x-s*.34,y-s*.34,s*.68,s*.68,8);else if(f==='rectangulo')rr(x-s*.44,y-s*.24,s*.88,s*.48,8);else if(f==='ovalo')ctx.ellipse(x,y,s*.44,s*.28,0,0,PI*2);
   else if(f==='triangulo'){ctx.moveTo(x,y-s*.38);ctx.lineTo(x+s*.42,y+s*.32);ctx.lineTo(x-s*.42,y+s*.32);ctx.closePath()}else if(f==='rombo'){ctx.moveTo(x,y-s*.42);ctx.lineTo(x+s*.32,y);ctx.lineTo(x,y+s*.42);ctx.lineTo(x-s*.32,y);ctx.closePath()}fillStroke(c,6)}});
+// Devuelve una función icon(x,y,s) que pinta el dibujo k de PICS: sirve como icono de una zona de Arrastra.
 function zoneIcon(k){return (x,y,s)=>pic(k,x,y,s)}
+// Datos de "Mi cuerpo y los sentidos":
+// SENT = frase que explica cada sentido (clave = dibujo del órgano).
+// SENTQ = preguntas [dibujo que se enseña, respuesta correcta, pregunta].
 const SENT={ojo:'Con los ojos vemos.',oreja:'Con las orejas oímos.',nariz:'Con la nariz olemos.',boca:'Con la boca saboreamos.',mano:'Con las manos tocamos.'};
 const SENTQ=[['campana','oreja','¿Con qué escuchamos la campana?'],['tambor','oreja','¿Con qué oímos el tambor?'],['perfume','nariz','¿Con qué olemos el perfume?'],['flor','nariz','¿Con qué olemos la flor?'],['helado','boca','¿Con qué sentimos que el helado es dulce?'],
   ['limon','boca','¿Con qué sentimos que el limón es ácido?'],['cactus','mano','¿Con qué sentimos que el cactus pincha?'],['peluche','mano','¿Con qué sentimos que el peluche es suave?'],['arcoiris','ojo','¿Con qué vemos los colores del arcoíris?'],['estrella','ojo','¿Con qué vemos las estrellas?']];
+// Datos de "Las emociones":
+// EMO4 = [emoción, [adjetivo rioplatense, adjetivo España], frase de "conocer"]. Las caritas se
+//   nombran 'emo:alegria'... y las dibuja drawFace() (comps2.js cambia thing() para ello).
+// EMOADJ = adjetivo de cada emoción para las preguntas "¿Quién está ...?".
+// SITS = situaciones [dibujo, emoción correcta, pregunta].
 const EMO4=[['alegria',['contento','contento'],'Contento. Cuando algo nos gusta mucho, sentimos alegría y sonreímos.'],['tristeza',['triste','triste'],'Triste. Cuando perdemos algo o extrañamos a alguien, sentimos tristeza.'],['enojo',['enojado','enfadado'],['Enojado. Cuando algo nos parece injusto, nos enojamos.','Enfadado. Cuando algo nos parece injusto, nos enfadamos.']],['miedo',['con miedo','con miedo'],'Con miedo. Cuando algo nos asusta, sentimos miedo.'],['sorpresa',['sorprendido','sorprendido'],'Sorprendido. Cuando pasa algo que no esperábamos, sentimos sorpresa.']];
 const EMOADJ={alegria:'contento',tristeza:'triste',enojo:['enojado','enfadado'],miedo:'con miedo',sorpresa:'sorprendido',calma:'tranquilo',verguenza:'con vergüenza'};
 const SITS=[['heladoCaido','tristeza','Al nene se le cayó el helado al piso. ¿Cómo se siente?'],['regalo','alegria','La nena recibió un regalo que quería mucho. ¿Cómo se siente?'],['tormenta','miedo','Hay una tormenta con truenos muy fuertes. ¿Cómo se siente el nene?'],['torreRota','enojo','Alguien le tiró la torre que había hecho con mucho trabajo. ¿Cómo se siente?'],['cajaSorpresa','sorpresa','¡Abrió la caja y saltó un payaso! ¿Cómo se siente?']];
+// FRUTAS y VERDURAS: claves de PICS para el juego "Fruta o verdura".
 const FRUTAS=['manzana','banana','pera','fresa','uva','naranja','pina','kiwi','sandia'],VERDURAS=['zanahoria','lechuga','patata','brocoli','pimiento','berenjena'];
+// Datos de "Los oficios": OFICIOS = parejas [persona, herramienta] para el juego de unir;
+// ADIV = adivinanzas [persona, pista].
 const OFICIOS=[['bombera','manguera'],['medico','fonendo'],['policia','silbato'],['panadero','pan'],['cartero','carta'],['peluquero','tijeras'],['cocinera','sarten'],['granjera','tractor'],['maestra','cuento']];
 const ADIV=[['bombera','Uso casco y manguera. Apago los incendios. ¿Quién soy?'],['medico','Uso un estetoscopio y te curo cuando estás enfermo. ¿Quién soy?'],['policia','Cuido la calle y ayudo a la gente. Uso silbato. ¿Quién soy?'],['panadero','Me levanto muy temprano para hacer pan. ¿Quién soy?'],['cartero','Llevo las cartas a todas las casas. ¿Quién soy?'],['peluquero','Corto el pelo con tijeras y peine. ¿Quién soy?'],['cocinera','Cocino comidas ricas en la cocina. ¿Quién soy?'],['granjera','Cuido los animales y planto verduras en el campo. ¿Quién soy?']];
+// SALVAJES y DOMESTICOS: claves de PICS para "¿Dónde vive?" (animales domésticos y salvajes).
 const SALVAJES=['leon','elefante','jirafa','mono','cebra','cocodrilo','tigre'],DOMESTICOS=['perro','gato','conejo','vaca','oveja','caballo','gallina'];
+// Dibuja la planta grande de "Las partes de la planta" (tierra, raíces, tallo, hojas, flor y fruto)
+// en posiciones fijas de la pantalla. hl no se usa. Las zonas que se pueden tocar están en PLANT_PARTS.
 const plantDraw=(hl)=>{ctx.fillStyle='#A86B43';ctx.fillRect(540,620,720,200);ctx.lineWidth=5;ctx.strokeStyle=K;ctx.strokeRect(540,620,720,200);
   ctx.lineCap='round';ctx.strokeStyle='#E9D1A6';ctx.lineWidth=9;for(const [a,b] of[[-60,90],[0,140],[60,90],[-30,60],[40,120]]){ctx.beginPath();ctx.moveTo(900,630);ctx.quadraticCurveTo(900+a*.5,630+b*.6,900+a,630+b);ctx.stroke()}
   ctx.strokeStyle='#5FA84E';ctx.lineWidth=22;ctx.beginPath();ctx.moveTo(900,630);ctx.quadraticCurveTo(910,450,900,300);ctx.stroke();
   for(const [x,y,r] of[[830,470,-.5],[975,400,.5],[835,360,-.4]]){ctx.save();ctx.translate(x,y);ctx.rotate(r);ell(0,0,70,30,'#7CC86E',5);ctx.restore()}
   flower(900,260,58,'#F58BB4',5);ctx.beginPath();ctx.moveTo(945,520);ctx.lineTo(1000,560);ctx.lineWidth=6;ctx.strokeStyle='#5FA84E';ctx.stroke();circ(1005,585,34,'#FF5A5A',5);ell(1012,552,10,6,'#7CC86E',3)};
+// PLANT_PARTS: partes de la planta que se pueden tocar en TocaPartes (comps2.js):
+// {id, n = nombre, x, y, r = círculo que se puede tocar, say = explicación (opcional)}.
+// Una misma parte puede tener varios círculos (por eso hay varios 'tallo' y 'hojas').
 const PLANT_PARTS=[{id:'raiz',n:'la raíz',x:900,y:720,r:90,say:'Toma el agua de la tierra.'},{id:'tallo',n:'el tallo',x:902,y:540,r:40,say:'Sostiene la planta.'},{id:'tallo',n:'el tallo',x:906,y:420,r:30},{id:'hojas',n:'las hojas',x:830,y:470,r:62,say:'Toman la luz del sol.'},{id:'hojas',n:'las hojas',x:975,y:400,r:62},{id:'hojas',n:'las hojas',x:835,y:360,r:55},
   {id:'flor',n:'la flor',x:900,y:260,r:80,say:'¡Qué linda!'},{id:'fruto',n:'el fruto',x:1005,y:585,r:45,say:'Adentro tiene las semillas.'}];
+// Torre de n bloques de colores: {name:'la torre alta'/'la torre baja', draw}. Para "Alto y bajo".
 const towerOf=n=>({name:n>3?'la torre alta':'la torre baja',draw:(x,y,s)=>{for(let i=0;i<n;i++)card(x-s*.22,y+s*.42-(i+1)*s*.15,s*.44,s*.14,DIAC[i%7],4,6)}});
+// Lápiz de largo l (fracción de 0 a 1) y color c: {name:'el lápiz largo'/'corto', draw}.
 const pencilOf=(l,c)=>({name:l>.6?'el lápiz largo':'el lápiz corto',draw:(x,y,s)=>{const w=s*l*.9;ctx.save();ctx.translate(x-w/2,y);card(0,-s*.08,w-s*.14,s*.16,c,5,6);ctx.beginPath();ctx.moveTo(w-s*.14,-s*.08);ctx.lineTo(w,0);ctx.lineTo(w-s*.14,s*.08);ctx.closePath();fillStroke('#F2C29B',4);ctx.restore()}});
 // escenas de posiciones
+// Escena para "Delante, detrás, cerca y lejos": kind = 'caja' (gato y caja), 'mesa' (pelota
+// y mesa) o 'casa' (perro y casa); a = posición ('delante', 'detras', 'encima', 'debajo', 'cerca', 'lejos').
+// Devuelve {name, draw}; draw recorta el dibujo dentro de una tarjeta redondeada.
 const posScene=(kind,a)=>({name:{delante:'delante',detras:'detrás',encima:'encima',debajo:'debajo',cerca:'cerca',lejos:'lejos'}[a],draw:(x,y,s)=>{ctx.save();rr(x-s/2+8,y-s/2+8,s-16,s-16,26);ctx.clip();ctx.fillStyle='#E9F7FC';ctx.fillRect(x-s/2,y-s/2,s,s);ctx.fillStyle='#BFE6A0';ctx.fillRect(x-s/2,y+s*.2,s,s*.3);
   if(kind==='caja'){if(a==='detras')pic('gato',x+s*.12,y-s*.08,s*.42);card(x-s*.3,y-s*.05,s*.42,s*.36,'#C98A4B',5,8);if(a==='delante')pic('gato',x+s*.05,y+s*.16,s*.42)}
   if(kind==='mesa'){card(x-s*.36,y-s*.06,s*.72,s*.07,'#C98A4B',5,6);card(x-s*.32,y,s*.05,s*.3,'#A86B43',4,3);card(x+s*.27,y,s*.05,s*.3,'#A86B43',4,3);pic('pelota',x,a==='encima'?y-s*.17:y+s*.2,s*.2)}
   if(kind==='casa'){pic('casa',x-s*.22,y-s*.02,s*.42);pic('perro',a==='cerca'?x+s*.02:x+s*.34,a==='cerca'?y+s*.17:y+s*.06,a==='cerca'?s*.26:s*.12)}
   ctx.restore()}});
+// Paisaje de un momento del día m ('manana', 'tarde' o 'noche'): {name, draw}.
 const momentScene=m=>({name:{manana:'la mañana',tarde:'la tarde',noche:'la noche'}[m],draw:(x,y,s)=>{ctx.save();rr(x-s/2+8,y-s/2+8,s-16,s-16,26);ctx.clip();ctx.fillStyle={manana:'#FFE3B0',tarde:'#9ED9F5',noche:'#2E3F7A'}[m];ctx.fillRect(x-s/2,y-s/2,s,s);
   if(m==='manana')pic('sol',x-s*.2,y+s*.05,s*.34);if(m==='tarde')pic('sol',x+s*.18,y-s*.18,s*.34);if(m==='noche'){pic('luna',x+s*.16,y-s*.18,s*.3);star(x-s*.22,y-s*.24,8,'#FFE08A',0);star(x-s*.05,y-s*.3,6,'#FFE08A',0)}
   ctx.fillStyle=m==='noche'?'#3D5A3E':'#9FDC8F';ctx.fillRect(x-s/2,y+s*.22,s,s*.3);ctx.restore()}});
+// Plato con n cosas k (clave de PICS) encima: {name ("tres galletas"... con unN), n, draw}. Para "Más y menos".
 const plateN=(n,k)=>({name:unN(n,k),n,draw:(x,y,s)=>{pic('plato',x,y+s*.1,s*1.05);const P=[[0,0],[-.2,.04],[.2,.04],[-.1,-.12],[.1,-.12],[0,.17],[-.24,-.12],[.24,-.12],[-.12,.2],[.12,.2]];for(let i=0;i<n;i++)pic(k,x+P[i][0]*s,y+P[i][1]*s,s*.24)}});
+// COLS4: [clave de PICS, color] para pintar los colores nuevos de 4 años (naranja, violeta, rosa,
+// marrón y gris). La línea siguiente añade gris, blanco, negro y celeste a COLORES (core.js).
 const COLS4=[['calabaza','naranja'],['zanahoria','naranja'],['naranja','naranja'],['berenjena','violeta'],['uva','violeta'],['cerdo','rosa'],['flor','rosa'],['chocolate','marron'],['ardilla','marron'],['castana','marron'],['elefante','gris'],['piedra','gris']];
 Object.assign(COLORES,{gris:{c:'#9AA5B4',n:'gris'},blanco:{c:'#FFFFFF',n:'blanco'},negro:{c:'#3B3F58',n:'negro'},celeste:{c:'#7FD3F0',n:'celeste'}});
 
+// ---------------------------------------------------------------------------
+// T4: LOS 12 TEMAS DE 4 AÑOS (el camino del Bosque, en este orden). Formato: ver T3 en temas.js.
+//   4A-T1 Los días de la semana · 4A-T2 Mi cuerpo y los sentidos · 4A-T3 El otoño y sus frutos ·
+//   4A-T4 Las emociones · 4A-T5 Frutas y verduras · 4A-T6 El invierno y el polo · 4A-T7 Los oficios ·
+//   4A-T8 La calle y la ciudad · 4A-T9 Animales domésticos y salvajes · 4A-T10 Las plantas ·
+//   4A-T11 Los transportes por tierra, mar y aire · 4A-T12 Los bichitos y el verano
+// Aquí casi todos los juegos llevan name (el nombre que dice Tito) y usan también componentes
+// de comps2.js: Secuencia, Une, Series, Lens, TocaPartes, Llena, Semaforo.
+// {t:'cancion', song:'dias'} es una canción de extras.js (SONGS.dias).
+// ---------------------------------------------------------------------------
 const T4=[
 {id:'4A-T1',n:'Los días de la semana',icon:'calendario',c:'#FF8A7A',trim:1,bg:BG.semana,
  words:DIASL.map((d,i)=>Object.assign(dayCard(i),{label:d,say:DSAY[i]})),intro:'La semana tiene siete días. Tocá cada vagón para conocerlo.',
@@ -204,9 +273,13 @@ const T4=[
   {t:'series',icon:'mariquita',name:'¿Qué viene después?',make:(d,t)=>Series({pool:['mariquita','abeja','hormiga','mariposa','caracol','arana'],bg:t.bg},d)},
   {t:'memoria'}]}
 ];
+// Posición x de la zona número j cuando hay a.length zonas repartidas cada 500 px alrededor
+// del centro (900). La usan los frascos de las emociones.
 const z_x=(a,j)=>900-(a.length-1)*250+j*500;
 
 /* ---------- Rincón de los Conceptos (4 años) ---------- */
+// C4: Rincón de los Conceptos de 4 años (más colores, formas, más/menos, alto/bajo/largo/corto,
+// posiciones, mañana/tarde/noche, series y estaciones). Formato de tema con concepts:true.
 const C4={id:'4A-C',n:'Rincón de los Conceptos',icon:'formas',c:'#9B8AD9',trim:0,bg:BG.conceptos,concepts:true,
  games:[
   {t:'pinta',icon:'pinturas',name:'Más colores',make:(d,t)=>Pinta({items:COLS4,bg:t.bg},d)},
