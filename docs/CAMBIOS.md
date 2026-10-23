@@ -2,6 +2,11 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.589 (2026-10-23)
+- Para la familia: en la zona de adultos (Idioma y voz) se puede elegir la voz del navegador entre las voces en español del aparato, con un botón «▶ Probar». Las más naturales llevan ★. Hay una guía, «Cómo conseguir voces más naturales», con los pasos para iPhone/iPad, Mac, Android y Windows; el aparato en el que se juega sale primero.
+- Para el niño: sin elegir nada, Tito usa la voz más natural que haya en el aparato (antes, la primera del país).
+- Por dentro: `core.js`, `vozCalidad`, `vocesES`, `vozProbar` y `pickVoice` con `S.vozNav`; `adult.js`, `vozGuiaHTML`, la lista `#a-vnav` y `doReset` conserva `vozNav`. Campo nuevo `S.vozNav` (opcional, compatible). Sin frases nuevas («Probar» usa un saludo que ya existe).
+
 ## v1.588 (2026-10-23)
 - Para el niño: en Memoria, cada pareja encontrada da una moneda, como en los demás juegos (máximo 5 por juego).
 - Por dentro: `comps.js`, `Memoria` llama a `onRight(true)` en cada pareja (moneda de `tienda.js` y racha de dificultad). Quitado `Memoria` de la fila de `onRight` en PROBLEMAS-CONOCIDOS. Sin frases nuevas.

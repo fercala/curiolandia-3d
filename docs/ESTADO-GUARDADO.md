@@ -65,6 +65,7 @@
 | Campo | Formato | Para qué |
 |---|---|---|
 | `voz` | `''`, `'fer'` o `'nav'` | Voz de Tito: grabada (`voz/`), de Fer (`voz-fer/`) o solo la voz del navegador (`'nav'`, sin MP3). |
+| `vozNav` | texto (`voiceURI` o nombre), `''` o ausente | Voz del navegador elegida en la zona de adultos (v1.589). Vacío o ausente: automática (`pickVoice`). Si esa voz no existe en el aparato, se usa la automática. Se conserva al empezar de nuevo. |
 | `quiet3` | `0` o `1` | Si Tito se calla al tocar el paisaje 3D. |
 | `last` | id de tema | Último tema visitado. |
 | `ses` | `{t: segundos, at: hora en ms}` o `null` | Tiempo jugado en la sesión, para el límite `limit` (desde v1.586). Se guarda cada 15 s; al recargar, si es de hace menos de 30 min, la sesión sigue desde ahí. Se pone a `null` al cerrar la zona de adultos. |

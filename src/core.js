@@ -13,7 +13,7 @@
  *  - Puntero: MX, MY, mouseOn, hovNow, hR, hC, hv, setCursor.
  *  - Tito en 2D: TITO, drawTito(), inTito(), titoKind(), temasDone().
  *  - Sonido: initAudio, setVol, tone, noise, syn, SFX, SOUNDS, ONO, playSound; música: MUSIC, musKey, musicTick.
- *  - Voz: say(), voces grabadas (vozLoad, vozFile, vozGet, vozPlay, vozSeq, sayTTS, vozStop), pickVoice, talking, kid, PRAISE, praise, cap.
+ *  - Voz: say(), voces grabadas (vozLoad, vozFile, vozGet, vozPlay, vozSeq, sayTTS, vozStop), pickVoice (con S.vozNav, vozCalidad, vocesES), vozProbar, talking, kid, PRAISE, praise, cap.
  *  - Escenas: scene, sceneName, sceneArg, sceneTok, go(), later(), whenQuiet(), sayQ(), T, fade, idle, drag, timers.
  *  - Partículas: parts, burst(), sparkles(), heart(), drawParts().
  *  - Interfaz común: HOME, drawHome, atHome, drawRounds, drawLock (candado de adultos), drawHelp (ayudas).
@@ -468,18 +468,28 @@ function musicTick(){
 // VOICE / VOICE_EN: voces del navegador elegidas para español e inglés. talking: true mientras Tito habla (mueve la boca).
 // sayTok: número de la última frase; sirve para ignorar el final de frases que ya se cortaron.
 let VOICE=null,VOICE_EN=null,talking=false,sayTok=0;
-// pickVoice(): elige la mejor voz del navegador: primero por país (España, o Argentina/Uruguay en rioplatense) y, entre
-// ellas, las de más calidad (Google, Natural, Premium, Enhanced). También elige la voz inglesa (británica en modo España).
+// vozCalidad(v): puntos de calidad de una voz del navegador según su nombre. Las «naturales» o en línea (Edge: «Online
+// (Natural)») valen 4; las mejoradas de Apple («Premium», «Enhanced», «Mejorada») 3; las de Google y Siri 2; el resto 0.
+const vozCalidad=v=>/natural|online|neural/i.test(v.name)?4:/premium|enhanced|mejorad/i.test(v.name)?3:/google|siri/i.test(v.name)?2:0;
+// vocesES(): las voces en español del navegador, de mejor a peor calidad (vozCalidad); a igual calidad, el orden del navegador.
+function vocesES(){if(!('speechSynthesis' in window))return [];return speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang)).map((v,i)=>[v,i]).sort((a,b)=>vozCalidad(b[0])-vozCalidad(a[0])||a[1]-b[1]).map(a=>a[0])}
+// pickVoice(): elige la voz del navegador. Si en la zona de adultos se eligió una (S.vozNav, su voiceURI o nombre) y está
+// en este aparato, usa esa. Si no, la automática: primero por país (España, o Argentina/Uruguay en rioplatense) y,
+// dentro del país, la de más calidad (vozCalidad). También elige la voz inglesa (británica en modo España).
 function pickVoice(){
   if(!('speechSynthesis' in window))return; const all=speechSynthesis.getVoices(),en=all.filter(v=>/^en/i.test(v.lang));
   if(en.length){const pe=S.variant==='es'?['en-GB','en-IE','en-US','en-AU']:['en-US','en-GB','en-CA','en-AU'],Le=v=>v.lang.replace('_','-').toLowerCase();VOICE_EN=null;
     for(const p of pe){const c=en.filter(v=>Le(v)===p.toLowerCase());if(c.length){VOICE_EN=c.find(v=>/google|natural|premium|enhanced/i.test(v.name))||c[0];break}}if(!VOICE_EN)VOICE_EN=en[0]}
-  const vs=all.filter(v=>/^es/i.test(v.lang)); if(!vs.length)return;
+  const vs=vocesES(); if(!vs.length)return;
+  if(typeof S.vozNav==='string'&&S.vozNav){const v=vs.find(v=>v.voiceURI===S.vozNav||v.name===S.vozNav);if(v){VOICE=v;return}}// la elegida (si no está en este aparato, la automática)
   const pref=S.variant==='es'?['es-ES','es-MX','es-US','es-419','es-AR']:['es-AR','es-UY','es-US','es-419','es-MX','es-CO','es-ES'];
   const L=v=>v.lang.replace('_','-');
-  for(const p of pref){const c=vs.filter(v=>L(v).toLowerCase()===p.toLowerCase()); if(c.length){VOICE=c.find(v=>/google|natural|premium|enhanced/i.test(v.name))||c[0];return}}
+  for(const p of pref){const c=vs.find(v=>L(v).toLowerCase()===p.toLowerCase()); if(c){VOICE=c;return}}// vs ya va de mejor a peor
   VOICE=vs[0];
 }
+// vozProbar(): dice un saludo con la voz del navegador elegida (VOICE), aunque S.voz sea la grabada, para comparar voces
+// en la zona de adultos. Corta lo que estuviera sonando. Usa una frase que ya existe (no hay frase nueva).
+function vozProbar(){try{speechSynthesis.cancel()}catch(e){}const tok=++sayTok;sayTTS(tx('¡Hola! Soy Tito. ¿Jugamos? Tocá la plaza.'),tok,()=>{})}
 // Algunos navegadores cargan las voces tarde: se vuelve a elegir cuando avisan de que cambiaron.
 if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
 /* ---------- voces grabadas: solo en la web (carpeta voz/ con manifest.json); si una frase no tiene audio, habla el navegador ---------- */

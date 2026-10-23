@@ -20,6 +20,8 @@ Tito habla con **frases grabadas en MP3**. Si una frase no tiene grabación, la 
 
 Mientras habla, Tito mueve la boca y la música baja de volumen. Mientras habla, la ayuda automática no cuenta el tiempo ni repite la consigna (ver ARQUITECTURA, paso 6), así no le corta.
 
+**Qué voz del navegador se usa** (`pickVoice` en `core.js`): la que se eligió en la zona de adultos (Idioma y voz → «Voz del navegador», guardada en `S.vozNav`) si existe en ese aparato; si no, la automática: la del país (España, o Argentina/Uruguay en rioplatense) de más calidad según `vozCalidad` (Natural/Online 4, Premium/Enhanced/Mejorada 3, Google/Siri 2). El botón «Probar» (`vozProbar`) dice un saludo con esa voz. Una web no puede instalar voces: son las del sistema. La zona de adultos explica dónde descargarlas en cada aparato (`vozGuiaHTML` en `adult.js`).
+
 El reproductor de los MP3 (`VOZ_EL`) se crea en el primer toque (`initAudio()`) y suena un instante de silencio: Safari (iPhone, iPad) solo deja reproducir después, cuando el MP3 ya se ha descargado, un `<audio>` que ya sonó dentro de un toque. Si aun así un MP3 no suena, la frase la dice la voz del navegador.
 
 El acento por defecto de una partida nueva es el de España (`S.variant = 'es'`, desde v1.586), el de las grabaciones.

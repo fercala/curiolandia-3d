@@ -4,7 +4,7 @@
  *  1) La ZONA DE ADULTOS: un panel HTML (#adult, definido en head.html) que se abre manteniendo pulsado 3 s el candado
  *     de abajo a la derecha. Tiene ajustes (modo de juego, perfil, personaje de Tito, idioma y voz, volúmenes, límite de
  *     tiempo, vales), el progreso (temas, habilidades, asambleas, minutos por día), copia de seguridad, instalación y atajos.
- *     Funciones: openAdult(), closeAdult(), installHTML(); diálogos del nombre (openNameDlg) y de borrar (openResetDlg, doReset).
+ *     Funciones: openAdult(), closeAdult(), installHTML(), vozGuiaHTML() (cómo instalar voces mejores); diálogos del nombre (openNameDlg) y de borrar (openResetDlg, doReset).
  *  2) El BUCLE DEL JUEGO y la ENTRADA: eventos del dedo/ratón/teclado que llaman a scene.down/move/up, y frame(), que se
  *     ejecuta en cada cuadro (temporizadores, tiempo de juego, música, 3D, dibujo de la escena, ayudas, partículas...).
  *  3) La COPIA DE SEGURIDAD: bkEncode/bkDecode/bkWire convierten S en un código de texto o un archivo JSON y al revés.
@@ -36,6 +36,19 @@ function installHTML(){
    <li><b>Android (Chrome):</b> menú ⋮ → «Instalar aplicación» o «Agregar a la pantalla principal».</li>
    <li><b>Computadora (Chrome o Edge):</b> el ícono de instalar en la barra de direcciones.</li></ul>
    <p class="note">Una vez instalado, se abre a pantalla completa y funciona sin internet. ${ios?'En iPhone la voz depende de las voces en español instaladas en Ajustes → Accesibilidad → Contenido leído.':''}</p>`}
+// vozGuiaHTML(): HTML de «Cómo conseguir voces más naturales»: los pasos para instalar o usar voces mejores en iPhone/iPad,
+// Mac, Android y Windows. El aparato en el que se está jugando va primero y marcado. Una web no puede instalar voces:
+// son las del sistema, así que solo se explica dónde se descargan y, después, se eligen en la lista de arriba.
+function vozGuiaHTML(){
+  const ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),
+    yo=ios?'ios':/android/i.test(ua)?'and':/mac/i.test(ua)?'mac':/windows/i.test(ua)?'win':'';
+  const P=[['ios','iPhone o iPad','Ajustes → Accesibilidad → Contenido leído → Voces → Español → España. Descarga una voz «mejorada» o «prémium» (por ejemplo Mónica o Jorge).'],
+    ['mac','Mac','Ajustes del Sistema → Accesibilidad → Contenido leído → Voz del sistema → Gestionar voces → Español. Marca una voz mejorada o prémium y espera a que se descargue.'],
+    ['and','Android','Ajustes → Sistema → Idiomas → Salida de texto a voz. Elige el motor de Google, toca su rueda ⚙ → Instalar datos de voz → Español (España) y elige la voz que más te guste. Si no aparece, instala «Servicios de voz de Google» desde Google Play.'],
+    ['win','Windows','Lo más fácil es abrir el juego en Microsoft Edge: trae voces naturales sin instalar nada (por ejemplo «Elvira» o «Álvaro», de España), aunque necesitan internet. En Chrome aparece «Google español». Para más voces de Windows: Configuración → Hora e idioma → Voz → Agregar voces → Español (España).']];
+  P.sort((a,b)=>(b[0]===yo)-(a[0]===yo));
+  return `<ul>${P.map(([k,n,t])=>`<li><b>${n}${k===yo?' (este aparato)':''}:</b> ${t}</li>`).join('')}</ul>
+   <p class="note">Después de instalar una voz, cierra el navegador y vuelve a abrir el juego: la voz nueva aparece en la lista «Voz del navegador». Las marcadas con ★ son las más naturales.</p>`}
 /* openAdult(): abre la zona de adultos. Para la voz, construye TODO el HTML del panel a partir de S (cada vez que se abre,
    así siempre está al día) y luego conecta cada control a S con onchange/oninput (cada cambio guarda al momento con save()).
    CÓMO AÑADIR UNA OPCIÓN NUEVA (por ejemplo, un ajuste de sí/no):
@@ -69,6 +82,8 @@ function openAdult(){
   const days=Object.keys(S.days).sort().slice(-7).map(d=>`<span class="day"><b>${Math.round(S.days[d])}</b> min<br><small>${d.slice(5).split('-').reverse().join('/')}</small></span>`).join('')||'<span>Todavía no hay datos.</span>';
 // vname: voz del navegador que se está usando (para el texto informativo).
   const vname=VOICE?`${VOICE.name} (${VOICE.lang})`:'no se encontró una voz en español en este dispositivo';
+// vopts: la lista de voces en español de este aparato para elegir (la primera opción, «Automática», deja que elija pickVoice).
+  const vopts='<option value="">Automática (la mejor que haya)</option>'+vocesES().map(v=>{const id=v.voiceURI||v.name;return `<option value="${esc(id)}" ${S.vozNav===id?'selected':''}>${esc(v.name)} (${esc(v.lang)})${vozCalidad(v)>=3?' ★':''}</option>`}).join('');
 // sug: el próximo tema del camino (para la sección "Lo que sigue").
   const sug=suggestTema();
 // El HTML del panel, sección a sección: Modo de juego, Perfil, Personaje de Tito, Idioma y voz, Tiempo de juego,
@@ -91,6 +106,8 @@ function openAdult(){
    <div class="row"><span>Palabras</span>${[['ar','Rioplatense (vos, remera, auto)'],['es','España (tú, camiseta, coche)']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-var" value="${k}" ${S.variant===k?'checked':''}> ${l}</label>`).join('')}</div>
    <div class="row"><span>Estaciones</span>${[['N','Hemisferio norte (España)'],['S','Hemisferio sur (Argentina, Uruguay)']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-hemi" value="${k}" ${S.hemi===k?'checked':''}> ${l}</label>`).join('')}</div>
    <div class="row"><span>Voz de Tito</span>${[['','Voz grabada de siempre'],['fer','Voz de Fer'],['nav','Solo voz del navegador']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-voz" value="${k}" ${(S.voz||'')===k?'checked':''}> ${l}</label>`).join('')}</div>
+   <div class="row"><span>Voz del navegador</span><select id="a-vnav" style="max-width:100%">${vopts}</select><button id="a-vprueba" type="button">▶ Probar</button></div>
+   <details><summary>Cómo conseguir voces más naturales</summary>${vozGuiaHTML()}</details>
    <div class="row"><span>Paisaje</span>${[['','Tito cuenta y nombra lo que se toca'],['q','Sin comentarios en el paisaje']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-q3" value="${k}" ${(S.quiet3?'q':'')===k?'checked':''}> ${l}</label>`).join('')}</div>
    <p class="note">Las voces grabadas hablan en castellano de España; con las palabras rioplatenses, o si una frase no está grabada, habla la voz del navegador. Voz del navegador: ${esc(vname)}.</p>
    ${['voz','mus','fx'].map(k=>`<label class="rng">${({voz:'Voz',mus:'Música',fx:'Efectos'})[k]} <input type="range" id="a-${k}" min="0" max="1" step="0.05" value="${S.vol[k]}"></label>`).join('')}</section>
@@ -131,6 +148,9 @@ function openAdult(){
 // carpeta (o ninguno con 'nav') y Tito se presenta con la voz nueva.
   el.querySelectorAll('[name=a-var]').forEach(r=>r.onchange=()=>{S.variant=r.value;save();pickVoice();say(tx('¡Hola! Soy Tito. ¿Jugamos? Tocá la plaza.'))});
   el.querySelectorAll('[name=a-voz]').forEach(r=>r.onchange=()=>{S.voz=r.value;save();vozLoad(()=>say(((S.tito&&S.tito.kind)||'caracol')==='caracol'?'¡Hola! Yo soy Tito, el caracol curioso. En mi mochila guardo un montón de preguntas.':'Hola.'))});
+// Voz del navegador: S.vozNav guarda la elegida ('' = automática); se aplica con pickVoice y se oye un saludo de prueba.
+  q('#a-vnav').onchange=e=>{S.vozNav=e.target.value;save();pickVoice();vozProbar()};
+  q('#a-vprueba').onclick=()=>{pickVoice();vozProbar()};
 // Paisaje: S.quiet3=1 hace callar los comentarios de Tito en el mundo 3D (say3 en world3d.js).
   el.querySelectorAll('[name=a-q3]').forEach(r=>r.onchange=()=>{S.quiet3=r.value==='q'?1:0;save()});
 // Hemisferio, límite de tiempo y volúmenes (los volúmenes se aplican al momento con setVol).
@@ -180,7 +200,7 @@ document.getElementById('nm-in').onkeydown=e=>{if(e.key==='Enter')document.getEl
 function openResetDlg(){document.getElementById('resetDlg').hidden=false}
 // doReset(): borra el progreso: S vuelve a DEF, conservando solo los ajustes de keep (idioma, voz, hemisferio, volumen,
 // límite, vales y cumpleaños), guarda y vuelve a la portada. Ver la nota de posibles fallos en doc/notes/core.md.
-function doReset(){const keep={variant:S.variant,voz:S.voz,hemi:S.hemi,vol:S.vol,limit:S.limit,vales:S.vales,bday:S.bday};S=Object.assign(JSON.parse(JSON.stringify(DEF)),keep);ADAPT=0;save();go('title')}
+function doReset(){const keep={variant:S.variant,voz:S.voz,vozNav:S.vozNav,hemi:S.hemi,vol:S.vol,limit:S.limit,vales:S.vales,bday:S.bday};S=Object.assign(JSON.parse(JSON.stringify(DEF)),keep);ADAPT=0;save();go('title')}
 // Botones del diálogo de empezar de nuevo.
 document.getElementById('rs-yes').onclick=()=>{document.getElementById('resetDlg').hidden=true;doReset()};
 document.getElementById('rs-no').onclick=()=>{document.getElementById('resetDlg').hidden=true};
