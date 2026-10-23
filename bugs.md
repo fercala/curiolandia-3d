@@ -8,7 +8,7 @@ Pruebas con clics y arrastres sobre la web publicada en el navegador integrado d
 
 ## Estado del registro
 
-Todos los hallazgos quedan **PENDIENTES** de resolución o de verificación. La evidencia corresponde a **v1.585**, no a una nueva prueba de la versión actual. Al guardar este registro, `main` ya contiene **v1.586** (referencia consultada: `dc71633a94120dda3326f0d44dc98279745b2b83`). Esa versión declara corregido B7 y varios problemas de audio del informe anterior. B7 queda **PENDIENTE DE VERIFICAR EN v1.586**, no se presenta como fallo confirmado de esa versión.
+**Actualización (23-10-2026): B1-B6 resueltos en v1.587 y B7 verificado en v1.586; detalles en cada apartado y en docs/HALLAZGOS-PRUEBAS.md.** Texto original: todos los hallazgos quedan **PENDIENTES** de resolución o de verificación. La evidencia corresponde a **v1.585**, no a una nueva prueba de la versión actual. Al guardar este registro, `main` ya contiene **v1.586** (referencia consultada: `dc71633a94120dda3326f0d44dc98279745b2b83`). Esa versión declara corregido B7 y varios problemas de audio del informe anterior. B7 queda **PENDIENTE DE VERIFICAR EN v1.586**, no se presenta como fallo confirmado de esa versión.
 
 Las capturas originales y la copia de la partida de prueba se conservan fuera del repositorio; no se incluyen enlaces a archivos locales que no puedan abrirse desde GitHub.
 
@@ -26,19 +26,19 @@ La herramienta permite observar imágenes, estados de controles y errores de con
 
 | ID | Estado | Hallazgo | Gravedad | Evidencia de esta sesión |
 |---|---|---|---|---|
-| B1 | PENDIENTE | «Conocer» no se puede terminar al repetir sin recargar | Alta | Reproducido jugando |
-| B2 | PENDIENTE | Memoria omite las parejas incorrectas en las estadísticas | Media | Dos fallos reales y resultado de 100 % |
-| B3 | PENDIENTE | Libre/edad no actualizan el mapa 3D que ya estaba abierto | Media | Mapa gris pero acceso permitido |
-| B4 | PENDIENTE | El gorro del cofre no aparece inmediatamente en Tito 3D | Baja | Comparación antes/después de cambiar escena |
-| B5 | PENDIENTE | El centro de «saltar introducción» activa la región del candado | Media | Centro no funciona; borde izquierdo sí |
-| B6 | PENDIENTE | Las estrellas tapan el texto DÍA/NOCHE del juego de giro | Media | Reproducido en estados día y noche |
-| B7 | PENDIENTE DE VERIFICAR EN v1.586 | La validación acepta una copia con `temas:null` | Alta potencial al importarla | Aceptación reproducida; importación incorrecta no confirmada |
+| B1 | RESUELTO (v1.587) | «Conocer» no se puede terminar al repetir sin recargar | Alta | Reproducido jugando |
+| B2 | RESUELTO (v1.587) | Memoria omite las parejas incorrectas en las estadísticas | Media | Dos fallos reales y resultado de 100 % |
+| B3 | RESUELTO (v1.587) | Libre/edad no actualizan el mapa 3D que ya estaba abierto | Media | Mapa gris pero acceso permitido |
+| B4 | RESUELTO (v1.587) | El gorro del cofre no aparece inmediatamente en Tito 3D | Baja | Comparación antes/después de cambiar escena |
+| B5 | RESUELTO (v1.587) | El centro de «saltar introducción» activa la región del candado | Media | Centro no funciona; borde izquierdo sí |
+| B6 | RESUELTO (v1.587) | Las estrellas tapan el texto DÍA/NOCHE del juego de giro | Media | Reproducido en estados día y noche |
+| B7 | RESUELTO (v1.586) | La validación acepta una copia con `temas:null` | Alta potencial al importarla | Aceptación reproducida; importación incorrecta no confirmada |
 
 Prioridad propuesta: B1 primero; verificar la corrección de B7 en v1.586 por su posible efecto sobre partidas; después B3/B2 por acceso y seguimiento del aprendizaje. B4 es visual y puede esperar.
 
 ## B1. Repetir «Conocer» sin recargar deja el juego sin posibilidad de terminar
 
-**Estado de resolución: PENDIENTE.**
+**Estado de resolución: **RESUELTO en v1.587** (commit `3a86083`, publicado en `1fe4d78`). Reproducido antes en la v1.586 y comprobado en la v1.587 con `tests/regresion/informe-b.js`; además, los 253 juegos y los 45 casos límite pasan con la v1.587.** Arreglo: `Conocer` hace copias propias de las tarjetas con `seen: 0` (comps.js). Comprobado: terminar «Conocer» tres veces seguidas sin recargar.
 
 **Gravedad: alta. Estado: reproducido jugando.** Ya estaba advertido como deducción en `docs/PROBLEMAS-CONOCIDOS.md`; aquí se ha reproducido.
 
@@ -64,7 +64,7 @@ Prioridad propuesta: B1 primero; verificar la corrección de B7 en v1.586 por su
 
 ## B2. Memoria muestra 100 % aunque se hayan hecho parejas incorrectas
 
-**Estado de resolución: PENDIENTE.**
+**Estado de resolución: **RESUELTO en v1.587** (commit `3a86083`, publicado en `1fe4d78`). Reproducido antes en la v1.586 y comprobado en la v1.587 con `tests/regresion/informe-b.js`; además, los 253 juegos y los 45 casos límite pasan con la v1.587.** Arreglo: una pareja errada cuenta como fallo (`rec('memoria', false)`) cuando una de las dos cartas ya se había visto, es decir, cuando se podía saber dónde estaba su pareja; destapar cartas nuevas es explorar y no cuenta. Sigue sin dar monedas por pareja (decisión pendiente, en PROBLEMAS-CONOCIDOS).
 
 **Gravedad: media. Estado: reproducido jugando.** Afecta a la información familiar y potencialmente al repaso.
 
@@ -87,7 +87,7 @@ Prioridad propuesta: B1 primero; verificar la corrección de B7 en v1.586 por su
 
 ## B3. Activar Libre o cambiar la edad no refresca el aspecto del mapa 3D abierto
 
-**Estado de resolución: PENDIENTE.**
+**Estado de resolución: **RESUELTO en v1.587** (commit `3a86083`, publicado en `1fe4d78`). Reproducido antes en la v1.586 y comprobado en la v1.587 con `tests/regresion/informe-b.js`; además, los 253 juegos y los 45 casos límite pasan con la v1.587.** Arreglo: si al cerrar la zona de adultos cambiaron la edad o el modo libre, se vuelve a abrir el mapa, el camino o la casita 3D actuales, sin saludo; el cofre no se reabre. Si no cambió nada, no se rehace.
 
 **Gravedad: media. Estado: reproducido jugando.** La navegación funciona, pero los candados y el aspecto cerrado contradicen los permisos actuales.
 
@@ -110,7 +110,7 @@ Prioridad propuesta: B1 primero; verificar la corrección de B7 en v1.586 por su
 
 ## B4. El gorro del cofre se guarda pero Tito 3D no lo muestra en esa pantalla
 
-**Estado de resolución: PENDIENTE.**
+**Estado de resolución: **RESUELTO en v1.587** (commit `3a86083`, publicado en `1fe4d78`). Reproducido antes en la v1.586 y comprobado en la v1.587 con `tests/regresion/informe-b.js`; además, los 253 juegos y los 45 casos límite pasan con la v1.587.** Arreglo: `grantGift()` llama a `__w3.retito()` cuando el regalo es ropa y la escena es 3D: Tito se pone el gorro junto al cofre.
 
 **Gravedad: baja. Estado: reproducido jugando.** Es un fallo visual de actualización, no pérdida de la recompensa.
 
@@ -129,7 +129,7 @@ Prioridad propuesta: B1 primero; verificar la corrección de B7 en v1.586 por su
 
 ## B5. El centro de la flecha para saltar la introducción no responde
 
-**Estado de resolución: PENDIENTE.**
+**Estado de resolución: **RESUELTO en v1.587** (commit `3a86083`, publicado en `1fe4d78`). Reproducido antes en la v1.586 y comprobado en la v1.587 con `tests/regresion/informe-b.js`; además, los 253 juegos y los 45 casos límite pasan con la v1.587.** Arreglo: el candado solo responde a 50 px de su dibujo (1546, 852); el centro del botón (1500, 820) salta el cuento. Comprobado con el ratón de verdad, y el candado sigue abriendo la zona de adultos.
 
 **Gravedad: media. Estado: reproducido jugando dos veces**, al inicio con el caracol y al volver a la introducción con Tito conejo.
 
@@ -146,7 +146,7 @@ En la pantalla lógica de 1600×900, el centro está en `(1500,820)`. La región
 
 ## B6. Las estrellas tapan el cartel «DÍA / NOCHE» al girar la Tierra
 
-**Estado de resolución: PENDIENTE.**
+**Estado de resolución: **RESUELTO en v1.587** (commit `3a86083`, publicado en `1fe4d78`). Reproducido antes en la v1.586 y comprobado en la v1.587 con `tests/regresion/informe-b.js`; además, los 253 juegos y los 45 casos límite pasan con la v1.587.** Arreglo: el cartel de `Gira` baja a y = 214, debajo de las estrellas de rondas y del cartel «Nivel».
 
 **Gravedad: media. Estado: reproducido jugando.** El giro y las rondas avanzan, pero se oculta información de la actividad.
 
@@ -166,7 +166,7 @@ En la pantalla lógica de 1600×900, el centro está en `(1500,820)`. La región
 
 ## B7. La validación de copias acepta `temas:null`
 
-**Estado de resolución: PENDIENTE DE VERIFICAR EN v1.586.**
+**Estado de resolución: RESUELTO en v1.586** (commit `dc71633`), verificado: con la v1.586 `bkDecode()` rechaza `{"temas":null}`, `{"temas":[]}`, `[]` y `null`, y acepta `{"temas":{}}` (`tests/regresion/informe-b.js`). Además, al cargar, `sanoS()` deja con su valor por defecto los campos `null` o de tipo imposible, respetando los que pueden ser `null` (cumpleaños, repaso, vales...).
 
 **Gravedad: alta potencial al importarla. Estado: validación reproducida.** El fallo ya estaba descrito como G1 en el informe previo del repositorio. **Actualización al registrar:** [CAMBIOS.md de v1.586](https://github.com/fercala/curiolandia-3d/blob/dc71633a94120dda3326f0d44dc98279745b2b83/docs/CAMBIOS.md) declara que `temas:null` ya se rechaza. Falta repetir esta comprobación sobre esa versión; la reproducción y la causa siguientes describen v1.585.
 
