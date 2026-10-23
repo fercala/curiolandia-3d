@@ -89,7 +89,7 @@ function openAdult(){
   <section><h3>Idioma y voz</h3>
    <div class="row"><span>Palabras</span>${[['ar','Rioplatense (vos, remera, auto)'],['es','España (tú, camiseta, coche)']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-var" value="${k}" ${S.variant===k?'checked':''}> ${l}</label>`).join('')}</div>
    <div class="row"><span>Estaciones</span>${[['N','Hemisferio norte (España)'],['S','Hemisferio sur (Argentina, Uruguay)']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-hemi" value="${k}" ${S.hemi===k?'checked':''}> ${l}</label>`).join('')}</div>
-   <div class="row"><span>Voz de Tito</span>${[['','Voz grabada de siempre'],['fer','Voz de Fer']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-voz" value="${k}" ${(S.voz||'')===k?'checked':''}> ${l}</label>`).join('')}</div>
+   <div class="row"><span>Voz de Tito</span>${[['','Voz grabada de siempre'],['fer','Voz de Fer'],['nav','Solo voz del navegador']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-voz" value="${k}" ${(S.voz||'')===k?'checked':''}> ${l}</label>`).join('')}</div>
    <div class="row"><span>Paisaje</span>${[['','Tito cuenta y nombra lo que se toca'],['q','Sin comentarios en el paisaje']].map(([k,l])=>`<label class="opt"><input type="radio" name="a-q3" value="${k}" ${(S.quiet3?'q':'')===k?'checked':''}> ${l}</label>`).join('')}</div>
    <p class="note">Las voces grabadas hablan en castellano de España; con las palabras rioplatenses, o si una frase no está grabada, habla la voz del navegador. Voz del navegador: ${esc(vname)}.</p>
    ${['voz','mus','fx'].map(k=>`<label class="rng">${({voz:'Voz',mus:'Música',fx:'Efectos'})[k]} <input type="range" id="a-${k}" min="0" max="1" step="0.05" value="${S.vol[k]}"></label>`).join('')}</section>
@@ -126,7 +126,8 @@ function openAdult(){
 // Personaje de Tito: se guarda en S.tito.kind y se pide a la capa 3D que rehaga a Tito (__w3.retito).
   el.querySelectorAll('[name=a-kind]').forEach(r=>r.onchange=()=>{S.tito=S.tito||{};S.tito.kind=r.value;save();try{if(window.__w3&&__w3.retito)__w3.retito()}catch(e){console.error(e)}});
 // Variante del idioma: cambia S.variant, elige otra voz del navegador y Tito saluda para que se oiga el cambio.
-// Voz grabada: cambia S.voz, recarga el manifest de la otra carpeta y Tito se presenta con la voz nueva.
+// Voz de Tito: cambia S.voz ('' grabada, 'fer' de Fer, 'nav' solo voz del navegador), recarga el manifest de la otra
+// carpeta (o ninguno con 'nav') y Tito se presenta con la voz nueva.
   el.querySelectorAll('[name=a-var]').forEach(r=>r.onchange=()=>{S.variant=r.value;save();pickVoice();say(tx('¡Hola! Soy Tito. ¿Jugamos? Tocá la plaza.'))});
   el.querySelectorAll('[name=a-voz]').forEach(r=>r.onchange=()=>{S.voz=r.value;save();vozLoad(()=>say(((S.tito&&S.tito.kind)||'caracol')==='caracol'?'¡Hola! Yo soy Tito, el caracol curioso. En mi mochila guardo un montón de preguntas.':'Hola.'))});
 // Paisaje: S.quiet3=1 hace callar los comentarios de Tito en el mundo 3D (say3 en world3d.js).

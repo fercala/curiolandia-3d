@@ -64,7 +64,7 @@
 
 | Campo | Formato | Para qué |
 |---|---|---|
-| `voz` | `''` o `'fer'` | Voz grabada elegida (`voz/` o `voz-fer/`). |
+| `voz` | `''`, `'fer'` o `'nav'` | Voz de Tito: grabada (`voz/`), de Fer (`voz-fer/`) o solo la voz del navegador (`'nav'`, sin MP3). |
 | `quiet3` | `0` o `1` | Si Tito se calla al tocar el paisaje 3D. |
 | `last` | id de tema | Último tema visitado. |
 

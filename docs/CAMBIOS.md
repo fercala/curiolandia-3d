@@ -2,6 +2,10 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.585 (2026-10-23)
+- Para la familia: en la zona de adultos, «Voz de Tito» tiene una tercera opción, «Solo voz del navegador»: Tito lo dice todo con la voz del navegador, sin ninguna grabación.
+- Por dentro: `S.voz = 'nav'` (`core.js`, `vozLoad` no carga ningún manifiesto y `VOZ` queda en null; `adult.js`, opción nueva). Las partidas guardadas no cambian. Documentado en ESTADO-GUARDADO y VOCES.
+
 ## v1.584 (2026-10-23)
 - Para el niño: nada cambia en los juegos de ahora.
 - Por dentro (`comps2.js`, `Llena`): si un juego se configura con `min` igual a `max`, ya no se queda colgado buscando un número distinto del anterior: repite ese número.

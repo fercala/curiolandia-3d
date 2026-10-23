@@ -9,7 +9,7 @@ Tito habla con **frases grabadas en MP3**. Si una frase no tiene grabación, la 
 1. Pasa el texto por `tx()` (convierte del español rioplatense al de España si la variante es España; ver abajo). Con `{en: 1}` (Rincón del inglés) no lo convierte y usa una voz inglesa.
 2. Corta la frase que estuviera sonando.
 3. Prepara un **plan** con `vozFile(texto)` en el manifiesto de la voz elegida:
-   - `voz/manifest.json` (voz principal) o `voz-fer/manifest.json` si en la zona de adultos se eligió la "Voz de Fer" (`S.voz = 'fer'`).
+   - `voz/manifest.json` (voz principal) o `voz-fer/manifest.json` si en la zona de adultos se eligió la "Voz de Fer" (`S.voz = 'fer'`). Con "Solo voz del navegador" (`S.voz = 'nav'`) no se carga ningún manifiesto y todas las frases las dice la voz del navegador.
    - El manifiesto es `{"v":1, "f": {"texto exacto": "archivo.mp3", ...}}`.
    - La búsqueda ignora mayúsculas y el punto final, y quita el nombre del niño si va detrás de una coma ("¡Muy bien, Lucía!" → busca "¡Muy bien!").
    - Si no está la frase entera, la parte en oraciones y va de izquierda a derecha cogiendo cada vez el **trozo grabado más largo**: "¡Súper! ¡Sus plumas! Lo tienen calentito." = "¡Súper!" + "¡Sus plumas! Lo tienen calentito.". Por eso basta con grabar lo que va detrás de una felicitación de `PRAISE`.

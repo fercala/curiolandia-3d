@@ -462,14 +462,16 @@ if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pick
 // vozN: junta espacios repetidos; vozK: clave de búsqueda en el manifest (sin punto final, en minúsculas). Así
 // "¡Hola!  " y "¡hola!" encuentran el mismo audio.
 const vozN=t=>t.replace(/\s+/g,' ').trim(),vozK=t=>vozN(t).replace(/[.\s]+$/,'').toLowerCase();
-// S.voz: '' = la voz grabada de siempre (voz/), 'fer' = la voz de Fer (voz-fer/, mismos nombres de archivo)
+// S.voz: '' = la voz grabada de siempre (voz/), 'fer' = la voz de Fer (voz-fer/, mismos nombres de archivo); 'nav' = todo con la voz del navegador (no se usa ningún MP3)
 // VOZ: {clave de frase: archivo mp3} leído del manifest (null si no hay); VOZ_DIR: carpeta actual; VOZ_EL: el único
 // reproductor <audio>; VOZ_FIN: qué hacer al acabar la frase actual; VOZ_RATE: velocidad (0,9); VOZ_BL: audios ya descargados.
 let VOZ=null,VOZ_DIR='voz/',VOZ_EL=null,VOZ_FIN=null;const VOZ_RATE=.9,VOZ_BL={};
 // vozLoad(cb): carga voz/manifest.json o voz-fer/manifest.json (según S.voz) y llama a cb al acabar.
+// Con S.voz 'nav' no carga nada: VOZ queda en null y say() habla siempre con la voz del navegador.
 // El manifest tiene la forma {"f": {"Frase exacta.": "archivo.mp3", ...}}. Solo funciona servido por http(s), no con file://.
 // Si mientras tanto se cambió de carpeta, la respuesta vieja se descarta.
 function vozLoad(cb){const dir=S.voz==='fer'?'voz-fer/':'voz/';VOZ=null;VOZ_DIR=dir;
+  if(S.voz==='nav'){VOZ_DIR='';cb&&cb();return}// solo voz del navegador
   try{if(/^https?:/.test(location.protocol))fetch(dir+'manifest.json').then(r=>r.ok?r.json():null).then(m=>{if(VOZ_DIR!==dir)return;if(m&&m.f){const v={};for(const k in m.f)v[vozK(k)]=m.f[k];VOZ=v}cb&&cb()}).catch(()=>{cb&&cb()})}catch(e){}}
 vozLoad();
 // vozFile(texto): plan para decir la frase con lo grabado: lista de trozos en orden, cada uno el nombre de un mp3
