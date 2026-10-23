@@ -2147,7 +2147,9 @@ function Sonido(cfg,onDone){
 // ejemplos pequeños), bg, intro (frase inicial).
 // Lo crea makeGame para {t:'conocer'} con las palabras del tema (t.words).
 function Conocer(cfg,onDone){
-  const items=cfg.items.map(o=>typeof o==='string'?{k:o}:o), n=items.length;
+  // Copias propias de cada partida, con seen a 0: si se usaran los objetos de t.words, las marcas de vista (seen) de
+  // una partida anterior seguirían ahí al repetir sin recargar y el juego no se podría terminar.
+  const items=cfg.items.map(o=>Object.assign({},typeof o==='string'?{k:o}:o,{seen:0})), n=items.length;
   // Cuadrícula: columnas según el número de tarjetas y tamaño s que quepa en
   // la zona de 1220x660; luego se centra cada fila (la última puede ir incompleta).
   const cols=n<=3?n:n===4?4:n<=6?3:n<=8?4:5, rows=Math.ceil(n/cols), s=Math.min(1220/cols-34,660/rows-34,290);
@@ -2437,13 +2439,17 @@ function Memoria(cfg,onDone){
       else{card(-s/2,-s/2,s,s,'#FFA94D',7,32);ctx.save();ctx.beginPath();for(let i=0;i<=60;i++){const a=i/60*PI*2*2.2,r=4+i/60*s*.32;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.lineWidth=8;ctx.strokeStyle='#D9762A';ctx.lineCap='round';ctx.stroke();ctx.restore()}
       ctx.restore()}},
     // Toque: levanta la carta. Con dos levantadas: si son iguales quedan fijas
-    // (estrella; al completar todas, onDone); si no, se vuelven a girar en 1,3 s.
+    // (estrella y rec acierto; al completar todas, onDone); si no, se vuelven a girar en 1,3 s (y es fallo, rec false,
+    // solo si la pareja de alguna ya se había visto). c.seen: la carta ya se destapó alguna vez.
     down(x,y){if(this.busy)return;const c=cards.find(c=>Math.abs(x-c.x)<s/2&&Math.abs(y-c.y)<s/2);if(!c||c.up){SFX.tap();return}
       c.up=1;c.flip=T;SFX.pop();this.open.push(c);say(cap(nameT(c.k)));
       if(this.open.length===2){const [a,b]=this.open;this.busy=true;
+        // Fallo de memoria (apunta rec false): no encontrar la pareja cuando una de las dos cartas ya se había visto antes,
+        // es decir, cuando se podía saber dónde estaba su pareja. Destapar cartas nuevas no es fallo, es explorar.
+        const known=[a,b].some(x=>cards.some(o=>o!==x&&o.k===x.k&&o.seen));a.seen=b.seen=1;
         if(a.k===b.k){later(500,()=>{a.ok=b.ok=T;SFX.good();burst(a.x,a.y,16);burst(b.x,b.y,16);this.done++;scene.starPop=T;rec('memoria',true);this.open=[];this.busy=false;
           if(this.done>=np){later(500,onDone)}else say(praise())})}
-        else later(1300,()=>{a.up=b.up=0;a.flip=b.flip=T;SFX.whoosh();this.open=[];this.busy=false})}}
+        else{if(known)rec('memoria',false);later(1300,()=>{a.up=b.up=0;a.flip=b.flip=T;SFX.whoosh();this.open=[];this.busy=false})}}}
   };
 }
 
@@ -3090,7 +3096,8 @@ function Gira(cfg,onDone){
       ctx.save();ctx.translate(C.x+Math.cos(a)*(C.r+50),C.y+Math.sin(a)*(C.r+50));ctx.rotate(a+PI/2);pic('nene',0,0,120);ctx.restore();
       // sombra de la noche (lado derecho)
       ctx.save();ctx.beginPath();ctx.arc(C.x,C.y,C.r+110,-PI/2,PI/2);ctx.closePath();ctx.fillStyle='rgba(10,14,40,.55)';ctx.fill();ctx.restore();
-      const st=this.state();card(1260,60,300,96,'#fff',6,48);if(st==='dia'){pic('sol',1320,108,80);text('DÍA',1440,124,46,K,{f:LF})}else if(st==='noche'){pic('luna',1320,108,80);text('NOCHE',1450,124,42,K,{f:LF})}else text('...',1410,124,46,K)},
+      // cartel del estado debajo de las estrellas de rondas y del cartel «Nivel» (scenes.js), que antes lo tapaban
+      const st=this.state();card(1260,214,300,96,'#fff',6,48);if(st==='dia'){pic('sol',1320,262,80);text('DÍA',1440,278,46,K,{f:LF})}else if(st==='noche'){pic('luna',1320,262,80);text('NOCHE',1450,278,42,K,{f:LF})}else text('...',1410,278,46,K)},
     // Toque cerca de la Tierra: empieza a girar; this.on guarda el ángulo del dedo.
     down(x,y){if(this.ok)return;if(dist(x,y,C.x,C.y)<C.r+120){this.on=Math.atan2(y-C.y,x-C.x);SFX.whoosh();setCursor('grab');drag={it:this,gira:1}}},
     // Girar: suma a 'a' lo que ha girado el dedo alrededor del centro desde el
@@ -6522,7 +6529,9 @@ const GIFTS=['gorroFiesta','pelotaPlaya','cuadro','bufanda:azul','peluche','plan
 // nextGift(): siguiente regalo de GIFTS que aún no se tiene, o null.
 const nextGift=()=>GIFTS.map(id=>SHOP.find(i=>i.id===id)).find(it=>it&&!S.owned[it.id])||null;
 // grantGift(it): da el artículo it: S.owned, y se lo pone a Tito (si tiene slot) o lo coloca en su casa. Guarda.
-function grantGift(it){S.owned[it.id]=1;if(it.slot)wear(it,true);else placeHome(it.id);save()}
+// Si se lo pone y la escena es 3D (el cofre), rehace a Tito 3D (retito) para que se vea al momento.
+function grantGift(it){S.owned[it.id]=1;if(it.slot)wear(it,true);else placeHome(it.id);save();
+  if(it.slot&&scene&&scene.three&&window.__w3&&window.__w3.retito)window.__w3.retito()}// Tito 3D se viste ya (en el cofre), no al cambiar de escena
 // drawChest(x, y, s, op, sh): dibuja el cofre a escala s, desplazado sh en horizontal (temblor). op = cuánto está abierto
 // (0 cerrado, 1 abierto): con op > 0 salen rayos de luz y brillo dentro; la tapa se aplasta en vertical (escala Y) hasta
 // casi desaparecer y, pasada la mitad, reaparece abierta por dentro. Con op < 0,15 se ve la cerradura.
@@ -7079,6 +7088,7 @@ function installHTML(){
      4. Usa S.miAjuste donde haga falta en el juego. Si debe sobrevivir a "Borrar todo el progreso", añádelo a keep en doReset().
      5. Los estilos (.row, .opt, .note...) están en head.html. Los textos del panel no se dicen con say(), se pueden cambiar. */
 function openAdult(){
+  adultWas=S.age+'|'+!!S.unlockAll;// para saber al cerrar si cambiaron la edad o el modo libre (closeAdult)
   lockDown=false;lockHold=0;try{speechSynthesis.cancel()}catch(e){}
   const el=document.getElementById('adult');el.hidden=false;
 // tmOf(listaDeTemas): HTML con una tarjeta por tema: nombre, juegos hechos/total, barra de progreso y si está completo.
@@ -7186,8 +7196,12 @@ function openAdult(){
   q('#a-reset').onclick=()=>{q('#a-confirm').hidden=false};q('#a-no').onclick=()=>{q('#a-confirm').hidden=true};
   q('#a-yes').onclick=()=>{closeAdult();doReset()};
 }
-// closeAdult(): cierra el panel y pone a cero el tiempo de la sesión (también el guardado en S.ses); si Tito estaba dormido (límite de tiempo), vuelve al mapa.
-function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;S.ses=null;save();if(sceneName==='dormir')go('map',{hello:true})}
+// adultWas: edad y modo libre al abrir el panel. closeAdult(): cierra el panel y pone a cero el tiempo de la sesión (también el guardado en S.ses); si Tito estaba dormido (límite de tiempo), vuelve al mapa; si cambió la edad o el modo libre, vuelve a abrir la escena 3D actual (B3 del informe de pruebas jugadas).
+let adultWas='';
+function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;S.ses=null;save();if(sceneName==='dormir'){go('map',{hello:true});return}
+  // Si cambió la edad o el modo libre, el mapa, el camino o la casita se vuelven a abrir para que candados y colores
+  // cuadren con lo que se puede jugar. El cofre no (cuenta y premia al entrar) y las demás escenas no muestran candados.
+  if(adultWas!==S.age+'|'+!!S.unlockAll&&scene&&scene.three&&!['cofre','title'].includes(sceneName))go(sceneName,Object.assign({},sceneArg,{hello:false,from:null,fin:false}))}
 // Botón "Volver al juego".
 document.getElementById('a-close').onclick=()=>closeAdult();
 
@@ -7223,7 +7237,7 @@ const dlgOpen=()=>!document.getElementById('adult').hidden||!document.getElement
 cv.addEventListener('pointerdown',e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}initAudio();idle=0;hintSaid=false;
   const [x,y]=toLogical(e);MX=x;MY=y;mouseOn=e.pointerType==='mouse';
   if(isPortrait()&&!portraitOk){portraitOk=true;return}
-  if(x>1490&&y>800&&sceneName!=='title'){lockDown=true;lockHold=0;return}
+  if(dist(x,y,1546,852)<50&&sceneName!=='title'){lockDown=true;lockHold=0;return}// solo el candado dibujado (drawLock): antes, un rectángulo más grande tapaba el centro del botón de saltar el cuento
   if(fade>.6||!scene)return;
   try{scene.down&&scene.down(x,y)}catch(err){console.error(err)}});
 // Mover: actualiza MX/MY y llama a scene.move(x,y) (arrastrar). Con ratón, moverse cuenta como "algo de actividad".
