@@ -28,7 +28,7 @@ Cada vez que una mejora **añade una frase nueva** o **cambia el texto de una qu
 2. Si la frase lleva números que cambian, ponlos en una oración aparte y apunta las **piezas** nuevas (ver [docs/VOCES.md](../docs/VOCES.md)).
 3. Ejecuta `python3 herramientas/voces/dialogos.py` para que `todos.csv` quede al día, y súbelo en el mismo commit.
 
-El gancho de git (`herramientas/git-hooks/pre-commit`) para el commit si cambias líneas de `src/` con `say(` y no tocas `pendientes.txt`, o si `todos.csv` no está al día.
+El gancho de git (`herramientas/git-hooks/pre-commit`) para el commit si el texto de alguna llamada a `say()` de `src/` es nuevo o cambia (lo mira `herramientas/git-hooks/frases_diff.py`) y no tocas `pendientes.txt`, o si `todos.csv` no está al día.
 
 Mientras una frase no esté grabada, **la dice la voz del navegador**; si solo falta un trozo, el resto suena con la voz grabada. Cambiar el texto de una frase grabada hace que deje de sonar su grabación hasta que se grabe la nueva.
 

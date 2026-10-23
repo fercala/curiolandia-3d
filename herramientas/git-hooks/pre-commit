@@ -3,8 +3,9 @@
 # Se activa una vez por copia del repo con:  git config core.hooksPath herramientas/git-hooks
 # 1. Si el commit cambia algún .js de src/, comprueba que todas las funciones tengan comentario (tests/comentarios.py).
 # 2. Si cambia src/ pero ningún documento (docs/, README.md, CLAUDE.md), para el commit para que no se olvide.
-# 3. Si añade o cambia líneas de código de src/ con say(), say3(), sayMix() o sayMix3() y no toca dialogos/pendientes.txt,
-#    para el commit: cada diálogo nuevo o cambiado se apunta para grabarlo.
+# 3. Si el texto de alguna llamada a say(), say3(), sayMix() o sayMix3() de src/ es nuevo o cambia (frases_diff.py) y no
+#    toca dialogos/pendientes.txt, para el commit: cada diálogo nuevo o cambiado se apunta para grabarlo. Cambiar otra
+#    cosa de una línea que habla, sin tocar la frase, no lo para.
 # 4. Si el commit toca dialogos/ o voz*/manifest.json, comprueba que dialogos/todos.csv esté al día (dialogos.py).
 # Para saltárselo en un caso justificado (por ejemplo, la frase ya estaba grabada): git commit --no-verify, y explícalo
 # en el mensaje del commit.
@@ -18,11 +19,13 @@ python3 tests/comentarios.py || {
 echo "$cambios" | grep -q -e '^docs/' -e '^README.md$' -e '^CLAUDE.md$' || {
   echo "Cambias src/ pero ningún documento. Actualiza docs/ (como mínimo docs/CAMBIOS.md)." >&2
   echo "Si de verdad no hace falta, usa git commit --no-verify y explícalo en el mensaje." >&2; exit 1; }
-# líneas de código (no comentarios) añadidas o quitadas que hablan
-habla=$(git diff --cached -U0 -- 'src/*.js' | grep -E '^[+-][^+-]' | grep -vE '^[+-][[:space:]]*(//|/\*|\*)' | grep -E 'say3?\(|sayMix3?\(')
+# frases de say() nuevas o cambiadas en las líneas de código del commit (no basta con tocar una línea que habla)
+habla=$(python3 herramientas/git-hooks/frases_diff.py)
 if [ -n "$habla" ] && ! echo "$cambios" | grep -q '^dialogos/pendientes.txt$'; then
-  echo "Cambias líneas con say() pero no dialogos/pendientes.txt. Apunta los diálogos nuevos o cambiados (dialogos/LEEME.md)" >&2
-  echo "y ejecuta python3 herramientas/voces/dialogos.py. Si ninguna frase cambia, usa git commit --no-verify y explícalo." >&2
+  echo "Estas frases de say() son nuevas o cambian, pero no tocas dialogos/pendientes.txt:" >&2
+  echo "$habla" | sed 's/^/  /' >&2
+  echo "Apúntalas (dialogos/LEEME.md) y ejecuta python3 herramientas/voces/dialogos.py." >&2
+  echo "Si ya están grabadas o apuntadas, usa git commit --no-verify y explícalo." >&2
   exit 1
 fi
 exit 0
