@@ -13,7 +13,7 @@ Al comentar todo el código (octubre de 2026) se apuntaron estos fallos y rareza
 ## Límites que conviene saber
 
 - Cada camino de edad admite 12 casitas (`zonePos()` en zonas.js) y cada casita unos 8 juegos (`st3Pos()` en world3d.js).
-- La tienda muestra como mucho 10 artículos por categoría; `placeHome` solo coloca bien 2 objetos de pared.
+- La casa de Tito tiene 12 huecos de suelo y 4 de pared por habitación (`HOMESPOT`, `WALLSPOT`): a partir de ahí las cosas nuevas se colocan al azar y pueden quedar unas encima de otras (se pueden mover arrastrándolas).
 - Varios números están escritos a mano en frases grabadas ("tres casitas", "seis flores"): si se cambia `NEED` o la regla de 6 flores, las frases dejan de cuadrar.
 - Las oraciones con números solo suenan grabadas si están grabadas todas sus piezas (ver VOCES.md); los números de más de 999 siempre los dice la voz del navegador.
 - `tx()` convierte "a vos" en "a tú" (debería ser "a ti"): "¡Ahora te toca a tú!" ya está grabado así en tres frases de las canciones, y hay una más pendiente. Arreglarlo cambia el texto de frases grabadas: habría que regrabarlas.

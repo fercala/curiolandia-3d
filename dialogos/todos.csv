@@ -183,6 +183,7 @@ fae83c8adfe8,"Antes de arrancar, todos se pusieron el cinturón de seguridad. ¡
 343e2d82c374,Arma el rompecabezas. Arrastra cada pieza a su lugar.,grabada,sí,frase,"3A-T2#2, 4A-T2#3, 5A-T2#3",343e2d82c374.mp3
 edb2fcee1b5d,Arrastra las cosas para acomodar la casa. Abajo está mi ropa: tócala para ponérmela.,pendiente,no,frase,código tienda.js:236,
 dcf1a26b9eb1,Arrastra una pieza al cuadro.,grabada,sí,frase,"3A-T2#2, 4A-T2#3, 5A-T2#3",dcf1a26b9eb1.mp3
+df8d92ac1f5f,Arriba puedes elegir a qué habitación ir.,pendiente,no,frase,,
 d2a29a611c6d,Así cambia el árbol durante el año. Empezamos en otoño. Ordena lo que viene después.,grabada,sí,frase,5A-T3#1,d2a29a611c6d.mp3
 f268095a0033,Así crecen los seres vivos.,pendiente,no,frase,5A-T10#1,
 90b84e7cbbb3,Ayer fue domingo. ¿Qué día es hoy?,pendiente,no,frase,escena asamblea,
@@ -223,6 +224,8 @@ b8fd5e2c6824,Busca la hormiga.,grabada,sí,frase,4A-T12#1,b8fd5e2c6824.mp3
 8ae670da97eb,Cada emoción tiene su color. Lleva cada carita a su frasco.,grabada,sí,frase,4A-T4#3,8ae670da97eb.mp3
 3f7a8122f920,Cada forma va con su forma. Arrástralas.,grabada,sí,frase,4A-C#1,3f7a8122f920.mp3
 f814a57b27df,Cantemos los días de la semana.,pendiente,no,frase,"código scenes.js:507, escena asamblea",
+0efb2b163349,casitas,pendiente,no,pieza,,
+5ed79f78816d,casitas más,pendiente,no,pieza,,
 177c28a6b33f,"Cerca de ahí, en la huerta de la abuela Rosa, también había frutos de otoño: uvas, granadas ¡y una calabaza gigante!",grabada,sí,frase,4A-T3#4,177c28a6b33f.mp3
 736e78e2bef3,Cerdo.,grabada,sí,frase,EN-ANIMALS#0,736e78e2bef3.mp3
 a5d1a2c25542,ciento,pendiente,no,numero,,
@@ -376,6 +379,9 @@ e0504671abf4,El barco navega sobre las olas. Sigue el camino que sube y baja.,gr
 637d0850f2da,El barco. Navega por el agua.,grabada,sí,frase,3A-T11#0,637d0850f2da.mp3
 c27b341d80e8,El bañador.,grabada,sí,frase,,c27b341d80e8.mp3
 e490ad23fc65,"El bañador, para la playa.",grabada,sí,frase,5A-T12#3,e490ad23fc65.mp3
+6bdb0188065b,El baño.,regrabar,no,frase,,
+50627447a8e6,El baño todavía está cerrado.,pendiente,no,frase,,
+a21cc89dfeac,El baúl de los juguetes es para el dormitorio.,pendiente,no,frase,,
 48815c664748,El bebé.,pendiente,no,frase,3A-T5#3,
 d54e4e0bd98b,El bebé. Es pequeñito y toma leche.,pendiente,no,frase,3A-T5#0,
 ff6ca7fd3a5d,El Bosque de los 4 años todavía está dormido.,pendiente,no,frase,escena map,
@@ -410,6 +416,7 @@ b0e411aefa34,El caparazón verde se abre cuando tengas 8 estrellas.,pendiente,no
 bd8833aa0756,El cartero. Lleva las cartas a las casas.,grabada,sí,frase,4A-T7#0,bd8833aa0756.mp3
 6b7c8280b708,El casco. Lo usamos para andar en bici.,grabada,sí,frase,5A-T12#0,6b7c8280b708.mp3
 d4d67aaafb15,El castillo de arena.,grabada,sí,frase,3A-T12#0,d4d67aaafb15.mp3
+c9d02e1aff4f,El castillo de arena es para el jardín.,pendiente,no,frase,,
 5f24b2a6f8ef,El cepillo de dientes.,grabada,sí,frase,3A-T8#3,5f24b2a6f8ef.mp3
 61b30a556dfe,El cepillo de dientes va en el baño.,grabada,sí,frase,,61b30a556dfe.mp3
 d69cf1640420,El cepillo de dientes. ¡A lavarse los dientes!,grabada,sí,frase,3A-T8#0,d69cf1640420.mp3
@@ -431,9 +438,11 @@ f09b5da3d646,El coche no hace falta para vivir.,pendiente,no,frase,5A-T10#3,
 aed745530fb3,El cocodrilo.,grabada,sí,frase,"4A-T9#0, 4A-T9#1, 5A-T8#0",aed745530fb3.mp3
 3c0fa8a8520c,El cocodrilo. Vive en el río.,grabada,sí,frase,4A-T9#0,3c0fa8a8520c.mp3
 173181299b75,El cocodrilo. Vive en los ríos de la selva.,grabada,sí,frase,5A-T8#0,173181299b75.mp3
+d972b650cdfc,El cohete es para la torre de las estrellas.,pendiente,no,frase,,
 643083790f97,El cohete. Lleva a los astronautas al espacio.,grabada,sí,frase,5A-T6#0,643083790f97.mp3
 969e43db941b,El cole,grabada,sí,frase,"4A-T8#0, 4A-T8#3",969e43db941b.mp3
 664ad5fb5915,El cole. Ahí aprendemos y jugamos.,grabada,sí,frase,4A-T8#0,664ad5fb5915.mp3
+be4217ed25ce,El columpio es para el jardín.,pendiente,no,frase,,
 bb71e2f7684e,El conejo.,pendiente,no,frase,"4A-T9#1, 5A-T8#2",
 43e0ba0bce93,"El conejo hace ¡Snif, snif!",pendiente,no,frase,4A-T9#2,
 9d7cc6174a31,"El conejo salta las montañas. Sube y baja, en zigzag.",grabada,sí,frase,X-TRZ#5,9d7cc6174a31.mp3
@@ -444,10 +453,13 @@ df0ca27db30d,"El corazón. Late, pum pum, y lleva la sangre por todo el cuerpo."
 8d2fad5759b4,El cuadrado.,grabada,sí,frase,"3A-C#3, 4A-C#1",8d2fad5759b4.mp3
 bbb1287117fa,El cuadro.,pendiente,no,frase,tienda cuadro,
 f554470f8135,El cuadro ya es tuyo. Está en la casa de Tito.,pendiente,no,frase,tienda cuadro,
+c0651accc69c,El cuarto de juegos.,regrabar,no,frase,,
+a5f3410b75ba,El cuarto de juegos todavía está cerrado.,pendiente,no,frase,,
 c167c6615fb0,El cubo.,regrabar,no,frase,"3A-T12#0, 5A-T12#3",c167c6615fb0.mp3
 7ca36e57f35d,"El cubo, para la playa.",grabada,sí,frase,5A-T12#3,7ca36e57f35d.mp3
 dfee2e67815a,El cubo. Para llevar arena y agua.,grabada,sí,frase,3A-T12#0,dfee2e67815a.mp3
 f8e786e5b239,El cuento.,grabada,sí,frase,3A-T1#3,f8e786e5b239.mp3
+9f72d570e4d7,El cuento es para el dormitorio.,pendiente,no,frase,,
 bc4848141459,El cuento va al cole.,pendiente,no,frase,4A-T8#2,
 cdd695153709,El cuento. La profe nos lee cuentos.,grabada,sí,frase,3A-T1#0,cdd695153709.mp3
 a966645147bb,El cumpleaños. Empieza por el primero.,pendiente,no,frase,escena casita,
@@ -462,6 +474,9 @@ d300a0b2224a,El domingo.,grabada,sí,frase,"4A-T1#0, 4A-T1#1, 4A-T1#3",d300a0b22
 a5455cfd4213,El domingo es fin de semana.,grabada,sí,frase,"4A-T1#3, 4A-T1#5",a5455cfd4213.mp3
 3cc27ab5e332,El domingo. Descansamos y estamos en familia.,grabada,sí,frase,4A-T1#0,3cc27ab5e332.mp3
 0026d73e3436,El domingo. Ese va después. ¿Cuál sigue?,grabada,sí,frase,,0026d73e3436.mp3
+05631826e240,El dormitorio.,regrabar,no,frase,,
+9ac6b0a4f07f,El dormitorio se abre cuando termines una casita.,pendiente,no,frase,,
+d1ce34ca7c21,El dormitorio todavía está cerrado.,pendiente,no,frase,,
 32956a01e48c,El Día del Libro. Empieza por el primero.,pendiente,no,frase,escena casita,
 22f5e2a33271,El elefante.,pendiente,no,frase,4A-T9#1,
 53520ab37302,El elefante es gris.,pendiente,no,frase,4A-C#0,
@@ -490,6 +505,8 @@ f71a64b9e544,El gato. Le gusta dormir al sol.,grabada,sí,frase,4A-T9#0,f71a64b9
 1be5636ef847,El gato. ¡Miau!,grabada,sí,frase,3A-T9#0,1be5636ef847.mp3
 7f215aad3932,El globo aerostático.,grabada,sí,frase,"4A-T11#0, 4A-T11#1, escena map",7f215aad3932.mp3
 ba9f293c88bf,El globo aerostático. Vuela con aire caliente.,grabada,sí,frase,"4A-T11#0, escena map",ba9f293c88bf.mp3
+0309d4d4d51c,El globo es para el cuarto de juegos.,pendiente,no,frase,,
+52249e27d0b1,El globo terráqueo es para la torre de las estrellas.,pendiente,no,frase,,
 390c4b692d58,El gorrito de fiesta.,pendiente,no,frase,"escena cofre, tienda gorroFiesta",
 6cc61ab31bfc,El gorro.,grabada,sí,frase,"3A-T4#2, 3A-T6#0, 3A-T6#1",6cc61ab31bfc.mp3
 2613a01a54bc,El gorro de Navidad,grabada,sí,frase,"F-navidad#1, tienda gorroNavidad",2613a01a54bc.mp3
@@ -525,6 +542,9 @@ cfc305edf2b7,El inodoro. Para hacer pis y caca.,grabada,sí,frase,3A-T8#0,cfc305
 8a48a07dbd43,el invierno,grabada,sí,pieza,X-CAN#1,8a48a07dbd43.mp3
 c9cbb81804f4,El invierno y el polo. Empieza por el primero: ¡vamos a conocer!,pendiente,no,frase,escena casita,
 7df9cfbcbdde,El invierno y la ropa. Empieza por el primero: ¡vamos a conocer!,pendiente,no,frase,escena casita,
+6c4f02f1ca69,El jabón es para el baño.,pendiente,no,frase,,
+188e0c6c4672,El jardín.,regrabar,no,frase,,
+8e28ae1b94cc,El jardín todavía está cerrado.,pendiente,no,frase,,
 6bef7d93b085,El jueves.,pendiente,no,frase,"4A-T1#1, 4A-T1#3",
 83c0d3073265,El jueves vamos al cole.,grabada,sí,frase,4A-T1#3,83c0d3073265.mp3
 e5ce46c17c31,"El jueves, una niebla espesa tapó todo. ¡Lucas no se veía ni la punta de la nariz!",grabada,sí,frase,5A-T9#4,e5ce46c17c31.mp3
@@ -596,6 +616,7 @@ f7f7d5e1290e,El parque.,pendiente,no,frase,4A-T8#3,
 a7f642d293d5,El paso de cebra.,pendiente,no,frase,4A-T8#3,
 2a7b7ec5fa54,"El paso de cebra. Cruzamos por aquí, de la mano de un adulto.",grabada,sí,frase,5A-T12#0,2a7b7ec5fa54.mp3
 38710886804e,El paso de cebra. Por aquí cruzamos la calle.,grabada,sí,frase,4A-T8#0,38710886804e.mp3
+2706bae98b91,El patito de goma es para el baño.,pendiente,no,frase,,
 248dcbb11275,El pato.,regrabar,sí,frase,3A-T9#2,248dcbb11275.mp3
 8fe01a4db8fd,El pato es amarillo.,grabada,sí,frase,"3A-T10#3, 3A-T3#2",8fe01a4db8fd.mp3
 e98fb28f312b,El pato nace de un huevo.,grabada,sí,frase,5A-T8#2,e98fb28f312b.mp3
@@ -663,6 +684,7 @@ a1e9511fac48,El robot.,grabada,sí,frase,"X-RUT#4, tienda robot",a1e9511fac48.mp
 c39980704dcf,El robot ya es tuyo. Está en la casa de Tito.,pendiente,no,frase,tienda robot,
 0df15f3fa7b8,el rojo,grabada,sí,pieza,X-CAN#2,0df15f3fa7b8.mp3
 9ca5b8885779,el rosa,grabada,sí,pieza,X-CAN#2,9ca5b8885779.mp3
+ea5146841d9f,El salón.,regrabar,no,frase,,
 8201b75206d6,El seis de enero llegaron los Reyes Magos. Ana había dejado sus zapatos y agua para los camellos. ¡Le trajeron una corona!,grabada,sí,frase,5A-T5#4,8201b75206d6.mp3
 3982699d0247,El semáforo.,pendiente,no,frase,4A-T8#3,
 62ec7af0ea3f,El semáforo. Rojo para frenar y verde para pasar.,grabada,sí,frase,4A-T8#0,62ec7af0ea3f.mp3
@@ -688,6 +710,7 @@ a92293d301e0,El sábado es fin de semana.,grabada,sí,frase,4A-T1#3,a92293d301e0
 04e865df5dd1,El sábado fue a la piscina con papá. ¡Hugo nadó como un pececito... con manguitos!,grabada,sí,frase,4A-T1#5,04e865df5dd1.mp3
 a8e039f8294b,El sábado. ¡Es fin de semana! No hay escuela.,grabada,sí,frase,4A-T1#0,a8e039f8294b.mp3
 accea86b8969,El tallo.,pendiente,no,frase,4A-T10#1,
+978a2c6a8c15,El tambor es para el cuarto de juegos.,pendiente,no,frase,,
 c385d1312dba,El telescopio.,pendiente,no,frase,tienda telescopio,
 22efff30a730,El telescopio se abre cuando tengas 20 estrellas.,pendiente,no,frase,tienda telescopio,
 40828831fee0,El telescopio ya es tuyo. Está en la casa de Tito.,pendiente,no,frase,tienda telescopio,
@@ -700,6 +723,7 @@ aea04a9fd19f,El tiempo y el clima. Empieza por el primero: ¡vamos a conocer!,pe
 1209c7b963eb,"El tiranosaurio, en cambio, comía carne: ¡era carnívoro! Tenía dientes enormes... y unos bracitos tan cortos que no se podía rascar la nariz.",grabada,sí,frase,5A-T7#4,1209c7b963eb.mp3
 9d45f986e51c,El tiranosaurio. Tenía dientes enormes y comía carne.,grabada,sí,frase,5A-T7#0,9d45f986e51c.mp3
 59a400bd4bf9,El tobogán,grabada,sí,frase,"3A-T1#0, 3A-T1#1, escena repaso",59a400bd4bf9.mp3
+4bef03f6e3e1,El tobogán es para el cuarto de juegos.,pendiente,no,frase,,
 a64f3bb20351,El tobogán. ¡Me tiro por el tobogán! ¡Uiii!,grabada,sí,frase,3A-T1#0,a64f3bb20351.mp3
 4f861df31fb9,El tomate.,grabada,sí,frase,"3A-T3#2, 4A-T5#0",4f861df31fb9.mp3
 1f3ebcd40404,El tomate es rojo.,grabada,sí,frase,3A-T3#2,1f3ebcd40404.mp3
@@ -743,6 +767,7 @@ f165fdf7e84f,El zumo de naranja. ¡Mmm!,grabada,sí,frase,3A-T7#0,f165fdf7e84f.m
 4ee3c0959612,El árbol.,grabada,sí,frase,"5A-T10#2, escena bosque, escena map",4ee3c0959612.mp3
 bc9427ca4648,El árbol de Navidad,grabada,sí,frase,"5A-T5#0, 5A-T5#2, F-navidad#1",bc9427ca4648.mp3
 eed3083bbb27,El árbol de Navidad. En diciembre lo decoramos con luces.,grabada,sí,frase,5A-T5#0,eed3083bbb27.mp3
+a8896ca67aa9,El árbol es para el jardín.,pendiente,no,frase,,
 ca6bceb2a839,El árbol es un ser vivo.,grabada,sí,frase,5A-T10#2,ca6bceb2a839.mp3
 ac115a43a18b,Elefante.,grabada,sí,frase,,ac115a43a18b.mp3
 9281b9963a54,Empieza en el punto verde.,pendiente,no,frase,"X-TRZ#5, X-TRZ#6, código comps2.js:537",
@@ -1048,6 +1073,7 @@ fcc42166d918,La ardilla. Junta comida para el invierno.,grabada,sí,frase,"3A-T4
 6c6bd011db00,"La ballena. Vive en el mar, pero respira aire.",grabada,sí,frase,5A-T8#0,6c6bd011db00.mp3
 ea3bbb3769d8,La barriga.,grabada,sí,frase,3A-T2#0,ea3bbb3769d8.mp3
 419c83e28955,La bañera,grabada,sí,frase,"3A-T8#0, 3A-T8#2",419c83e28955.mp3
+1e098bfe6ebc,La bañera es para el baño.,pendiente,no,frase,,
 1dded55b9750,La bañera. Para bañarnos con burbujas.,grabada,sí,frase,3A-T8#0,1dded55b9750.mp3
 af91e801b1d5,La bellota,grabada,sí,frase,4A-T3#0,af91e801b1d5.mp3
 881c2c06f582,La bellota. Es el fruto del roble. ¡A las ardillas les encanta!,grabada,sí,frase,4A-T3#0,881c2c06f582.mp3
@@ -1086,6 +1112,7 @@ a80f5d731cbe,La caja de cartón va en el contenedor azul.,grabada,sí,frase,5A-T
 b16bc6b900fb,La calabaza,pendiente,no,frase,4A-T3#3,
 1513ccf5a2d5,La calabaza. Es grande y naranja.,grabada,sí,frase,"4A-T3#0, escena bosque",1513ccf5a2d5.mp3
 01a6ddbda4d6,La calle y la ciudad. Empieza por el primero: ¡vamos a conocer!,pendiente,no,frase,escena casita,
+ba23814937c5,La cama es para el dormitorio.,pendiente,no,frase,,
 cfe2fad60e64,La cama. Aquí dormimos.,grabada,sí,frase,3A-T8#0,cfe2fad60e64.mp3
 82589025508a,La camiseta.,grabada,sí,frase,"3A-T12#1, 5A-T3#3",82589025508a.mp3
 640263386493,La camiseta no va con este tiempo.,pendiente,no,frase,escena asamblea,
@@ -1104,6 +1131,8 @@ cf34c54a3369,La carne viene de un animal.,grabada,sí,frase,,cf34c54a3369.mp3
 a9780a07ab0c,La castaña. Es un fruto del otoño.,grabada,sí,frase,"3A-T4#0, 5A-T3#0",a9780a07ab0c.mp3
 4dca9caaf71f,La castaña. Se come asada en otoño.,grabada,sí,frase,4A-T3#0,4dca9caaf71f.mp3
 dc8b3281cf4f,La cebra. Tiene rayas blancas y negras.,grabada,sí,frase,4A-T9#0,dc8b3281cf4f.mp3
+f8c3d573f567,La cocina.,regrabar,no,frase,,
+15e0fafec487,La cocina todavía está cerrada.,pendiente,no,frase,,
 697e0f3aa69a,La cocinera.,grabada,sí,frase,4A-T7#0,697e0f3aa69a.mp3
 71646dbd8574,La cocinera usa la sartén.,grabada,sí,frase,,71646dbd8574.mp3
 6fa9549fdeb6,La cocinera. Prepara comidas ricas.,grabada,sí,frase,4A-T7#0,6fa9549fdeb6.mp3
@@ -1123,6 +1152,7 @@ eb6e4b692516,La estantería se abre cuando tengas 8 estrellas.,pendiente,no,fras
 11950b11eb47,La estrella de mar vive en el mar.,pendiente,no,frase,5A-T8#1,
 46ee3d9001e3,La familia de Juan es pequeñita: Juan y su papá. ¡Y juntos juegan a la pelota todas las tardes!,grabada,sí,frase,3A-T5#4,46ee3d9001e3.mp3
 88d7748d9f92,"La familia de Sofi es grande: mamá, papá, la abuela, Sofi... ¡y un bebé que llora muy fuerte! Buaaa.",grabada,sí,frase,3A-T5#4,88d7748d9f92.mp3
+1501079874ce,La flor es para el jardín.,pendiente,no,frase,,
 8c89c94a4254,La flor es rosa.,pendiente,no,frase,4A-C#0,
 aae978e1bcbe,La flor es un ser vivo.,pendiente,no,frase,5A-T10#2,
 a81f3adb4dc6,La flor. En primavera salen muchas flores.,grabada,sí,frase,3A-T10#0,a81f3adb4dc6.mp3
@@ -1200,6 +1230,7 @@ c92e63b80168,La mariquita es roja.,pendiente,no,frase,3A-T10#3,
 3406a45ab993,La mariquita. Es roja con puntitos.,grabada,sí,frase,3A-T10#0,3406a45ab993.mp3
 523e87669c2a,La mariquita. Tiene puntitos negros.,grabada,sí,frase,4A-T12#0,523e87669c2a.mp3
 ae62b0774bf1,La mesa,grabada,sí,frase,"3A-T1#3, 3A-T8#3",ae62b0774bf1.mp3
+69ff3e33a8e4,La mesa es para la cocina.,pendiente,no,frase,,
 f031654a0314,La mesa. Aquí comemos.,grabada,sí,frase,3A-T8#0,f031654a0314.mp3
 441d8638cb44,La mesa. En la mesa pintamos y comemos.,grabada,sí,frase,3A-T1#0,441d8638cb44.mp3
 22704993df00,La miel.,regrabar,sí,frase,5A-T4#4,22704993df00.mp3
@@ -1225,6 +1256,7 @@ f4ac3fef8805,La nariz.,grabada,sí,frase,"3A-T2#0, 3A-T2#3, 4A-T2#0",f4ac3fef880
 1cdb36989a15,La nariz. Con la nariz olemos las flores y la comida.,grabada,sí,frase,4A-T2#0,1cdb36989a15.mp3
 b1e935db8756,La Navidad. Empieza por el primero.,pendiente,no,frase,escena casita,
 f0392ed8ae2d,La nevera.,grabada,sí,frase,"3A-T8#0, 3A-T8#2",f0392ed8ae2d.mp3
+22ca7a39079a,La nevera es para la cocina.,pendiente,no,frase,,
 6c10b8fcfd26,La nevera va en la cocina.,grabada,sí,frase,3A-T8#1,6c10b8fcfd26.mp3
 46e59e9446c1,La nevera. Guarda la comida fresquita.,grabada,sí,frase,3A-T8#0,46e59e9446c1.mp3
 ab34eeffd26b,La nieve. En invierno hace mucho frío y a veces nieva.,grabada,sí,frase,3A-T6#0,ab34eeffd26b.mp3
@@ -1234,6 +1266,7 @@ f012cda3281b,La noche,grabada,sí,frase,4A-C#5,f012cda3281b.mp3
 81381424ba7d,La nuez,pendiente,no,frase,4A-T3#3,
 b9b0c8c762d9,La nuez. Tiene una cáscara muy dura.,grabada,sí,frase,4A-T3#0,b9b0c8c762d9.mp3
 0274792dd5c1,La olla.,grabada,sí,frase,3A-T8#0,0274792dd5c1.mp3
+a98de3c761ea,La olla es para la cocina.,pendiente,no,frase,,
 7cfe165d6014,La olla va en la cocina.,grabada,sí,frase,3A-T8#1,7cfe165d6014.mp3
 747f56737f73,La olla. Para cocinar.,grabada,sí,frase,3A-T8#0,747f56737f73.mp3
 25b86523a611,La oreja.,pendiente,no,frase,3A-T2#3,
@@ -1266,6 +1299,8 @@ b68c6c8bde45,La piedra no está vivo.,pendiente,no,frase,5A-T10#2,
 d977a8745db9,La piel del plátano.,grabada,sí,frase,5A-T11#1,d977a8745db9.mp3
 6f65ad9d985c,La piel del plátano va en el contenedor marrón.,grabada,sí,frase,5A-T11#1,6f65ad9d985c.mp3
 b7b157b8ee33,"La piel del plátano y el corazón de la manzana, al marrón. ¡Se convierten en abono para las plantas!",grabada,sí,frase,5A-T11#5,b7b157b8ee33.mp3
+24af5db000b6,La piscina es para el jardín.,pendiente,no,frase,,
+7bc9a7aa595b,La pizarra es para el cuarto de juegos.,pendiente,no,frase,,
 4621c44e115e,La piña. Es una fruta con corona.,grabada,sí,frase,4A-T5#0,4621c44e115e.mp3
 a2611da9ffa7,La planta.,grabada,sí,frase,"4A-T10#0, escena jardin, tienda plantaInterior",a2611da9ffa7.mp3
 3cb389109ccb,La planta con frutos. Los frutos guardan semillas.,grabada,sí,frase,5A-T10#0,3cb389109ccb.mp3
@@ -1281,6 +1316,7 @@ ba424fc34878,La profe,grabada,sí,frase,"3A-T1#0, 4A-T7#3, escena repaso",ba424f
 583f8568b461,La profe. Nos enseña y nos cuida.,grabada,sí,frase,3A-T1#0,583f8568b461.mp3
 9237831b12ac,La rana es verde.,grabada,sí,frase,"3A-T10#3, 3A-T3#2",9237831b12ac.mp3
 ff9224a54027,La raíz. Toma el agua de la tierra.,pendiente,no,frase,4A-T10#1,
+bf58fc6b8b10,La regadera es para el jardín.,pendiente,no,frase,,
 b17099dcaef5,La regadera. Las plantas necesitan agua.,grabada,sí,frase,"4A-T10#0, escena jardin",b17099dcaef5.mp3
 9b31760f029b,La rosa,grabada,sí,frase,5A-T5#3,9b31760f029b.mp3
 6c37743be6d0,La rosa. En Sant Jordi se regala una rosa y un libro.,grabada,sí,frase,5A-T5#0,6c37743be6d0.mp3
@@ -1296,9 +1332,11 @@ e88b9cc36be8,La semana tiene siete días. Toca cada vagón para conocerlo.,graba
 884ff5be38d4,La seta. Sale con la lluvia de otoño.,grabada,sí,frase,5A-T3#0,884ff5be38d4.mp3
 b0778ce65461,La señal de stop. Los coches tienen que parar.,grabada,sí,frase,5A-T12#0,b0778ce65461.mp3
 5ca717d0b37c,La silla,grabada,sí,frase,3A-T1#3,5ca717d0b37c.mp3
+332ed2fcab7a,La silla es para la cocina.,pendiente,no,frase,,
 c99f62529405,La silla no está vivo.,pendiente,no,frase,5A-T10#2,
 ecfb33471ae3,La silla. Me siento en la silla.,grabada,sí,frase,3A-T1#0,ecfb33471ae3.mp3
 a6a1b45e4718,La tarta de cumpleaños.,grabada,sí,frase,5A-T5#3,a6a1b45e4718.mp3
+b6c1832ed7ac,La tarta de cumpleaños es para la cocina.,pendiente,no,frase,,
 ebc3f7a8ec9b,La tarta. En el cumpleaños soplamos las velas.,grabada,sí,frase,5A-T5#0,ebc3f7a8ec9b.mp3
 38863b9e256d,La tele.,pendiente,no,frase,3A-T8#2,
 9693e3c064d2,La tele no hace falta para vivir.,pendiente,no,frase,5A-T10#3,
@@ -1306,8 +1344,11 @@ ebc3f7a8ec9b,La tarta. En el cumpleaños soplamos las velas.,grabada,sí,frase,5
 b1c4964ee9db,La tienda. Ahí compramos cosas.,grabada,sí,frase,4A-T8#0,b1c4964ee9db.mp3
 c8f86f186b65,La Tierra.,pendiente,no,frase,5A-T6#3,
 b87680c87f3d,La Tierra. Es nuestro planeta. Gira y gira alrededor del sol.,grabada,sí,frase,5A-T6#0,b87680c87f3d.mp3
+b8b71e8cfbd9,La toalla es para el baño.,pendiente,no,frase,,
 d9aef35f9a13,La toalla. Para secarnos.,grabada,sí,frase,3A-T12#0,d9aef35f9a13.mp3
 fa072b2647bf,"La tormenta. Hay rayos, truenos y mucha lluvia.",grabada,sí,frase,5A-T9#0,fa072b2647bf.mp3
+fd5a01643591,La torre de las estrellas.,regrabar,no,frase,,
+78201cc2faad,La torre de las estrellas todavía está cerrada.,pendiente,no,frase,,
 11d1260ad32f,La tortuga.,pendiente,no,frase,5A-T8#2,
 91ee37b5c411,La tortuga nace de un huevo.,grabada,sí,frase,5A-T8#2,91ee37b5c411.mp3
 890551dbe7e7,La tristeza,grabada,sí,frase,4A-T4#3,890551dbe7e7.mp3
@@ -1329,6 +1370,7 @@ de32a7149aa4,Las canciones se abren cuando termines una casita del camino.,pendi
 5f489f531bf3,Las chucherías,grabada,sí,frase,5A-T4#4,5f489f531bf3.mp3
 3d009b42e439,"Las chucherías. Son ricas, pero son para de vez en cuando.",grabada,sí,frase,5A-T4#0,3d009b42e439.mp3
 082b04b11f77,Las emociones. Empieza por el primero: ¡vamos a conocer!,pendiente,no,frase,escena casita,
+c4a5891f4a75,Las estrellas que brillan son para el dormitorio.,pendiente,no,frase,,
 79b2af7f9968,"Las estrellas. Están muy, muy lejos. ¡Por eso las vemos pequeñitas!",grabada,sí,frase,"5A-T6#0, escena fiestas",79b2af7f9968.mp3
 90569f70ecf0,Las fiestas del año. Empieza por el primero: ¡vamos a conocer!,pendiente,no,frase,escena casita,
 f7ae8256f188,Las flores se convirtieron en frutos: ¡sandías! Y dentro había un montón de semillas... ¡para plantar otra vez!,grabada,sí,frase,5A-T10#5,f7ae8256f188.mp3
@@ -1352,6 +1394,7 @@ db0e892bf814,"Las hojas. En otoño se ponen naranjas, rojas y marrones, ¡y se c
 11e0e6b6d411,Las orejas. Con las orejas oímos los sonidos.,grabada,sí,frase,4A-T2#0,11e0e6b6d411.mp3
 95aab29ec002,Las piernas.,grabada,sí,frase,3A-T2#0,95aab29ec002.mp3
 8984254949a7,Las pinturas,grabada,sí,frase,"3A-T1#0, escena repaso",8984254949a7.mp3
+2827c4746728,Las pinturas son para el cuarto de juegos.,pendiente,no,frase,,
 7b3a183a9a1f,Las pinturas. ¡Pintamos de colores!,grabada,sí,frase,3A-T1#0,7b3a183a9a1f.mp3
 36c1290613f2,Las plantas. Empieza por el primero: ¡vamos a conocer!,pendiente,no,frase,escena casita,
 d6880ec5b4f3,Las rodillas.,pendiente,no,frase,4A-T2#1,
@@ -1620,7 +1663,10 @@ cd853acb6ba0,Rosa.,grabada,sí,frase,"4A-C#0, EN-COLORS#0",cd853acb6ba0.mp3
 e45a140c3493,Rosa como el cerdito.,grabada,sí,frase,X-CAN#2,e45a140c3493.mp3
 f6ba40ab5613,Rutinas y hábitos. Las cosas que hacemos todos los días. Empieza por el primero.,pendiente,no,frase,escena casita,
 5db31cebae84,Sale en el bosque cuando llueve.,pendiente,no,frase,4A-T3#0,
+7fab70eb9131,Saturno es para la torre de las estrellas.,pendiente,no,frase,,
 b7b54534adf8,Saturno. Tiene unos anillos enormes.,grabada,sí,frase,"5A-T6#0, escena fiestas",b7b54534adf8.mp3
+034f3072d5ca,se abre cuando termines,pendiente,no,pieza,,
+4945f3ed89ce,Se abre cuando termines una casita más.,pendiente,no,frase,,
 07c22338caad,"Se comió el bosque de brócoli entero. Y aprendió: el kiwi y la sandía son frutas; el brócoli y la zanahoria, verduras.",grabada,sí,frase,4A-T5#4,07c22338caad.mp3
 28f72503cd5c,Se despierta cuando Tito tenga seis flores del bosque.,pendiente,no,frase,escena map,
 135d70fdd684,Se despierta cuando Tito tenga seis flores del jardín.,pendiente,no,frase,escena map,
@@ -1655,6 +1701,12 @@ e34013cb462c,Teníamos siete globos y se volaron tres. ¿Cuántos quedan?,pendie
 074f04e9a657,Teníamos tres globos y se volaron dos. ¿Cuántos quedan?,grabada,sí,frase,,074f04e9a657.mp3
 a02a4bc18a80,Teníamos tres globos y se volaron uno. ¿Cuántos quedan?,pendiente,no,frase,5A-C#3,
 e94285781b6f,"Teo sacó todo: el lápiz, las pinturas y el cuento. ¡Y lo dejó todo tirado por la mesa! ¡Qué lío!",grabada,sí,frase,3A-T1#4,e94285781b6f.mp3
+a18f918c5110,Tiene una habitación nueva: el baño.,pendiente,no,frase,,
+dd5e888fe1c5,Tiene una habitación nueva: el cuarto de juegos.,pendiente,no,frase,,
+38cf45ef1b6a,Tiene una habitación nueva: el dormitorio.,pendiente,no,frase,,
+e7ca8b650fd6,Tiene una habitación nueva: el jardín.,pendiente,no,frase,,
+c0ebe368e6af,Tiene una habitación nueva: la cocina.,pendiente,no,frase,,
+6a2a16c21ab9,Tiene una habitación nueva: la torre de las estrellas.,pendiente,no,frase,,
 79fa3bcc9dbe,Tienes,pendiente,no,frase,,
 f4fdd06308ec,Tito se quitó el gorrito de fiesta.,pendiente,no,frase,tienda gorroFiesta,
 38ea850172ec,Tito se quitó el gorro.,pendiente,no,frase,tienda gorro,
@@ -1819,7 +1871,14 @@ e96c9cdc9670,"Y en el árbol, un pájaro armaba su nido, cantando. ¡La primaver
 738954adb95d,Y Omar vive con su abuela y un gato. Todas las familias son distintas... ¡y en todas se quieren mucho!,grabada,sí,frase,3A-T5#4,738954adb95d.mp3
 f9f946dde343,Y papá lo abrazó fuerte.,pendiente,no,frase,4A-T4#4,
 40635d5d0d2c,"Ya de noche, pasaron por el bosque. Un búho de ojos enormes veía todo en la oscuridad, y un lobo le aullaba a la luna: ¡auuu!",grabada,sí,frase,5A-T8#4,40635d5d0d2c.mp3
+64d052ff263e,Ya está en el baño.,pendiente,no,frase,,
+bb0314a531ae,Ya está en el cuarto de juegos.,pendiente,no,frase,,
+79ac2f12f841,Ya está en el dormitorio.,pendiente,no,frase,,
+ade6436e39b5,Ya está en el jardín.,pendiente,no,frase,,
+bbd2ee2bcef1,Ya está en el salón.,pendiente,no,frase,,
 8934aacc62fa,Ya está en la casa de Tito.,pendiente,no,frase,código zonas.js:528,
+cfbc917e5508,Ya está en la cocina.,pendiente,no,frase,,
+7b8801fce912,Ya está en la torre de las estrellas.,pendiente,no,frase,,
 f4e1bf6315ce,Ya tienes,pendiente,no,frase,,
 2cfbbd5f6078,"Zoe se despertó y ahí estaban sus animales. Los salvajes viven en la selva y la sabana; ¡los domésticos, en casa con ella!",grabada,sí,frase,4A-T9#4,2cfbbd5f6078.mp3
 cd66dce86d70,¡A la piscina! A nadar con papá.,pendiente,no,frase,4A-T1#5,
@@ -2312,6 +2371,7 @@ a4a4f4635953,¡La olla! Pero la olla va en la cocina.,pendiente,no,frase,3A-T8#4
 ea884c25b2bc,¡Las manos tienen bichitos! Frota con el jabón hasta que no quede ninguno.,grabada,sí,frase,X-RUT#1,ea884c25b2bc.mp3
 287e47a389db,"¡Las uvas! Y también plátano, fresa y pera.",pendiente,no,frase,3A-T7#4,
 9c6920a1ec1c,¡Limpito!,grabada,sí,frase,"X-RUT#1, X-RUT#3",9c6920a1ec1c.mp3
+2672eb081791,¡Listo!,pendiente,no,frase,,
 5a1290b98ad9,¡Listo! ¡Quedó muy bien vestido!,grabada,sí,frase,"3A-T12#1, 3A-T4#2, 3A-T6#1",5a1290b98ad9.mp3
 1c336675427f,¡Lo encontraste!,grabada,sí,frase,"3A-C#2, 3A-T1#1, 3A-T1#4",1c336675427f.mp3
 321063d199a5,¡Lo encontraste! Doblamos a la derecha y llegamos al parque.,grabada,sí,frase,,321063d199a5.mp3
@@ -2396,6 +2456,7 @@ aa12664112eb,¡Me puse la bufanda violeta!,pendiente,no,frase,tienda bufanda:vio
 c4e251a6d8e3,¡Me puse la corona!,pendiente,no,frase,tienda corona,
 244b2583f8ea,¡Me puse la gorra!,pendiente,no,frase,tienda gorra,
 744a02b2be14,¡Me puse las gafas de sol!,pendiente,no,frase,tienda gafas,
+ddafd2574c06,¡Mi casa creció!,pendiente,no,frase,,
 9d79227beb5d,¡Miel! Con la boca sentimos los sabores.,pendiente,no,frase,4A-T2#4,
 7262b7c4efe2,¡Mira lo que había: el banco!,pendiente,no,frase,tienda banco,
 3587e5998ed3,¡Mira lo que había: el caparazón azul!,pendiente,no,frase,tienda caparazon:azul,

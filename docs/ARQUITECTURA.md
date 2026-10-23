@@ -118,7 +118,7 @@ Para cambiar de escena se llama a `go('nombre', {datos})`. `go` cancela los temp
 | `juego` | scenes.js | Ejecuta un juego (un componente de comps*.js) |
 | `cofre` | zonas.js (+3D) | Recompensa al terminar un tema |
 | `asamblea` | scenes.js + zonas.js | La rutina diaria (día, tiempo, emociones, cumpleaños) |
-| `tienda`, `casaTito` | tienda.js | Tienda y casa de Tito (2D) |
+| `tienda`, `casaTito` | tienda.js | Tienda (con páginas) y casa de Tito (2D) con siete habitaciones (`ROOMS`) que se abren con las casitas terminadas |
 | `album` | scenes.js | Álbum de pegatinas |
 | `repaso` | repaso.js | Repaso diario |
 | `dormir` | scenes.js | Fin del tiempo de juego |

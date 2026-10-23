@@ -1128,3 +1128,71 @@ Rojo.
 ¡Sí! Falta el viernes.
 ¿Con qué fruta se manchó Paula la cara?
 ¿Cuántas lunas hay? Toca el número.
+El salón.
+¡Listo!
+Ya está en el salón.
+El dormitorio.
+Ya está en el dormitorio.
+¡Mi casa creció!
+Tiene una habitación nueva: el dormitorio.
+Arriba puedes elegir a qué habitación ir.
+El dormitorio todavía está cerrado.
+Se abre cuando termines una casita más.
+El dormitorio se abre cuando termines una casita.
+La cocina.
+Ya está en la cocina.
+Tiene una habitación nueva: la cocina.
+La cocina todavía está cerrada.
+El baño.
+Ya está en el baño.
+Tiene una habitación nueva: el baño.
+El baño todavía está cerrado.
+El cuarto de juegos.
+Ya está en el cuarto de juegos.
+Tiene una habitación nueva: el cuarto de juegos.
+El cuarto de juegos todavía está cerrado.
+El jardín.
+Ya está en el jardín.
+Tiene una habitación nueva: el jardín.
+El jardín todavía está cerrado.
+La torre de las estrellas.
+Ya está en la torre de las estrellas.
+Tiene una habitación nueva: la torre de las estrellas.
+La torre de las estrellas todavía está cerrada.
+La cama es para el dormitorio.
+El baúl de los juguetes es para el dormitorio.
+El cuento es para el dormitorio.
+Las estrellas que brillan son para el dormitorio.
+La mesa es para la cocina.
+La silla es para la cocina.
+La nevera es para la cocina.
+La olla es para la cocina.
+La tarta de cumpleaños es para la cocina.
+La bañera es para el baño.
+La toalla es para el baño.
+El jabón es para el baño.
+El patito de goma es para el baño.
+El tambor es para el cuarto de juegos.
+La pizarra es para el cuarto de juegos.
+Las pinturas son para el cuarto de juegos.
+El globo es para el cuarto de juegos.
+El tobogán es para el cuarto de juegos.
+El árbol es para el jardín.
+La flor es para el jardín.
+La regadera es para el jardín.
+El columpio es para el jardín.
+El castillo de arena es para el jardín.
+La piscina es para el jardín.
+El globo terráqueo es para la torre de las estrellas.
+Saturno es para la torre de las estrellas.
+El cohete es para la torre de las estrellas.
+el salón
+el dormitorio
+la cocina
+el baño
+el cuarto de juegos
+el jardín
+la torre de las estrellas
+se abre cuando termines
+casitas más
+casitas

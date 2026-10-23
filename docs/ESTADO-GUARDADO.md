@@ -42,7 +42,8 @@
 | `coins`, `coinsTot` | números | Monedas actuales y ganadas en total. |
 | `gift` | fecha `'AAAA-MM-DD'` | Último regalo diario de monedas. |
 | `woke` | `{bosque: 1, montana: 1}` | Zonas ya "despertadas" (anunciadas). |
-| `home` | `{idArtículo: {x, y}}` | Dónde está cada objeto en la casa de Tito. |
+| `home` | `{idArtículo: {x, y, r}}` | Dónde está cada objeto en la casa de Tito. `r` (v1.590) es la habitación (`ROOMS` en tienda.js); sin `r`, el salón (partidas de antes). |
+| `rooms` | número o ausente | (v1.590) Cuántas habitaciones de la casa ya se vieron abiertas: si hay más abiertas, al entrar en la casa Tito anuncia la nueva. Ausente = 1. |
 | `tito` | `{shell, scarf, hat, glasses, bow, kind}` | Colores y ropa de Tito; `kind` = `'caracol'`, `'erizo'`, `'tortuga'` o `'conejo'`. |
 | `owned` | `{idArtículo: 1}` | Artículos que tiene. |
 | `vales`, `valesLog` | listas | Vales que ofrece la familia y vales comprados (`{id, txt, d, given}`). |

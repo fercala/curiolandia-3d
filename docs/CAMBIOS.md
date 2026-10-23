@@ -2,6 +2,14 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.590 (2026-10-23)
+- Para el niño:
+  - La casa de Tito tiene siete habitaciones: el salón, el dormitorio, la cocina, el baño, el cuarto de juegos, el jardín y la torre de las estrellas. Se abren al terminar 1, 3, 5, 8, 11 y 14 casitas. Cuando se abre una, Tito lo anuncia y la enseña. Arriba hay un botón por habitación; las cerradas llevan candado y dicen cuántas casitas faltan.
+  - Las cosas se llevan de una habitación a otra arrastrándolas hasta el botón de la habitación.
+  - 32 premios nuevos en la tienda: sofá, tele, cama, baúl, cuento, estrellas que brillan, mesa, silla, nevera, olla, tarta, bañera, toalla, jabón, patito de goma, tambor, pizarra, pinturas, globo, tobogán, árbol, flor, regadera, columpio, castillo de arena, piscina, globo terráqueo, Saturno, cohete, gato, pájaro y conejo. Lo de una habitación cerrada sale con candado y una casita con el número de casitas. Pestaña nueva «Cosas para el jardín», y flechas para pasar de página.
+- Para la familia: la zona de adultos explica las habitaciones (sección de monedas y premios).
+- Por dentro: `tienda.js`, `ROOMS`, `roomOf`, `roomOpen`, `roomsOpen`, `homeRoom`, `homeSpot`, `WALLSPOT`, `roomBg`, `roomBtns`; `placeHome` coloca en la habitación del artículo (`room`/`pref`); `homeItems(r)`; la tienda con `pages`/`arrows` y candado por habitación. Estado: `S.home[id].r` y `S.rooms` (compatibles: sin `r`, el salón). Las partidas de antes conservan sus cosas en el salón. Prueba nueva `tests/regresion/casa.js`. 68 frases nuevas en `dialogos/pendientes.txt`.
+
 ## Herramientas de voz (2026-10-23, sin versión nueva del juego)
 - `herramientas/voces/generar-voces.ps1`: Voicebox leía mal las frases con cifras («8 monedas», las piezas «0» a «100»). Ahora se le manda el texto con los números en letras (`Get-Letras`, `Get-Lectura`, con «un»/«una» según el nombre que sigue) y el WAV conserva el nombre del texto en cifras. Una marca `.letras` junto al WAV dice que se hizo así; los WAV con cifras sin marca se rehacen solos al volver a abrir el `.bat`. Probado con PowerShell 7 contra una API de Voicebox de mentira.
 
