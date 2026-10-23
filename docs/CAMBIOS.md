@@ -2,6 +2,9 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## Herramientas de voz (2026-10-23, sin versión nueva del juego)
+- `herramientas/voces/generar-voces.ps1`: Voicebox leía mal las frases con cifras («8 monedas», las piezas «0» a «100»). Ahora se le manda el texto con los números en letras (`Get-Letras`, `Get-Lectura`, con «un»/«una» según el nombre que sigue) y el WAV conserva el nombre del texto en cifras. Una marca `.letras` junto al WAV dice que se hizo así; los WAV con cifras sin marca se rehacen solos al volver a abrir el `.bat`. Probado con PowerShell 7 contra una API de Voicebox de mentira.
+
 ## v1.589 (2026-10-23)
 - Para la familia: en la zona de adultos (Idioma y voz) se puede elegir la voz del navegador entre las voces en español del aparato, con un botón «▶ Probar». Las más naturales llevan ★. Hay una guía, «Cómo conseguir voces más naturales», con los pasos para iPhone/iPad, Mac, Android y Windows; el aparato en el que se juega sale primero.
 - Para el niño: sin elegir nada, Tito usa la voz más natural que haya en el aparato (antes, la primera del país).

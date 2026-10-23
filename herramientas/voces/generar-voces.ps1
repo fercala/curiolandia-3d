@@ -68,6 +68,39 @@ Write-Host "Perfil: $($p.name)   Motor: $Motor $Tamano" -ForegroundColor Cyan
 
 $md5 = [Security.Cryptography.MD5]::Create()
 function Get-Nombre($txt) { (($md5.ComputeHash([Text.Encoding]::UTF8.GetBytes($txt)) | ForEach-Object { $_.ToString("x2") }) -join "").Substring(0, 12) + ".wav" }
+# Los modelos de voz leen mal las cifras ("22", "8 monedas"): se les manda el texto con los numeros en letras
+# (Get-Lectura). El nombre del WAV sigue saliendo del texto original, que es el que busca el juego.
+$UNI = @('cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve')
+$DEC = @('','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa')
+$CEN = @('','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos')
+# Get-Letras(n): un numero entero de 0 a 999999 en letras ("uno", "veintidós", "ciento cinco", "dos mil").
+function Get-Letras([int]$n) {
+  if ($n -lt 30) { return $UNI[$n] }
+  if ($n -lt 100) { $u = $n % 10; if ($u -eq 0) { return $DEC[[math]::Floor($n / 10)] } return $DEC[[math]::Floor($n / 10)] + ' y ' + $UNI[$u] }
+  if ($n -eq 100) { return 'cien' }
+  if ($n -lt 1000) { $r = $n % 100; $c = $CEN[[math]::Floor($n / 100)]; if ($r -eq 0) { return $c } return $c + ' ' + (Get-Letras $r) }
+  $m = [math]::Floor($n / 1000); $r = $n % 1000
+  $t = if ($m -eq 1) { 'mil' } else { ((Get-Letras $m) -replace 'uno$', 'ún' -replace 'veintiún$', 'veintiún' -replace ' y ún$', ' y un') + ' mil' }
+  if ($r -eq 0) { return $t } return $t + ' ' + (Get-Letras $r)
+}
+# Get-Lectura(frase): la frase con cada numero en letras. Delante de un nombre, "uno" concuerda: "una" si el nombre es
+# femenino (monedas, estrellas, pegatinas, flores...) y "un" si es masculino (años, temas...). Solo, queda "uno" ("21").
+$MASC = @('día','días','mapa','mapas','planeta','planetas','problema','problemas','tema','temas')
+function Get-Lectura([string]$f) {
+  return [regex]::Replace($f, '\d+(?=(\s+(\p{L}+))?)', [Text.RegularExpressions.MatchEvaluator]{
+    param($m)
+    $txt = Get-Letras ([int]$m.Value)
+    $sig = $m.Groups[2].Value.ToLower()
+    if ($sig -and $txt -match 'uno$') {
+      $fem = ($sig -match 'as?$' -and $MASC -notcontains $sig) -or $sig -match '^flor(es)?$'
+      if ($fem) { $txt = $txt -replace 'uno$', 'una' } else { $txt = $txt -replace 'veintiuno$', 'veintiún' -replace 'uno$', 'un' }
+    }
+    return $txt
+  })
+}
+# Test-Hecha(frase): ya hay WAV de esa frase. Si lleva cifras, ademas tiene que estar la marca .letras (se grabo con
+# los numeros en letras): los WAV con cifras grabados antes se vuelven a hacer.
+function Test-Hecha([string]$f) { $w = Join-Path $dir (Get-Nombre $f); (Test-Path $w) -and (($f -notmatch '\d') -or (Test-Path "$w.letras")) }
 if (-not $Archivo) {
   $listas = @(Get-ChildItem $PSScriptRoot -Filter "frases-*.txt" | Sort-Object Name)
   if ($listas.Count -eq 1) { $Archivo = $listas[0].Name }
@@ -93,15 +126,16 @@ if (-not (Test-Path $log)) { "archivo;segundos;duracion_audio;frase" | Out-File 
 
 $hechas = 0; $total = 0.0; $fallosSeguidos = 0
 for ($vuelta = 1; $vuelta -le 3; $vuelta++) {
-  $pendientes = @($frases | Where-Object { -not (Test-Path (Join-Path $dir (Get-Nombre $_))) })
+  $pendientes = @($frases | Where-Object { -not (Test-Hecha $_) })
   if ($pendientes.Count -eq 0) { break }
   if ($vuelta -gt 1) { Write-Host ("Otra vuelta para las {0} frases que fallaron" -f $pendientes.Count) -ForegroundColor Cyan }
   $i = $frases.Count - $pendientes.Count
   foreach ($f in $pendientes) {
     $i++
     $wav = Join-Path $dir (Get-Nombre $f)   # el nombre sale del texto: el juego lo encuentra igual
-    Write-Host ("[{0}/{1}] {2}" -f $i, $frases.Count, $f)
-    $body = @{ profile_id = [string]$p.id; text = [string]$f; language = $Idioma; engine = $Motor }
+    $leer = Get-Lectura $f   # lo que se le manda a la voz: los numeros en letras
+    Write-Host ("[{0}/{1}] {2}" -f $i, $frases.Count, $leer)
+    $body = @{ profile_id = [string]$p.id; text = [string]$leer; language = $Idioma; engine = $Motor }
     if ($Motor -eq "qwen") { $body.model_size = $Tamano }
     $json = [Text.Encoding]::UTF8.GetBytes(($body | ConvertTo-Json -Compress))
     $t = [Diagnostics.Stopwatch]::StartNew()
@@ -115,6 +149,7 @@ for ($vuelta = 1; $vuelta -le 3; $vuelta++) {
       }
       if (-not (Test-Path $tmp) -or (Get-Item $tmp).Length -lt 1000) { throw "no llego el audio" }
       Move-Item $tmp $wav -Force
+      if ($f -match '\d') { Set-Content "$wav.letras" $leer -Encoding UTF8 }   # marca: grabada con los numeros en letras
       $t.Stop()
       "{0};{1:N1};{2};{3}" -f (Split-Path $wav -Leaf), $t.Elapsed.TotalSeconds, $g.duration, $f | Out-File $log -Append -Encoding UTF8
       $hechas++; $total += $t.Elapsed.TotalSeconds; $fallosSeguidos = 0
@@ -128,7 +163,7 @@ for ($vuelta = 1; $vuelta -le 3; $vuelta++) {
     }
   }
 }
-$faltan = @($frases | Where-Object { -not (Test-Path (Join-Path $dir (Get-Nombre $_))) }).Count
+$faltan = @($frases | Where-Object { -not (Test-Hecha $_) }).Count
 if ($faltan -gt 0) { Write-Host "Faltan $faltan frases: vuelve a abrir el programa y las intenta otra vez." -ForegroundColor Yellow }
 Write-Host "Terminado. Los audios estan en $dir" -ForegroundColor Cyan
 Read-Host "Enter para salir"
