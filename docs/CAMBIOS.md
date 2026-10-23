@@ -2,6 +2,23 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.587 (2026-10-23)
+Arreglos del informe de pruebas jugadas a mano (B1-B6 en [HALLAZGOS-PRUEBAS.md](HALLAZGOS-PRUEBAS.md)).
+- Para el niño:
+  - «Conocer» se puede repetir sin recargar la página (antes las tarjetas salían ya vistas y no se podía terminar).
+  - En el cofre, Tito se pone el gorro (o la ropa que toque) al momento.
+  - El centro del botón para saltar el cuento del principio funciona (antes lo tapaba la zona del candado).
+  - En «El día y la noche» el cartel DÍA/NOCHE ya no queda debajo de las estrellas.
+- Para la familia:
+  - Memoria apunta como fallo una pareja errada cuando ya se había visto dónde estaba la pareja: «Cómo le va» y el repaso ya no dan siempre 100 %.
+  - Al cambiar a «Libre» o la edad en la zona de adultos, el mapa (o el camino o la casita) se rehace al volver: candados y colores cuadran con lo que se puede jugar.
+- Por dentro:
+  - `comps.js`: `Conocer` copia las tarjetas con `seen: 0`; `Memoria` marca `c.seen` y llama a `rec('memoria', false)` en el fallo «sabiendo».
+  - `adult.js`: `adultWas` en `openAdult()`, `closeAdult()` vuelve a abrir la escena 3D si cambiaron edad o libre (no el cofre); el candado responde a 50 px de su dibujo (antes `x>1490 && y>800`).
+  - `zonas.js`: `grantGift()` llama a `__w3.retito()` si el regalo es ropa y la escena es 3D.
+  - `comps2.js`: el cartel de `Gira` baja a y = 214.
+  - Prueba nueva `tests/regresion/informe-b.js` (B1-B7). Quitado de PROBLEMAS-CONOCIDOS el fallo de `Conocer`. Sin frases nuevas.
+
 ## v1.586 (2026-10-23)
 Arreglos de lo encontrado en las pruebas de regresión ([HALLAZGOS-PRUEBAS.md](HALLAZGOS-PRUEBAS.md)).
 - Para el niño:

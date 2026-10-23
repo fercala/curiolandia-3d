@@ -466,7 +466,9 @@ const GIFTS=['gorroFiesta','pelotaPlaya','cuadro','bufanda:azul','peluche','plan
 // nextGift(): siguiente regalo de GIFTS que aún no se tiene, o null.
 const nextGift=()=>GIFTS.map(id=>SHOP.find(i=>i.id===id)).find(it=>it&&!S.owned[it.id])||null;
 // grantGift(it): da el artículo it: S.owned, y se lo pone a Tito (si tiene slot) o lo coloca en su casa. Guarda.
-function grantGift(it){S.owned[it.id]=1;if(it.slot)wear(it,true);else placeHome(it.id);save()}
+// Si se lo pone y la escena es 3D (el cofre), rehace a Tito 3D (retito) para que se vea al momento.
+function grantGift(it){S.owned[it.id]=1;if(it.slot)wear(it,true);else placeHome(it.id);save();
+  if(it.slot&&scene&&scene.three&&window.__w3&&window.__w3.retito)window.__w3.retito()}// Tito 3D se viste ya (en el cofre), no al cambiar de escena
 // drawChest(x, y, s, op, sh): dibuja el cofre a escala s, desplazado sh en horizontal (temblor). op = cuánto está abierto
 // (0 cerrado, 1 abierto): con op > 0 salen rayos de luz y brillo dentro; la tapa se aplasta en vertical (escala Y) hasta
 // casi desaparecer y, pasada la mitad, reaparece abierta por dentro. Con op < 0,15 se ve la cerradura.

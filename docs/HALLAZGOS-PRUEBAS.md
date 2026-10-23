@@ -20,6 +20,13 @@ Gravedad: **alta** = el niño lo nota a menudo o el juego se rompe; **media** = 
 | C1 | El candado de adultos cuenta tiempo de juego, no tiempo real | baja | **arreglado (v1.586)** |
 | C2 | Recargar la página se salta el aviso de «a dormir» del límite de tiempo | baja (informativo) | **arreglado (v1.586)** |
 | P1 | `__cl.go` (puerta de pruebas) no pasa por el envoltorio de `world3d.js` | baja (solo pruebas) | **arreglado (v1.586)** |
+| B1 | Repetir «Conocer» sin recargar no se puede terminar | alta | **arreglado (v1.587)** |
+| B2 | Memoria no apunta las parejas falladas (100 % siempre) | media | **arreglado (v1.587)** |
+| B3 | Cambiar a libre o de edad no refresca el mapa 3D abierto | media | **arreglado (v1.587)** |
+| B4 | El gorro del cofre no se ve en Tito 3D hasta cambiar de pantalla | baja | **arreglado (v1.587)** |
+| B5 | El centro del botón de saltar el cuento activa el candado | media | **arreglado (v1.587)** |
+| B6 | Las estrellas de rondas tapan el cartel DÍA/NOCHE | media | **arreglado (v1.587)** |
+| B7 | La copia `{"temas":null}` se acepta | alta | ya **arreglado (v1.586)**; es G1 |
 
 ## Audio
 
@@ -97,6 +104,36 @@ Las pruebas de audio (`audio.js`, `audio-espera.js`) usan los MP3 de verdad de `
 - **Qué pasa:** `window.__cl` (`adult.js`) guarda `go` antes de que `world3d.js` lo envuelva. Si una prueba salta con `__cl.go` de una escena 3D a un juego 2D, no se restaura el rectángulo de Tito (`TITO`) y los toques donde estaba Tito en 3D se toman por toques a Tito (que repite la consigna). Hizo que 73 juegos parecieran «no terminar». El juego de verdad no pasa por ahí.
 - **Arreglo (v1.586):** `window.__cl.go` es `(n,o)=>go(n,o)` en `adult.js`. `tests/regresion/lib.js` lo hace también, para probar versiones anteriores.
 
+## Informe de pruebas jugadas a mano (B1-B7)
+
+Informe externo del 23-10-2026 (pruebas con clics y arrastres en la web publicada, Chromium en Windows, sobre la v1.585). Cada fallo se ha reproducido con `tests/regresion/informe-b.js` sobre la v1.586 publicada (B1-B6 fallan, B7 ya estaba arreglado) y la misma prueba pasa entera con la v1.587.
+
+### B1. Repetir «Conocer» sin recargar no se puede terminar (alta)
+- **Qué pasa:** al volver a entrar en «Conocer» las tarjetas salen ya con estrella, el marcador está a 0 y tocarlas no suma: no se puede acabar.
+- **Causa:** `Conocer` (`comps.js`) usaba los mismos objetos de `t.words` y les dejaba la marca `seen`.
+- **Arreglo (v1.587):** cada partida hace sus propias copias de las tarjetas con `seen: 0`. Prueba: terminar «Conocer» tres veces seguidas sin recargar.
+
+### B2. Memoria no apunta las parejas falladas (media)
+- **Qué pasa:** «Cómo le va» mostraba siempre 100 % en Memoria y el repaso no podía ver que costaba.
+- **Arreglo (v1.587):** una pareja errada cuenta como fallo (`rec('memoria', false)`) solo cuando se podía saber dónde estaba la pareja: una de las dos cartas ya se había destapado antes. Destapar cartas nuevas es explorar, no fallar. Sigue sin dar monedas por pareja (ver PROBLEMAS-CONOCIDOS: `onRight`).
+
+### B3. Cambiar a libre o de edad no refresca el mapa 3D (media)
+- **Qué pasa:** tras activar «Libre» o cambiar la edad, el mapa seguía con zonas grises y candados, aunque se podía entrar.
+- **Arreglo (v1.587):** `openAdult()` apunta la edad y el modo libre (`adultWas`); si al cerrar cambiaron, `closeAdult()` vuelve a abrir la escena 3D actual (mapa, camino o casita) sin saludo. El cofre no se vuelve a abrir (cuenta y premia al entrar). Si no cambió nada, no se rehace.
+
+### B4. El gorro del cofre no se ve en Tito 3D al momento (baja)
+- **Arreglo (v1.587):** `grantGift()` (`zonas.js`) llama a `__w3.retito()` cuando el regalo es ropa y la escena es 3D.
+
+### B5. El centro del botón de saltar el cuento activa el candado (media)
+- **Causa:** la zona del candado (`x>1490, y>800`, en `adult.js`) era mucho más grande que el candado dibujado y tapaba el centro del botón (1500, 820).
+- **Arreglo (v1.587):** el candado solo responde a 50 px de su dibujo (1546, 852). El centro del botón salta el cuento y el candado sigue abriendo la zona de adultos.
+
+### B6. Las estrellas de rondas tapan el cartel DÍA/NOCHE (media)
+- **Arreglo (v1.587):** el cartel de `Gira` (`comps2.js`) baja a y = 214, debajo de las estrellas y del cartel «Nivel».
+
+### B7. La copia `{"temas":null}` se acepta (alta)
+- Ya arreglado en la v1.586 (G1): `bkDecode()` la rechaza, y también `{"temas":[]}`, `[]` y `null`.
+
 ## Lo que funciona
 
 - **Los 253 juegos de todos los temas se terminan** siguiendo la ayuda (`juegos.js`), en la v1.585 y otra vez en la v1.586, sin errores de JavaScript. El de regar pide mantener la regadera sobre la maceta unos segundos; la prueba la suelta enseguida, pero sujetándola se termina.
@@ -113,6 +150,7 @@ node tests/regresion/juegos.js . 0 1 120
 node tests/regresion/limites.js .
 node tests/regresion/audio.js . es '' 6
 node tests/regresion/audio-espera.js . 0 1
+node tests/regresion/informe-b.js .
 ```
 
 Si un juego no termina, repítelo solo con más tiempo (`juegos.js . 0 1 180 3A-T7#3`) antes de darlo por fallido: con varias pruebas a la vez el juego va a pocos cuadros por segundo.

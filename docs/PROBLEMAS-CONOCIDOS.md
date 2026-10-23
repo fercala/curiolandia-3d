@@ -6,7 +6,6 @@ Al comentar todo el código (octubre de 2026) se apuntaron estos fallos y rareza
 
 | Dónde | Qué pasa |
 |---|---|
-| comps.js, `Conocer` | Si se juega dos veces el mismo "conocer" sin recargar, la segunda vez no se puede terminar cuando las palabras del tema son objetos (`{k:...}`): reutiliza los objetos de `t.words` y les deja marcado `seen`. Deducido leyendo el código, sin probar. |
 | comps.js, `Excava` | Falla con más de 6 objetos (solo hay 6 posiciones). |
 | comps.js / comps2.js | `Atrapa`, `Memoria`, `Excava`, `Riega`, `Frota` y `Velas` no llaman a `onRight`: no dan la moneda por acierto ni ajustan la dificultad. |
 | extras.js + temas | El cuento se añade al final de `games` al cargar: añadir un juego al final de un tema con cuento desplaza el progreso guardado del cuento (ver COMO-AGREGAR.md, receta 5). |

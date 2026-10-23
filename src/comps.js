@@ -281,7 +281,9 @@ function Sonido(cfg,onDone){
 // ejemplos pequeños), bg, intro (frase inicial).
 // Lo crea makeGame para {t:'conocer'} con las palabras del tema (t.words).
 function Conocer(cfg,onDone){
-  const items=cfg.items.map(o=>typeof o==='string'?{k:o}:o), n=items.length;
+  // Copias propias de cada partida, con seen a 0: si se usaran los objetos de t.words, las marcas de vista (seen) de
+  // una partida anterior seguirían ahí al repetir sin recargar y el juego no se podría terminar.
+  const items=cfg.items.map(o=>Object.assign({},typeof o==='string'?{k:o}:o,{seen:0})), n=items.length;
   // Cuadrícula: columnas según el número de tarjetas y tamaño s que quepa en
   // la zona de 1220x660; luego se centra cada fila (la última puede ir incompleta).
   const cols=n<=3?n:n===4?4:n<=6?3:n<=8?4:5, rows=Math.ceil(n/cols), s=Math.min(1220/cols-34,660/rows-34,290);
@@ -571,13 +573,17 @@ function Memoria(cfg,onDone){
       else{card(-s/2,-s/2,s,s,'#FFA94D',7,32);ctx.save();ctx.beginPath();for(let i=0;i<=60;i++){const a=i/60*PI*2*2.2,r=4+i/60*s*.32;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.lineWidth=8;ctx.strokeStyle='#D9762A';ctx.lineCap='round';ctx.stroke();ctx.restore()}
       ctx.restore()}},
     // Toque: levanta la carta. Con dos levantadas: si son iguales quedan fijas
-    // (estrella; al completar todas, onDone); si no, se vuelven a girar en 1,3 s.
+    // (estrella y rec acierto; al completar todas, onDone); si no, se vuelven a girar en 1,3 s (y es fallo, rec false,
+    // solo si la pareja de alguna ya se había visto). c.seen: la carta ya se destapó alguna vez.
     down(x,y){if(this.busy)return;const c=cards.find(c=>Math.abs(x-c.x)<s/2&&Math.abs(y-c.y)<s/2);if(!c||c.up){SFX.tap();return}
       c.up=1;c.flip=T;SFX.pop();this.open.push(c);say(cap(nameT(c.k)));
       if(this.open.length===2){const [a,b]=this.open;this.busy=true;
+        // Fallo de memoria (apunta rec false): no encontrar la pareja cuando una de las dos cartas ya se había visto antes,
+        // es decir, cuando se podía saber dónde estaba su pareja. Destapar cartas nuevas no es fallo, es explorar.
+        const known=[a,b].some(x=>cards.some(o=>o!==x&&o.k===x.k&&o.seen));a.seen=b.seen=1;
         if(a.k===b.k){later(500,()=>{a.ok=b.ok=T;SFX.good();burst(a.x,a.y,16);burst(b.x,b.y,16);this.done++;scene.starPop=T;rec('memoria',true);this.open=[];this.busy=false;
           if(this.done>=np){later(500,onDone)}else say(praise())})}
-        else later(1300,()=>{a.up=b.up=0;a.flip=b.flip=T;SFX.whoosh();this.open=[];this.busy=false})}}
+        else{if(known)rec('memoria',false);later(1300,()=>{a.up=b.up=0;a.flip=b.flip=T;SFX.whoosh();this.open=[];this.busy=false})}}}
   };
 }
 

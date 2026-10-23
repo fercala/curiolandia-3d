@@ -48,6 +48,7 @@ function installHTML(){
      4. Usa S.miAjuste donde haga falta en el juego. Si debe sobrevivir a "Borrar todo el progreso", añádelo a keep en doReset().
      5. Los estilos (.row, .opt, .note...) están en head.html. Los textos del panel no se dicen con say(), se pueden cambiar. */
 function openAdult(){
+  adultWas=S.age+'|'+!!S.unlockAll;// para saber al cerrar si cambiaron la edad o el modo libre (closeAdult)
   lockDown=false;lockHold=0;try{speechSynthesis.cancel()}catch(e){}
   const el=document.getElementById('adult');el.hidden=false;
 // tmOf(listaDeTemas): HTML con una tarjeta por tema: nombre, juegos hechos/total, barra de progreso y si está completo.
@@ -155,8 +156,12 @@ function openAdult(){
   q('#a-reset').onclick=()=>{q('#a-confirm').hidden=false};q('#a-no').onclick=()=>{q('#a-confirm').hidden=true};
   q('#a-yes').onclick=()=>{closeAdult();doReset()};
 }
-// closeAdult(): cierra el panel y pone a cero el tiempo de la sesión (también el guardado en S.ses); si Tito estaba dormido (límite de tiempo), vuelve al mapa.
-function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;S.ses=null;save();if(sceneName==='dormir')go('map',{hello:true})}
+// adultWas: edad y modo libre al abrir el panel. closeAdult(): cierra el panel y pone a cero el tiempo de la sesión (también el guardado en S.ses); si Tito estaba dormido (límite de tiempo), vuelve al mapa; si cambió la edad o el modo libre, vuelve a abrir la escena 3D actual (B3 del informe de pruebas jugadas).
+let adultWas='';
+function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;S.ses=null;save();if(sceneName==='dormir'){go('map',{hello:true});return}
+  // Si cambió la edad o el modo libre, el mapa, el camino o la casita se vuelven a abrir para que candados y colores
+  // cuadren con lo que se puede jugar. El cofre no (cuenta y premia al entrar) y las demás escenas no muestran candados.
+  if(adultWas!==S.age+'|'+!!S.unlockAll&&scene&&scene.three&&!['cofre','title'].includes(sceneName))go(sceneName,Object.assign({},sceneArg,{hello:false,from:null,fin:false}))}
 // Botón "Volver al juego".
 document.getElementById('a-close').onclick=()=>closeAdult();
 
@@ -192,7 +197,7 @@ const dlgOpen=()=>!document.getElementById('adult').hidden||!document.getElement
 cv.addEventListener('pointerdown',e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}initAudio();idle=0;hintSaid=false;
   const [x,y]=toLogical(e);MX=x;MY=y;mouseOn=e.pointerType==='mouse';
   if(isPortrait()&&!portraitOk){portraitOk=true;return}
-  if(x>1490&&y>800&&sceneName!=='title'){lockDown=true;lockHold=0;return}
+  if(dist(x,y,1546,852)<50&&sceneName!=='title'){lockDown=true;lockHold=0;return}// solo el candado dibujado (drawLock): antes, un rectángulo más grande tapaba el centro del botón de saltar el cuento
   if(fade>.6||!scene)return;
   try{scene.down&&scene.down(x,y)}catch(err){console.error(err)}});
 // Mover: actualiza MX/MY y llama a scene.move(x,y) (arrastrar). Con ratón, moverse cuenta como "algo de actividad".
