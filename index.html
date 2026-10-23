@@ -1044,7 +1044,7 @@ estrellas:`<path d="M0 -50 L12 -16 L48 -16 L19 6 L30 42 L0 20 L-30 42 L-19 6 L-4
  *  - Tito en 2D: TITO, drawTito(), inTito(), titoKind(), temasDone().
  *  - Sonido: initAudio, setVol, tone, noise, syn, SFX, SOUNDS, ONO, playSound; música: MUSIC, musKey, musicTick.
  *  - Voz: say(), voces grabadas (vozLoad, vozFile, vozGet, vozPlay, vozSeq, sayTTS, vozStop), pickVoice, talking, kid, PRAISE, praise, cap.
- *  - Escenas: scene, sceneName, sceneArg, sceneTok, go(), later(), T, fade, idle, drag, timers.
+ *  - Escenas: scene, sceneName, sceneArg, sceneTok, go(), later(), whenQuiet(), sayQ(), T, fade, idle, drag, timers.
  *  - Partículas: parts, burst(), sparkles(), heart(), drawParts().
  *  - Interfaz común: HOME, drawHome, atHome, drawRounds, drawLock (candado de adultos), drawHelp (ayudas).
  *  - Dificultad adaptativa: ADAPT, streak, REP, nOpts, onRight, onWrongTwice, nRounds; tiempo: sessionT, minuteAcc.
@@ -1129,19 +1129,38 @@ const KEY='curiolandia.v1';
 const DEF={age:0,name:'',variant:'',hemi:'N',vol:{voz:1,mus:.45,fx:.8},limit:0,temas:{},stats:{},days:{},asam:{},stk:{},album:[],intro:false,first:{},seenFl:0};
 // S empieza siendo una copia de DEF (JSON.parse(JSON.stringify(...)) hace una copia profunda) y load() la completa.
 let S=JSON.parse(JSON.stringify(DEF));
+// sanoS(d, def): arregla en el sitio los campos de una partida guardada d que no tienen el tipo de su valor por defecto
+// en def, para que una partida o copia rota no rompa el juego. Solo mira los campos que def tiene con un valor no null:
+//   - null o undefined: se borra (queda el valor por defecto);
+//   - def es objeto/lista y d no lo es (o uno es lista y el otro no): se borra;
+//   - def es texto: un número se pasa a texto (nombre 123 → "123"); otra cosa se borra;
+//   - def es número: un texto con número se pasa a número ("4" → 4); otra cosa se borra;
+//   - def es sí/no: se deja como esté (las partidas viejas pueden tener 1/0).
+// Dentro de temas quita las entradas que no son objetos ({"3A-T1": null}). Devuelve d.
+function sanoS(d,def){
+  for(const k in def){const v=d[k],dv=def[k];if(dv===null||!(k in d))continue;
+    if(v==null){delete d[k];continue}
+    if(typeof dv==='object'){if(typeof v!=='object'||Array.isArray(v)!==Array.isArray(dv))delete d[k]}
+    else if(typeof dv==='string'){if(typeof v==='number')d[k]=String(v);else if(typeof v!=='string')delete d[k]}
+    else if(typeof dv==='number'){if(typeof v==='string'&&v.trim()!==''&&isFinite(+v))d[k]=+v;else if(typeof v!=='number'||!isFinite(v))delete d[k]}}
+  if(d.temas&&typeof d.temas==='object')for(const t in d.temas)if(!d.temas[t]||typeof d.temas[t]!=='object')delete d.temas[t];
+  return d}
 // load(): se ejecuta una sola vez, al arrancar. Lee la partida guardada y la mezcla encima de DEF: lo que falte en una
-// partida vieja queda con su valor por defecto; vol se mezcla aparte para no perder volúmenes nuevos.
+// partida vieja queda con su valor por defecto; vol se mezcla aparte para no perder volúmenes nuevos. Antes, sanoS() quita
+// los campos con un tipo imposible (null, un nombre que no es texto...), que también quedan con su valor por defecto.
 // Si no hay partida, intenta traer nombre, edad, acento y volumen de Letrilandia (otro juego que guarda en
 // 'letrilandia.v1' en el mismo dominio). Los try/catch evitan fallos si el navegador bloquea localStorage.
 (function load(){
   let d=null; try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  if(d){S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
+  if(d&&typeof d==='object'&&!Array.isArray(d)){sanoS(d,DEF);if(d.vol)sanoS(d.vol,DEF.vol);S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
   // primera vez: si Letrilandia ya se jugó en este dispositivo, traemos nombre, edad, acento y volúmenes
   try{const l=JSON.parse(localStorage.getItem('letrilandia.v1')||'null');
     if(l){if(l.name)S.name=l.name;if(l.age)S.age=l.age;if(l.accent)S.variant=l.accent==='es'?'es':'ar';if(l.vol)S.vol=Object.assign({},DEF.vol,l.vol);S.first.fromLetri=1}}catch(e){}
 })();
-// Por defecto, rioplatense (es como está escrito el texto original).
-if(!S.variant)S.variant='ar';
+// Por defecto (partida nueva), castellano de España: es el acento de las voces grabadas (voz/, voz-fer/); con
+// rioplatense casi todas las frases irían con la voz del navegador. Las partidas que ya eligieron acento no cambian.
+// El texto original está escrito en rioplatense y tx() lo pasa a España.
+if(!S.variant)S.variant='es';
 // save(): guarda S entero en localStorage. Llámala después de cada cambio de S. Si falla (modo privado, sin espacio)
 // no pasa nada: el juego sigue, pero sin guardar.
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -1351,9 +1370,14 @@ let AC=null,FX=null,MUS=null;
 // SPK_OK: ya se "desbloqueó" la voz del navegador (en iOS hay que hablar una vez dentro de un toque).
 let SPK_OK=false;
 // initAudio(): se llama en cada toque (pointerdown en adult.js). Desbloquea la voz del navegador con una frase vacía
-// y elige voz, crea el AudioContext la primera vez (o lo reanuda si estaba parado) y aplica los volúmenes.
+// y elige voz, crea y desbloquea el reproductor de voces grabadas (VOZ_EL), crea el AudioContext la primera vez (o lo
+// reanuda si estaba parado) y aplica los volúmenes.
 function initAudio(){
   if('speechSynthesis' in window){try{if(!SPK_OK){SPK_OK=true;const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);pickVoice()}else if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}}
+  // Reproductor de las voces grabadas: se crea aquí, dentro del primer toque, y suena un instante de silencio. Safari
+  // (iPhone/iPad) solo deja reproducir más tarde (vozPlay, tras descargar el MP3) un <audio> que ya sonó en un toque.
+  if(!VOZ_EL&&typeof Audio==='function'){try{const a=VOZ_EL=new Audio(),sil='data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+    a.src=sil;const p=a.play();if(p)p.then(()=>{if(a.src===sil)a.pause()}).catch(()=>{})}catch(e){}}
   if(AC){if(AC.state!=='running')AC.resume();return}
   try{AC=new (window.AudioContext||window.webkitAudioContext)();FX=AC.createGain();MUS=AC.createGain();FX.connect(AC.destination);MUS.connect(AC.destination);setVol()}catch(e){AC=null}
 }
@@ -1581,6 +1605,7 @@ function vozSeq(plan,tok,fin,fail){plan.forEach(f=>{if(typeof f==='string')vozGe
 function say(t,cb,o={}){
   if(!o.en)t=tx(t);
   const tok=++sayTok, my=sceneTok; let done=false;
+  idle=0;// la ayuda cuenta desde que Tito calla (quien quiera la ayuda enseguida pone idle=12 después de say)
   const fin=()=>{if(done)return;done=true;if(tok===sayTok)talking=false;if(MUS&&AC)MUS.gain.setTargetAtTime(S.vol.mus*.22,AC.currentTime,.2);if(cb&&my===sceneTok)cb()};
 // est: duración estimada de la frase en ms (para los temporizadores de seguridad).
   const est=900+t.length*85/(o.rate||1);
@@ -1635,6 +1660,13 @@ let scene=null,sceneName='',sceneTok=0,T=0,fade=0,timers=[],parts=[],idle=0,hint
 // later(ms, fn): ejecuta fn dentro de ms milisegundos, pero solo si se sigue en la misma escena. Dentro de las escenas
 // usa esto en vez de setTimeout: lo cuenta frame() con el reloj del juego y go() lo anula.
 function later(ms,fn){timers.push({t:ms/1000,fn,tok:sceneTok})}
+// whenQuiet(fn, max): llama a fn en cuanto Tito calla (talking false), o como mucho a los max segundos (8) por si la
+// voz se queda colgada. Va con later(), así que si se cambia de escena mientras espera, fn no se llama.
+function whenQuiet(fn,max=8){const t0=T,chk=()=>{if(!talking||T-t0>max)fn();else later(100,chk)};chk()}
+// sayQ(texto, cb, o): como say(), pero espera a que Tito acabe la frase que esté diciendo (whenQuiet). Para las frases
+// que el juego dice solo, programadas con later() (consignas, presentaciones): así no cortan una frase que dijo Tito al
+// responder a un toque del niño en ese rato.
+function sayQ(t,cb,o){whenQuiet(()=>say(t,cb,o))}
 // go(nombre, o): cambia a la escena SCENES[nombre]. Anula temporizadores, partículas, arrastre y voz de la escena anterior,
 // pone el velo de transición (fade=1), elige la música (scene.music) y llama a enter(o) de la nueva escena.
 // Si SCENES[nombre] no existe, avisa en la consola y no cambia de escena.
@@ -1682,8 +1714,9 @@ function drawRounds(done,of,y=80){
   for(let i=0;i<of;i++){const sc=i===done-1&&scene.starPop?1+.4*Math.max(0,1-(T-scene.starPop)*3):1;star(x+48+i*66,y,25*sc,i<done?'#FFC93C':'#EADFCF',3.5)}
 }
 // Candado de la zona de adultos (abajo a la derecha): hay que mantenerlo pulsado 3 s. lockDown = se está pulsando;
-// lockHold = segundos que lleva. Lo gestionan pointerdown y frame() en adult.js.
-let lockHold=0,lockDown=false;
+// lockHold = segundos que lleva, en tiempo real (aunque el aparato vaya a pocos cuadros por segundo); lockPrev = hora
+// del cuadro anterior. Lo gestionan pointerdown y frame() en adult.js.
+let lockHold=0,lockDown=false,lockPrev=0;
 // drawLock(): dibuja el candado semitransparente y, mientras se pulsa, un arco que se va llenando.
 function drawLock(){
   const x=1546,y=852; ctx.globalAlpha=.45; ctx.fillStyle=K; rr(x-18,y-12,36,28,6); ctx.fill(); ctx.beginPath(); ctx.arc(x,y-12,11,PI,0); ctx.lineWidth=5; ctx.strokeStyle=K; ctx.stroke(); ctx.globalAlpha=1;
@@ -1692,11 +1725,12 @@ function drawLock(){
 /* ayuda: brillo y manito */
 // drawHelp(): ayuda automática si el niño no hace nada. Pide a la escena su hint(): a los 6 s sin tocar dibuja un brillo
 // alrededor; a los 11 s, la manita (siguiendo h.path si lo hay, o moviéndose con h.dx/h.dy) y repite una vez la consigna con scene.prompt().
+// idle no cuenta mientras Tito habla (frame) y vuelve a 0 con cada say(): la ayuda nunca corta una frase de Tito.
 function drawHelp(){
   if(!scene.hint||drag)return; const h=scene.hint(); if(!h)return;
   if(idle>6){const p=(Math.sin(T*5)+1)/2;ctx.save();ctx.globalAlpha=.35+.35*p;ctx.lineWidth=12;ctx.strokeStyle='#FFC93C';ctx.beginPath();ctx.arc(h.x,h.y,(h.r||110)+10+p*12,0,PI*2);ctx.stroke();ctx.restore()}
   if(idle>11){const k=(T*1.2)%1;if(h.path&&h.path.length>1){const q=(T*.5)%1,f=q*(h.path.length-1),i=Math.floor(f),a=h.path[i],b=h.path[Math.min(h.path.length-1,i+1)];hand(lerp(a[0],b[0],f-i)+20,lerp(a[1],b[1],f-i)+14,90)}else hand(h.x+30-k*20+(h.dx||0)*k,h.y+20-k*10+(h.dy||0)*k,90);
-    if(!hintSaid&&scene.prompt){hintSaid=true;scene.prompt()}}
+    if(!hintSaid&&scene.prompt&&!talking){hintSaid=true;scene.prompt()}}// nunca mientras Tito habla: cortaría su frase
 }
 /* adaptativo */
 // Dificultad adaptativa (no se guarda en S): ADAPT va de -1 (más fácil) a 1 (más difícil); streak cuenta aciertos a la
@@ -1713,7 +1747,9 @@ const nRounds=()=>(AGE()<=3?4:5)+(REP>=2?1:0);
 /* tiempo de juego */
 // sessionT: segundos jugados en esta sesión (para S.limit); restAsked: ya se propuso descansar; minuteAcc: segundos aún
 // no apuntados en S.days. Los usa frame() en adult.js.
-let sessionT=0,restAsked=false,minuteAcc=0;
+// La sesión sigue al recargar la página: si S.ses ({t: segundos, at: hora en ms}, se guarda cada 15 s) es de hace menos
+// de 30 min, sessionT sigue desde ahí. Así recargar no se salta el límite de tiempo («a dormir»).
+let sessionT=(()=>{const s=S.ses,ago=s&&Date.now()-s.at;return s&&isFinite(+s.t)&&ago>=0&&ago<30*60e3?+s.t:0})(),restAsked=false,minuteAcc=0;
 
 /* ---------- pegatinas ---------- */
 // toast: aviso de "¡Pegatina nueva!" que se ve unos segundos: {k: dibujo, t: momento T en que salió, x, y opcionales}.
@@ -2049,9 +2085,10 @@ function ChoiceGame(cfg,onDone){
     // Prepara la ronda this.i: pide los datos a cfg.gen, coloca las tarjetas
     // barajadas y dice la pregunta. lock=true: mientras Tito pregunta, tocar una
     // opción incorrecta solo dice su nombre (no cuenta como fallo); se desbloquea
-    // al acabar la frase o, por si la voz falla, a los 2,6 s.
+    // al acabar la frase o, por si la voz falla, a los 2,6 s. La pregunta espera a que Tito calle (whenQuiet) y no se
+    // dice si el niño ya acertó antes de oírla (busy): así no corta el «¡Muy bien!» de su respuesta.
     round(){this.r=cfg.gen(this.i);this.items=layoutChoice(shuffle(this.r.words),this.r.ok,cfg.y||600,cfg.big);this.errs=0;this.lock=true;this.busy=false;
-      later(400,()=>{this.r.snd&&this.r.snd();say(this.r.ask,()=>{this.lock=false})});later(2600,()=>{this.lock=false})},
+      const i0=this.i;later(400,()=>whenQuiet(()=>{if(this.busy||this.i!==i0)return;this.r.snd&&this.r.snd();say(this.r.ask,()=>{this.lock=false})}));later(2600,()=>{this.lock=false})},
     // Repite el sonido (si hay) y la pregunta.
     prompt(){this.r.snd&&this.r.snd();say(this.r.ask)},
     // Ayuda: señala la tarjeta correcta que aún no se ha acertado.
@@ -2117,7 +2154,7 @@ function Conocer(cfg,onDone){
   items.forEach((it,i)=>{const r=Math.floor(i/cols),c=i%cols,inRow=Math.min(cols,n-r*cols);it.x=900-(inRow-1)*(s+34)/2+c*(s+34);it.y=180+((660-rows*(s+34))/2)+(s+34)/2+r*(s+34);it.s=s;it.in=T+i*.08});
   return {total:n,done:0,open:null,
     // Dice la frase de bienvenida.
-    enter(){later(300,()=>say(cfg.intro||'Tocá cada dibujo para conocerlo.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Tocá cada dibujo para conocerlo.'))},
     // Recuerda qué hacer (cerrar la tarjeta o tocar una sin estrella).
     prompt(){say(this.open?'Tocá para cerrar.':'Tocá un dibujo que todavía no tenga estrella.')},
     // Ayuda: la tarjeta abierta (para cerrarla) o la primera que no se ha visto.
@@ -2173,9 +2210,9 @@ function Cuerpo(cfg,onDone){
   const kx=1000,ky=870,ks=1.3;
   return {total:R,done:0,i:0,seen:{},hl:null,hlT:0,
     // Empieza: en modo libre dice la bienvenida; si no, la primera pregunta.
-    enter(){if(free)later(300,()=>say(cfg.intro||'Este es mi cuerpo. Tocá cada parte y te digo cómo se llama.'));else this.ask()},
+    enter(){if(free)later(300,()=>sayQ(cfg.intro||'Este es mi cuerpo. Tocá cada parte y te digo cómo se llama.'));else this.ask()},
     // Elige la parte objetivo de esta ronda y la pide en voz alta.
-    ask(){this.t=order[this.i%order.length];this.errs=0;later(300,()=>say('Tocá '+V(this.t.n)+'.'))},
+    ask(){this.t=order[this.i%order.length];this.errs=0;later(300,()=>sayQ('Tocá '+V(this.t.n)+'.'))},
     // Repite la consigna.
     prompt(){if(free)say('Tocá una parte del cuerpo.');else say('Tocá '+V(this.t.n)+'.')},
     // Ayuda: centro de la parte objetivo (o de la primera no tocada en modo libre),
@@ -2234,14 +2271,14 @@ function Arrastra(cfg,onDone){
     enter(){this.load()},
     // Carga la ronda this.i: copia los items, los reparte barajados por la bandeja
     // (hx,hy = su sitio de vuelta), coloca los "preset" y dice la consigna (y en
-    // modo por pasos, el primer paso).
+    // modo por pasos, el primer paso). La consigna espera a que Tito calle y no se dice si ya cambió la ronda.
     load(){const r=this.r=cfg.gen(this.i);this.zones=r.zones;this.step=0;this.errs=0;this.placedN=0;
       const its=r.items.map(o=>Object.assign({s:o.s||170},o));
       const tray=r.tray||{x0:360,x1:1520,y:790}, n=its.length, gap=(tray.x1-tray.x0)/n;
       shuffle(its).forEach((it,j)=>{it.hx=it.x=it.x??(tray.x0+gap*(j+.5));it.hy=it.y=it.y??tray.y;it.in=T+j*.07;it.placed=0});
       this.items=its;
       if(r.preset)for(const j of r.preset){const it=its.find(i=>i.zone==='s'+j),zz=it&&this.zones.find(q=>q.id===it.zone);if(!zz)continue;const p=zz.slot(0,it);it.placed=T;it.zid=zz.id;it.px=it.x=p[0];it.py=it.y=p[1];it.ps=zz.ps||.8}
-      later(300,()=>say(V(r.ask),()=>{if(r.steps)this.askStep()}))},
+      const i0=this.i;later(300,()=>whenQuiet(()=>{if(this.i===i0)say(V(r.ask),()=>{if(r.steps)this.askStep()})}))},
     // Paso actual (modo steps) o null.
     cur(){return this.r.steps?this.r.steps[this.step]:null},
     // Dice el paso actual.
@@ -2299,7 +2336,7 @@ function Arrastra(cfg,onDone){
     },
     // Coloca la cosa it en la zona z (en su hueco slot o en filas de 3), suma
     // rec/onRight y avanza: en modo pasos, siguiente paso; en modo normal, cuando
-    // no quedan cosas por colocar, estrella, frase okAll y siguiente ronda u onDone.
+    // no quedan cosas por colocar, estrella, frase okAll (cuando Tito acaba la de colocar: sayQ) y siguiente ronda u onDone.
     place(it,z){
       it.placed=T;const n=this.items.filter(i=>i.placed&&i.zid===z.id).length;it.zid=z.id;
       const p=z.slot?z.slot(n,it):[z.x+((n%3)-1)*z.w*.27,z.y-z.h*.05+Math.floor(n/3)*-40];it.px=p[0];it.py=p[1];it.ps=z.ps||.8;
@@ -2312,7 +2349,7 @@ function Arrastra(cfg,onDone){
       const left=this.items.filter(i=>!i.placed&&i.zone&&i.zone!=='no').length;
       if(cfg.placeSay)say(cfg.placeSay(it,z));
       if(!left){SFX.good();this.done++;scene.starPop=T;this.busy=true;burst(900,420,40);
-        later(cfg.placeSay?1300:200,()=>say(this.r.okAll?V(this.r.okAll):praise(),()=>later(400,()=>{this.busy=false;this.i++;if(this.i>=R)onDone();else this.load()})))}
+        later(cfg.placeSay?1300:200,()=>sayQ(this.r.okAll?V(this.r.okAll):praise(),()=>later(400,()=>{this.busy=false;this.i++;if(this.i>=R)onDone();else this.load()})))}
     }
   };
 }
@@ -2386,7 +2423,7 @@ function Memoria(cfg,onDone){
   cards.forEach((c,i)=>{c.x=900-(cols-1)*(s+30)/2+(i%cols)*(s+30);c.y=470-(rows-1)*(s+30)/2+Math.floor(i/cols)*(s+30)});
   return {total:np,done:0,open:[],
     // Dice la explicación.
-    enter(){later(300,()=>say(cfg.intro||'Juego de memoria. Tocá dos tarjetas y buscá las que son iguales.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Juego de memoria. Tocá dos tarjetas y buscá las que son iguales.'))},
     // Repite la consigna.
     prompt(){say('Buscá dos tarjetas iguales.')},
     // Ayuda: si hay una carta levantada, su pareja; si no, una carta sin pareja
@@ -2433,7 +2470,7 @@ function Cuenta(cfg,onDone){
       const sz=n<=3?220:n<=5?180:140,cols=Math.min(n,5),rows=Math.ceil(n/cols);
       this.objs=Array.from({length:n},(_,j)=>({x:900-(Math.min(cols,n-Math.floor(j/cols)*cols)-1)*(sz+20)/2+(j%cols)*(sz+20),y:370-(rows-1)*(sz+10)/2+Math.floor(j/cols)*(sz+10),s:sz,c:0,in:T+j*.08}));
       if(cfg.one){this.objs=[{x:900,y:380,s:380,c:0,in:T,one:1}]}
-      this.opts=null;later(300,()=>say(cfg.one?cfg.ask(this):'Vamos a contar '+plural(this.k)+'. Tocá cada '+(fem(this.k)?'una.':'uno.')))},
+      this.opts=null;later(300,()=>sayQ(cfg.one?cfg.ask(this):'Vamos a contar '+plural(this.k)+'. Tocá cada '+(fem(this.k)?'una.':'uno.')))},
     // Repite la consigna de la fase actual.
     prompt(){say(this.phase==='count'?(cfg.one?cfg.ask(this):'Tocá cada uno para contar.'):'¿Cuántos hay?')},
     // Ayuda: el siguiente objeto sin contar, o la tarjeta con el número correcto.
@@ -2477,7 +2514,7 @@ function Puzzle(cfg,onDone){
     load(){this.k=cfg.list[this.i];const pw=B.s/cols,ph=B.s/rows;this.pw=pw;this.ph=ph;this.placed=0;
       const spots=shuffle([[340,250],[340,480],[340,710],[620,790],[1300,790],[1450,250],[1450,480],[1450,710],[960,800]]);
       this.ps=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const sp=spots[this.ps.length];this.ps.push({c,r,tx:B.x-B.s/2+pw*(c+.5),ty:B.y-B.s/2+ph*(r+.5),x:sp[0],y:sp[1],hx:sp[0],hy:sp[1],ok:0,rot:rnd(-.2,.2)})}
-      later(300,()=>say(this.i?'¡Otro rompecabezas! ¿Qué será?':'Armá el rompecabezas. Arrastrá cada pieza a su lugar.'))},
+      later(300,()=>sayQ(this.i?'¡Otro rompecabezas! ¿Qué será?':'Armá el rompecabezas. Arrastrá cada pieza a su lugar.'))},
     // Repite la consigna.
     prompt(){say('Arrastrá una pieza al cuadro.')},
     // Ayuda: una pieza suelta y hacia dónde va.
@@ -2527,7 +2564,7 @@ function Excava(cfg,onDone){
   const digs=[];
   return {total:objs.length,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(cfg.intro||'Hay cosas escondidas en la arena. Frotá con el dedo para descubrirlas.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Hay cosas escondidas en la arena. Frotá con el dedo para descubrirlas.'))},
     // Repite la consigna.
     prompt(){say('Frotá la arena para encontrar lo que está escondido.')},
     // Ayuda: la primera cosa sin descubrir (la manita se mueve a los lados).
@@ -2564,7 +2601,7 @@ function Riega(cfg,onDone){
   const can={x:1400,y:330,hx:1400,hy:330};
   return {total:n,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(cfg.intro||'Las semillas tienen sed. Agarrá la regadera y llevala arriba de cada maceta.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Las semillas tienen sed. Agarrá la regadera y llevala arriba de cada maceta.'))},
     // Repite la consigna.
     prompt(){say('Llevá la regadera arriba de una maceta para regarla.')},
     // Ayuda: señala la regadera y la lleva hasta encima de una maceta sin flor.
@@ -2756,7 +2793,7 @@ function Une(cfg,onDone){
     load(){const ps=shuffle(cfg.pairs).slice(0,n),gap=Math.min(190,600/Math.max(1,n-1)),s=Math.min(160,gap-24);
       this.s=s;this.L=ps.map((p,j)=>({k:p[0],m:j,x:560,y:480-(n-1)*gap/2+j*gap,in:T+j*.08}));
       const ry=shuffle(ps.map((p,j)=>j));this.R=ps.map((p,j)=>({k:p[1],m:j,x:1240,y:480-(n-1)*gap/2+ry[j]*gap,in:T+.3+j*.08}));
-      this.sel=null;this.errs=0;later(300,()=>say(V(cfg.ask)))},
+      this.sel=null;this.errs=0;later(300,()=>sayQ(V(cfg.ask)))},
     // Repite la consigna.
     prompt(){say(V(cfg.ask))},
     // Ayuda: desde el punto de la primera tarjeta izquierda sin unir hasta su pareja.
@@ -2827,7 +2864,7 @@ function Lens(cfg,onDone){
   const L={x:900,y:470,r:cfg.r||140};
   return {total:R,done:0,i:0,
     // Dice la explicación y, en modo pedido, lo primero que hay que buscar.
-    enter(){later(300,()=>say(V(cfg.intro),()=>this.ask()))},
+    enter(){later(300,()=>sayQ(V(cfg.intro),()=>this.ask()))},
     // Cosa que hay que buscar ahora (modo pedido) o null (modo libre).
     cur(){return cfg.ask?order[this.i]:null},
     // Pide la cosa actual.
@@ -2871,7 +2908,7 @@ function TocaPartes(cfg,onDone){
   const uniq=[...new Map(cfg.parts.map(p=>[p.id,p])).values()],R=cfg.rounds||Math.min(uniq.length,nRounds()+1);let order=shuffle(uniq);
   return {total:R,done:0,i:0,hl:null,hlT:0,
     // Dice la explicación y pide la primera parte.
-    enter(){later(300,()=>say(V(cfg.intro),()=>this.ask()))},
+    enter(){later(300,()=>sayQ(V(cfg.intro),()=>this.ask()))},
     // Elige la parte objetivo y la pide.
     ask(){this.t=order[this.i%order.length];this.errs=0;say('Tocá '+V(this.t.n)+'.')},
     // Repite la parte que hay que tocar.
@@ -2901,7 +2938,7 @@ function Apaga(cfg,onDone){
   const spots=cfg.spots.map(s=>Object.assign({on:1},s));
   return {total:spots.length,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(V(cfg.intro)))},
+    enter(){later(300,()=>sayQ(V(cfg.intro)))},
     // Repite la explicación.
     prompt(){say(V(cfg.intro))},
     // Ayuda: la primera cosa encendida.
@@ -2930,7 +2967,7 @@ function Frota(cfg,onDone){
   const spots=cfg.spots.map(([x,y,r])=>({x,y,r,h:1,ph:rnd(0,6)})),bub=[];
   return {total:spots.length,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(V(cfg.intro)))},
+    enter(){later(300,()=>sayQ(V(cfg.intro)))},
     // Repite la explicación.
     prompt(){say(V(cfg.intro))},
     // Ayuda: la primera mancha que queda.
@@ -2971,7 +3008,7 @@ function Llena(cfg,onDone){
     // Ronda: elige N (distinto del anterior, salvo que min = max) y pone al menos N+2 cosas a la derecha.
     load(){let n;do{n=ri(cfg.min||2,mx)}while(n===last&&mx>(cfg.min||2));/* si min = max solo hay un número posible: se repite en vez de buscar otro para siempre */last=n;this.n=n;this.c=0;this.busy=false;
       const P=Array.from({length:Math.max(n+2,7)},(_,j)=>j);this.its=P.map((j)=>({k:pick(cfg.pool),x:1080+(j%4)*120+(Math.floor(j/4)%2)*50,y:300+Math.floor(j/4)*170,s:130,in:T+j*.05}));this.its.forEach(o=>{o.hx=o.x;o.hy=o.y});
-      later(300,()=>say(V(cfg.ask(n))))},
+      later(300,()=>sayQ(V(cfg.ask(n))))},
     // Repite cuántas hay que meter.
     prompt(){say(V(cfg.ask(this.n)))},
     // Ayuda: una cosa que queda fuera y hacia el recipiente.
@@ -3006,7 +3043,7 @@ function Velas(cfg,onDone){
   const n=cfg.n||AGE()+1;const vs=Array.from({length:n},(_,j)=>({x:900-(n-1)*55+j*110,y:330,on:1}));let c=0;
   return {total:n,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(V(cfg.intro||'¡Es la fiesta de cumpleaños! Soplá las velitas: tocá cada una y contamos.')))},
+    enter(){later(300,()=>sayQ(V(cfg.intro||'¡Es la fiesta de cumpleaños! Soplá las velitas: tocá cada una y contamos.')))},
     // Repite la consigna.
     prompt(){say('Tocá las velitas para soplarlas.')},
     // Ayuda: la primera vela encendida.
@@ -3032,7 +3069,7 @@ function Gira(cfg,onDone){
     // Carga la primera ronda.
     enter(){this.load()},
     // Ronda: decide si se pide noche (rondas pares) o día y lo dice.
-    load(){this.want=this.i%2===0?'noche':'dia';this.ok=false;later(300,()=>say(this.want==='noche'?'Girá la Tierra para que sea de noche donde está Leo. ¡Que no le dé el sol!':'Ahora girá la Tierra para que sea de día donde está Leo. ¡Que le dé el sol!'))},
+    load(){this.want=this.i%2===0?'noche':'dia';this.ok=false;later(300,()=>sayQ(this.want==='noche'?'Girá la Tierra para que sea de noche donde está Leo. ¡Que no le dé el sol!':'Ahora girá la Tierra para que sea de día donde está Leo. ¡Que le dé el sol!'))},
     // 'dia' si Leo mira hacia el sol (cos(a) < -0,35, lado izquierdo), 'noche' si
     // está en el lado derecho (cos(a) > 0,35) y 'medio' entre los dos.
     state(){return Math.cos(a)<-.35?'dia':Math.cos(a)>.35?'noche':'medio'},
@@ -3078,7 +3115,7 @@ function Semaforo(cfg,onDone){
     // Carga la primera ronda.
     enter(){this.load()},
     // Ronda: color del semáforo (this.g) y pregunta.
-    load(){this.g=seq[this.i];this.walk=0;this.errs=0;this.lock=false;later(300,()=>say(this.g?'Mirá el semáforo de las personas. ¿Cruzamos o esperamos?':'Mirá el semáforo. ¿Cruzamos o esperamos?'))},
+    load(){this.g=seq[this.i];this.walk=0;this.errs=0;this.lock=false;later(300,()=>sayQ(this.g?'Mirá el semáforo de las personas. ¿Cruzamos o esperamos?':'Mirá el semáforo. ¿Cruzamos o esperamos?'))},
     // Repite la pregunta.
     prompt(){say('¿Cruzamos o esperamos? Mirá el color del semáforo.')},
     // Ayuda: el botón correcto.
@@ -3119,7 +3156,7 @@ function Cruce(cfg,onDone){
     enter(){this.load()},
     // Ronda: lugar de la izquierda (L), de la derecha (Rr) y adónde ir (go: -1/1).
     load(){const ps=shuffle(places);this.L=ps[0];this.Rr=ps[1];this.go=Math.random()<.5?-1:1;this.car={t:0,dir:0};this.errs=0;this.lock=false;
-      later(300,()=>say('Vamos '+V(ala(this.go<0?this.L:this.Rr))+'. ¿Doblamos a la derecha o a la izquierda?'))},
+      later(300,()=>sayQ('Vamos '+V(ala(this.go<0?this.L:this.Rr))+'. ¿Doblamos a la derecha o a la izquierda?'))},
     // Repite adónde queremos ir.
     prompt(){say('Queremos ir '+V(ala(this.go<0?this.L:this.Rr))+'. ¿Derecha o izquierda?')},
     // Ayuda: la flecha correcta.
@@ -3166,7 +3203,7 @@ function Tracer(cfg,onDone){
     // distancias acumuladas (se calculan pero no se usan después).
     load(first){const P=cfg.paths[this.i];this.P=P;this.pts=P.pts;this.prog=0;this.on=false;this.ink=[];this.fin=0;
       const L=[0];for(let j=1;j<this.pts.length;j++)L.push(L[j-1]+dist(...this.pts[j-1],...this.pts[j]));this.len=L;
-      later(first?300:100,()=>say(V(P.say||cfg.ask)))},
+      later(first?300:100,()=>sayQ(V(P.say||cfg.ask)))},
     // Repite la consigna del trazo.
     prompt(){say(V(this.P.say||cfg.ask))},
     // Ayuda: la manita recorre el resto del camino desde donde se quedó (path).
@@ -3235,7 +3272,7 @@ function Song(cfg,onDone){
   const part2=cfg.part2!==false;
   return {total:part2?n:1,done:0,ph:'sing',li:-1,
     // Dice la introducción, toca la melodía y empieza a cantar.
-    enter(){later(300,()=>say(V(cfg.intro||'¡Vamos a cantar! Escuchá la canción.'),()=>{playTune(TUNES[cfg.tune]||TUNES.dias);later(1400,()=>this.next())}))},
+    enter(){later(300,()=>sayQ(V(cfg.intro||'¡Vamos a cantar! Escuchá la canción.'),()=>{playTune(TUNES[cfg.tune]||TUNES.dias);later(1400,()=>this.next())}))},
     // Canta la línea siguiente (nota + verso). Al acabar las líneas: melodía
     // final y, si hay segunda parte, pasa a 'play'; si no, onDone.
     next(){this.li++;if(this.li>=n){this.ph='fin1';playTune(TUNES.fin);later(700,()=>{if(!part2){this.done=1;scene.starPop=T;onDone();return}this.ph='play';this.order=cfg.mode==='pedido'?shuffle(L):L.slice();this.k=0;say(V(cfg.ask2||'¡Ahora te toca a vos! Tocá cada uno en orden, como en la canción.'),()=>this.askNext())});return}
@@ -3280,12 +3317,12 @@ function Story(data,cfg,onDone){
     // Muestra la página i y la lee (la primera con el título); 0,9 s después de
     // terminar pasa sola a la siguiente si sigue en esa página.
     page(i){this.pi=i;this.pT=T;this.said=false;const p=P[i];
-      later(i?250:400,()=>say((i===0?V(['Escuchá el cuento: ','Escucha el cuento: '])+V(data.title)+'. ':'')+V(p.say),()=>{this.said=T;later(900,()=>{if(this.ph==='read'&&this.pi===i)this.turn()})}))},
+      later(i?250:400,()=>sayQ((i===0?V(['Escuchá el cuento: ','Escucha el cuento: '])+V(data.title)+'. ':'')+V(p.say),()=>{this.said=T;later(900,()=>{if(this.ph==='read'&&this.pi===i)this.turn()})}))},
     // Pasa a la página siguiente o, tras la última, a las preguntas.
     turn(){if(this.pi<P.length-1){SFX.whoosh();this.page(this.pi+1)}else this.quiz(0)},
     // Pregunta i: coloca las opciones y la lee. Sin más preguntas → onDone.
     quiz(i){this.ph='quiz';this.qi=i;const q=Q[i];if(!q){this.ph='end';onDone();return}this.errs=0;this.busy=false;
-      this.items=layoutChoice(shuffle(q.opts),[q.ok],660,false);later(300,()=>say((i===0?'Ahora te pregunto. ':'')+V(q.q)))},
+      this.items=layoutChoice(shuffle(q.opts),[q.ok],660,false);later(300,()=>sayQ((i===0?'Ahora te pregunto. ':'')+V(q.q)))},
     // Repite la pregunta o la página actual.
     prompt(){if(this.ph==='quiz')say(V(Q[this.qi].q));else say(V(P[this.pi].say))},
     // Ayuda: la opción correcta o, tras leer la página, la flecha.
@@ -5238,7 +5275,7 @@ function enGrid(items,top=180,h=660,w=1220,cx=900){const n=items.length,cols=n<=
 function EnConocer(cfg,onDone){const items=cfg.items.map(o=>Object.assign({},o));enGrid(items);const n=items.length;
   return {total:n,done:0,open:null,
     // Al empezar: explica el juego.
-    enter(){later(300,()=>say(cfg.intro||'Tocá cada dibujo y escuchá cómo se dice en inglés. ¡Repetilo en voz alta!'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Tocá cada dibujo y escuchá cómo se dice en inglés. ¡Repetilo en voz alta!'))},
     // Recuerda qué hacer.
     prompt(){say(this.open?'Tocá para cerrar.':'Tocá un dibujo que todavía no tenga estrella.')},
     // Pista: la tarjeta abierta (cuando ya habló) o la primera sin ver.
@@ -5328,7 +5365,7 @@ function EnCuenta(cfg,onDone){const max=AGE()<=3?5:AGE()===4?8:10,R=3,ks=['manza
     // Prepara una ronda: cuántas cosas (distinto de la anterior), qué dibujo, y las coloca en una o dos filas.
     round(){const prev=this.n;let n;do{n=Math.floor(rnd(2,max+1))}while(n===prev);this.n=n;this.c=0;this.k=ks[this.i%ks.length];this.busy=false;
       const per=n<=5?n:Math.ceil(n/2),s=Math.min(200,1100/per-30);this.os=Array.from({length:n},(_,j)=>{const r=j<per?0:1,c=r?j-per:j,inRow=r?n-per:per;return{x:900-(inRow-1)*(s+30)/2+c*(s+30),y:(n<=5?470:360)+r*(s+60),s,on:0}});
-      later(400,()=>say(this.i===0?'¡Contamos en inglés! Tocá cada dibujo, de a uno.':'Otra vez: tocá cada dibujo y contamos.'))},
+      later(400,()=>sayQ(this.i===0?'¡Contamos en inglés! Tocá cada dibujo, de a uno.':'Otra vez: tocá cada dibujo y contamos.'))},
     // Recuerda qué hacer.
     prompt(){say('Tocá cada dibujo y contamos en inglés.')},
     // Pista: la primera cosa sin contar.
@@ -5511,7 +5548,7 @@ SCENES.edad={music:'title',
 // ¿QUIÉN JUEGA? Pide el nombre del niño (lo escribe un adulto en el diálogo openNameDlg). Se puede saltar.
 SCENES.quien={music:'title',
 // enter(): Tito se presenta y pide el nombre.
-  enter(){later(300,()=>say('¡Hola! Yo soy Tito. ¿Cómo te llamás? Pedile a un grande que escriba tu nombre.'))},
+  enter(){later(300,()=>sayQ('¡Hola! Yo soy Tito. ¿Cómo te llamás? Pedile a un grande que escriba tu nombre.'))},
 // prompt(): repite la consigna (la llama drawHelp cuando el niño no hace nada).
   prompt(){say('Pedile a un grande que escriba tu nombre.')},
 // hint(): la ayuda señala el botón "Escribir el nombre".
@@ -5606,7 +5643,7 @@ SCENES.map={music:'map',
     const n=temasDone();
     if(n>S.seenFl){S.seenFl=n;save();later(600,()=>{SFX.sparkle();burst(130,740,40);say(`¡Mirá${kid()}! ¡Tito tiene ${n===1?'una flor':NUM[n]+' flores'} en su caparazón!`)})}
     else if(o.hello)later(400,()=>this.prompt(true));
-    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>say('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
+    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>sayQ('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
   },
 // prompt(first): saludo según la hora (si first) y consigna: asamblea si no se ha hecho hoy; si no, el jardín. (Sustituido en zonas.js.)
   prompt(first){const h=new Date().getHours(),sal=h<13?'¡Buen día':h<20?'¡Buenas tardes':'¡Buenas noches';
@@ -5778,7 +5815,7 @@ SCENES.casita={music:'casita',
 // finishGame(t, gi): se llama cuando el niño acaba el juego gi del tema t (desde SCENES.juego).
 // Efectos en S: suma 1 a S.temas[t.id].g[gi] (veces jugado) y, si con esto ya están todos los juegos, pone done = 1
 // (el tema da una flor a Tito). La primera vez que acaba ese juego regala una figurita (S.stk) de una palabra del tema
-// que aún no tenga. Celebra, dice una felicitación y vuelve a go('casita', {t, fin}); fin = true si se acaba de terminar
+// que aún no tenga. Celebra, dice una felicitación (cuando Tito acaba la que esté diciendo) y vuelve a go('casita', {t, fin}); fin = true si se acaba de terminar
 // el tema (entonces la casita manda al cofre).
 function finishGame(t,gi){
   const st=S.temas[t.id]||(S.temas[t.id]={g:{},done:0});const first=!st.g[gi];st.g[gi]=(st.g[gi]||0)+1;
@@ -5788,7 +5825,7 @@ function finishGame(t,gi){
 // Figurita: una palabra del tema con dibujo que aún no esté en el álbum; si no queda ninguna, el icono del juego
 // (si es un dibujo real: los nombres cortos como 'lupa'/'memo' no lo son) o el del tema.
   if(first){const pool=(t.words||[]).map(w=>w.k).filter(k=>k&&PICS[k]&&!S.stk[k]);giveSticker(pool.length?pick(pool):(gIcon(t.games[gi],t).length>4&&PICS[gIcon(t.games[gi],t)]?gIcon(t.games[gi],t):t.icon))}
-  say(pick(['¡Lo lograste! ¡Ganaste una estrella!','¡Muy bien'+kid()+'! ¡Una estrella más!','¡Bravo! ¡Terminaste el juego!']),()=>later(600,()=>go('casita',{t:t.id,fin})));
+  sayQ(pick(['¡Lo lograste! ¡Ganaste una estrella!','¡Muy bien'+kid()+'! ¡Una estrella más!','¡Bravo! ¡Terminaste el juego!']),()=>later(600,()=>go('casita',{t:t.id,fin})));// espera a que acabe la última felicitación del juego
 }
 // JUEGO: escena "contenedor". makeGame (comps*.js) crea el juego concreto a partir de su descripción
 // (t.games[g], con g.t = tipo) y esta escena le pasa update/draw/down/move/up/hint/prompt. Se entra con
@@ -5857,36 +5894,39 @@ SCENES.asamblea={music:'plaza',
 // next(): pasa al siguiente paso: reinicia errores, opciones y selección y llama a in_<paso>() si existe.
 // busy = true bloquea los toques mientras Tito habla.
   next(){this.si++;this.s=this.steps[this.si];this.t0=T;this.errs=0;this.busy=false;this.opts=[];this.sel=null;this.bounce=-1;this.extra=null;const f=this['in_'+this.s];f&&f.call(this)},
+// ask(fn): pregunta del paso (fn dice la frase) a los 0,3 s y cuando Tito calle; no se dice si mientras tanto el niño ya
+// respondió (this.sel) o se pasó a otro paso. Así una respuesta rápida no queda cortada por su propia pregunta.
+  ask(fn){const si=this.si;later(300,()=>whenQuiet(()=>{if(this.si===si&&this.sel===null)fn()}))},
   // opciones genéricas: {x,y,s,draw(x,y,s),v,ok}
 // setOpts(list, y, s): coloca en fila, centradas, las opciones de un paso. Cada opción: {draw(x,y,s): la dibuja,
 // v: valor, ok: si es correcta}; se le añaden x, y, s (tamaño) e "in" (momento en que aparece, para la animación).
   setOpts(list,y=520,s=230){const n=list.length,gap=s+24;this.opts=list.map((o,i)=>Object.assign({x:800-(n-1)*gap/2+i*gap,y,s,in:T+i*.08},o))},
 // in_hola(): paso 1, pasar lista: tocar la foto propia.
-  in_hola(){later(300,()=>say(`¡Buen día${kid()}! Empieza la asamblea. ¿Estás acá? ¡Tocá tu foto!`))},
+  in_hola(){this.ask(()=>say(`¡Buen día${kid()}! Empieza la asamblea. ¿Estás acá? ¡Tocá tu foto!`))},
 // in_dianoche(): (3 años) ¿es de día o de noche? Correcto según la hora real (de 7 a 20 h es de día).
-  in_dianoche(){const h=this.d.getHours(),day=h>=7&&h<20;this.setOpts([{draw:(x,y,s)=>dayNight(1).draw(x,y,s),ok:day,v:'dia'},{draw:(x,y,s)=>dayNight(0).draw(x,y,s),ok:!day,v:'noche'}],500,300);later(300,()=>say('¿Ahora es de día o de noche?'))},
+  in_dianoche(){const h=this.d.getHours(),day=h>=7&&h<20;this.setOpts([{draw:(x,y,s)=>dayNight(1).draw(x,y,s),ok:day,v:'dia'},{draw:(x,y,s)=>dayNight(0).draw(x,y,s),ok:!day,v:'noche'}],500,300);this.ask(()=>say('¿Ahora es de día o de noche?'))},
 // in_dia(): el tren de los días (this.wag, un vagón por día). 3 años: Tito canta los días (sing) y hace saltar el
 // vagón de hoy. 4-5 años: dice qué día fue ayer y el niño busca hoy.
   in_dia(){const a=AGE();this.wag=DIASL.map((d,i)=>({x:330+i*168,y:520,i}));
-    if(a<=3){this.busy=true;later(300,()=>say('Cantemos los días de la semana.',()=>this.sing(()=>{this.bounce=this.ti;say('Hoy es '+DIASL[this.ti]+'. ¡Tocá el vagón de hoy, el que salta!',()=>{this.busy=false})})))}
-    else{const y=DIASL[(this.ti+6)%7];later(300,()=>say('Ayer fue '+y+'. ¿Qué día es hoy? Tocá el vagón.'))}},
+    if(a<=3){this.busy=true;later(300,()=>sayQ('Cantemos los días de la semana.',()=>this.sing(()=>{this.bounce=this.ti;say('Hoy es '+DIASL[this.ti]+'. ¡Tocá el vagón de hoy, el que salta!',()=>{this.busy=false})})))}
+    else{const y=DIASL[(this.ti+6)%7];this.ask(()=>say('Ayer fue '+y+'. ¿Qué día es hoy? Tocá el vagón.'))}},
 // in_manana(): (5 años) el tren con "HOY" marcado; hay que tocar mañana.
-  in_manana(){this.wag=DIASL.map((d,i)=>({x:330+i*168,y:520,i}));this.mark=this.ti;later(300,()=>say('Hoy es '+DIASL[this.ti]+'. ¿Y mañana qué día será? Tocá el vagón de mañana.'))},
+  in_manana(){this.wag=DIASL.map((d,i)=>({x:330+i*168,y:520,i}));this.mark=this.ti;this.ask(()=>say('Hoy es '+DIASL[this.ti]+'. ¿Y mañana qué día será? Tocá el vagón de mañana.'))},
 // in_mes(): (5 años) calendario del mes (this.cal: {n, x, y} por día, empezando en lunes); hay que tocar el número de hoy.
   in_mes(){const d=this.d,first=new Date(d.getFullYear(),d.getMonth(),1),n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),o=dayIdx(first);
     this.cal=[];for(let i=1;i<=n;i++){const p=o+i-1;this.cal.push({n:i,x:520+(p%7)*110,y:300+Math.floor(p/7)*92})}
-    later(300,()=>say('Estamos en '+MESES[d.getMonth()]+'. Hoy es '+d.getDate()+'. Tocá el número '+d.getDate()+' en el calendario.'))},
+    this.ask(()=>say('Estamos en '+MESES[d.getMonth()]+'. Hoy es '+d.getDate()+'. Tocá el número '+d.getDate()+' en el calendario.'))},
 // in_tiempo(): ¿qué tiempo hace? Todas las opciones valen (ok: true): se apunta lo que diga el niño.
-  in_tiempo(){this.setOpts(WX_AGE[AGE()].map(w=>({draw:(x,y,s)=>pic(WX[w].k,x,y,s*.85),v:w,ok:true})),520,AGE()>=5?170:AGE()===4?200:250);later(300,()=>say('¿Qué tiempo hace hoy? Mirá por la ventana de tu casa y tocá el dibujo.'))},
+  in_tiempo(){this.setOpts(WX_AGE[AGE()].map(w=>({draw:(x,y,s)=>pic(WX[w].k,x,y,s*.85),v:w,ok:true})),520,AGE()>=5?170:AGE()===4?200:250);this.ask(()=>say('¿Qué tiempo hace hoy? Mirá por la ventana de tu casa y tocá el dibujo.'))},
 // in_ropa(): (4 años) una prenda buena para el tiempo elegido y dos que no van, mezcladas.
   in_ropa(){const w=this.rec.tiempo||'sol',good=pick(WX_ROPA[w]),bad=shuffle(['gafas','gorra','guantes','gorro','paraguas','remera','bufanda'].filter(k=>!WX_ROPA[w].includes(k))).slice(0,2);
-    this.setOpts(shuffle([good,...bad]).map(k=>({draw:(x,y,s)=>pic(k,x,y,s*.8),v:k,ok:k===good})),540,250);later(300,()=>say('Con este tiempo, ¿qué nos ponemos para salir?'))},
+    this.setOpts(shuffle([good,...bad]).map(k=>({draw:(x,y,s)=>pic(k,x,y,s*.8),v:k,ok:k===good})),540,250);this.ask(()=>say('Con este tiempo, ¿qué nos ponemos para salir?'))},
 // in_estacion(): (4-5 años) cuatro árboles; correcto el de la estación actual (estacionDe, según el hemisferio).
-  in_estacion(){const e=estacionDe(this.d);this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===e})),520,250);later(300,()=>say('¿En qué estación estamos? Tocá el árbol.'))},
+  in_estacion(){const e=estacionDe(this.d);this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===e})),520,250);this.ask(()=>say('¿En qué estación estamos? Tocá el árbol.'))},
 // in_siguiente(): (5 años) ¿qué estación viene después? (SEASON_NEXT).
-  in_siguiente(){const e=estacionDe(this.d),n=SEASON_NEXT[e];this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===n})),520,250);later(300,()=>say('Ahora es '+e+'. ¿Qué estación viene después?'))},
+  in_siguiente(){const e=estacionDe(this.d),n=SEASON_NEXT[e];this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===n})),520,250);this.ask(()=>say('Ahora es '+e+'. ¿Qué estación viene después?'))},
 // in_emocion(): ¿cómo te sientes? Caritas según la edad; todas valen.
-  in_emocion(){this.setOpts(EMO_AGE[AGE()].map(m=>({draw:(x,y,s)=>drawFace(x,y,s*.42,m),v:m,ok:true})),520,AGE()>=5?175:AGE()===4?220:260);later(300,()=>say(tx('¿Cómo te sentís hoy? Tocá la carita.')))},
+  in_emocion(){this.setOpts(EMO_AGE[AGE()].map(m=>({draw:(x,y,s)=>drawFace(x,y,s*.42,m),v:m,ok:true})),520,AGE()>=5?175:AGE()===4?220:260);this.ask(()=>say(tx('¿Cómo te sentís hoy? Tocá la carita.')))},
 // in_fin(): cierra la asamblea: guarda S.asam[hoy] con done y edad, borra las más antiguas (se quedan 120 días) y,
 // si es la 3.ª asamblea de la semana (desde el lunes, wk), regala una figurita una sola vez por semana (S.first.wk).
 // Después vuelve al mapa.
@@ -5985,7 +6025,7 @@ const ALBUM_KEYS=(()=>{const s=new Set();for(const t of TEMAS){if(t.words)t.word
 // ÁLBUM DE FIGURITAS: 18 por página (per); las que se tienen (S.stk) en color, las demás en sombra.
 SCENES.album={music:'book',
 // enter(): primera página; Tito dice cuántas figuritas hay.
-  enter(){this.pg=0;const n=Object.keys(S.stk).length;later(300,()=>say(n?V(['Este es tu álbum. Tenés ','Este es tu álbum. Tienes '])+n+(n===1?V([' figurita.',' pegatina.']):V([' figuritas.',' pegatinas.'])):V(['Todavía no tenés figuritas. ¡Las ganás terminando juegos!','Todavía no tienes pegatinas. ¡Las ganas terminando juegos!'])))},
+  enter(){this.pg=0;const n=Object.keys(S.stk).length;later(300,()=>sayQ(n?V(['Este es tu álbum. Tenés ','Este es tu álbum. Tienes '])+n+(n===1?V([' figurita.',' pegatina.']):V([' figuritas.',' pegatinas.'])):V(['Todavía no tenés figuritas. ¡Las ganás terminando juegos!','Todavía no tienes pegatinas. ¡Las ganas terminando juegos!'])))},
 // per: figuritas por página (6 x 3).
   per:18,
 // draw(): la página actual, número de página y flechas de anterior/siguiente.
@@ -6007,7 +6047,7 @@ SCENES.album={music:'book',
 // Tito duerme bajo la luna. No tiene down(): no se puede seguir jugando desde aquí.
 SCENES.dormir={music:null,
 // enter(): Tito se despide.
-  enter(){later(300,()=>say(`¡Qué lindo jugamos${kid()}! Ahora Tito se va a descansar. ¡Hasta mañana!`))},
+  enter(){later(300,()=>sayQ(`¡Qué lindo jugamos${kid()}! Ahora Tito se va a descansar. ¡Hasta mañana!`))},
 // draw(): cielo de noche con estrellas que parpadean, luna, Tito dormido y "z" que suben.
   draw(){sky('#2E3F7A','#5B6FB0');for(let i=0;i<30;i++){ctx.globalAlpha=.5+.5*Math.sin(T*2+i);star((i*197)%1600,(i*131)%560,6+i%3*3,'#FFE08A',0)}ctx.globalAlpha=1;
     pic('luna',1300,180,200);drawTito(600,430,400,{sleep:true,bubble:false});
@@ -6201,8 +6241,8 @@ function zoneScene(z){const Z=ZONES[z],P=ZPOS[z],path=z==='fiestas'?FIESTAS:path
     enter(o){this.cur=curTema(z);this.unl=null;
       const nw=newlyOpen('z:'+z,Z.temas.filter(temaOpen).map(t=>t.id));
       if(nw.length){const t=TEMA[nw[0]];this.unl={id:t.id,t:T+1};later(1000,()=>{SFX.sparkle();const p=P[t.id];burst(p.x,p.y,40)});
-        later(500,()=>say('¡Mirá! ¡Se abrió '+(t.concepts?'el Rincón de los Conceptos':'una casita nueva: '+lowName(t))+'! Tocala para jugar.'))}
-      else if(o.from&&!this.cur)later(400,()=>say('¡Terminaste todo el camino'+kid()+'! ¡Increíble! Podés repetir la casita que quieras.'))
+        later(500,()=>sayQ('¡Mirá! ¡Se abrió '+(t.concepts?'el Rincón de los Conceptos':'una casita nueva: '+lowName(t))+'! Tocala para jugar.'))}
+      else if(o.from&&!this.cur)later(400,()=>sayQ('¡Terminaste todo el camino'+kid()+'! ¡Increíble! Podés repetir la casita que quieras.'))
       else if(o.hello)later(400,()=>this.prompt(!S.first[z]));
       S.first[z]=1;save()},
 // prompt(long): saludo de la zona (si long) y qué casita tocar.
@@ -6379,9 +6419,9 @@ SCENES.map=Object.assign(SCENES.map,{
     if(!msg&&n>S.seenFl){S.seenFl=n;save();msg=`¡Mirá${kid()}! ¡Tito tiene ${n===1?'una flor':(n<=10?NUM[n]:n)+' flores'} en su caparazón!`;fx=()=>{SFX.sparkle();burst(130,740,40)}}
 // La animación (fx) y la frase se lanzan juntas a los 0,6 s, cuando ya se ve el mapa.
     if(msg){later(600,()=>{if(this.wake){SFX.tada();const z=mzOf(this.wake.z);burst(z.x,z.y,70);this.wake.t=T}if(fx)fx();say(msg)})}
-    else if(S.gift!==today()){S.gift=today();save();later(900,()=>say(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40))}
+    else if(S.gift!==today()){S.gift=today();save();later(900,()=>sayQ(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40))}
     else if(o.hello)later(400,()=>this.prompt(true));
-    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>say('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
+    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>sayQ('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
   },
 // ageZone(): zona que corresponde a la edad (la usa world3d.js para colocar a Tito).
   ageZone(){return ageZoneOpen()},
@@ -6444,7 +6484,7 @@ Object.assign(SCENES.casita,{
   enter(o){this.t=TEMA[o.t];S.last=o.t;save();this.unl=null;
     if(o.fin){go('cofre',{t:o.t});return}
     const t=this.t,nw=newlyOpen('g:'+t.id,t.games.map((g,j)=>j).filter(j=>gameOpen(t,j)));
-    if(nw.length&&!o.hello){const j=nw[0];this.unl={j,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=stationPos(t,j);burst(x,y,30)});later(300,()=>say('¡Se abrió el juego número '+(j+1)+'! Tocalo para seguir.'))}
+    if(nw.length&&!o.hello){const j=nw[0];this.unl={j,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=stationPos(t,j);burst(x,y,30)});later(300,()=>sayQ('¡Se abrió el juego número '+(j+1)+'! Tocalo para seguir.'))}
     else if(o.hello)later(300,()=>this.prompt(true))},
 // prompt(long): nombre e intro del tema (si long) y qué juego tocar.
   prompt(long){const t=this.t,nx=nextGameOf(t);say((long?V(t.n)+'. '+(t.intro&&!t.words?V(t.intro)+' ':''):'')+(nx===0?(t.games[0].t==='conocer'?'Empezá por el primero: ¡vamos a conocer!':'Empezá por el primero.'):nx>0?'Tocá el que brilla, el número '+(nx+1)+'.':'¡Ya jugaste todos! Podés repetir el que más te guste.'))},
@@ -6541,7 +6581,7 @@ SCENES.cofre={music:'casita',
     if(inTito(x,y)){this.prompt();return}
     if(!this.openT){if(inR(x,y,800,520,380,360)){if(T-this.shakeT<.18)return;this.taps++;this.shakeT=T;SFX.pop();tone(500+this.taps*180,.12,'triangle',.15);sparkles(800,420,10);
         if(this.taps>=3){this.openT=T+.15;later(150,()=>{SFX.tada();burst(800,420,100);burst(400,300,30);burst(1200,300,30);this.reward()});
-          const it=this.gift;later(1300,()=>say(it?'¡Mirá lo que había'+kid()+': '+itemName(it)+'! '+(it.slot?'¡Tito ya se lo puso!':'Ya está en la casa de Tito.')+' ¡Y diez monedas!':'¡Mirá cuántas monedas'+kid()+'! ¡Veinte monedas!',()=>later(300,()=>say(it?'Tocá la casa para verlo, o la flecha verde para seguir el camino.':'Tocá la flecha verde para seguir el camino.'))))}
+          const it=this.gift;later(1300,()=>sayQ(it?'¡Mirá lo que había'+kid()+': '+itemName(it)+'! '+(it.slot?'¡Tito ya se lo puso!':'Ya está en la casa de Tito.')+' ¡Y diez monedas!':'¡Mirá cuántas monedas'+kid()+'! ¡Veinte monedas!',()=>later(300,()=>sayQ(it?'Tocá la casa para verlo, o la flecha verde para seguir el camino.':'Tocá la flecha verde para seguir el camino.'))))}
         else say(this.taps===1?'¡Otra vez!':'¡Una vez más!');return}
       SFX.tap();sparkles(x,y,3);return}
     if(T<this.openT+1.4)return;
@@ -6607,6 +6647,7 @@ const DEF2={coins:0,coinsTot:0,gift:'',woke:{},home:{},tito:{shell:'naranja',sca
 // Se añaden a DEF (copia profunda) y se rellenan en S los que falten en partidas antiguas.
 Object.assign(DEF,JSON.parse(JSON.stringify(DEF2)));
 const _oldSave=S.coins===undefined&&Object.keys(S.temas||{}).length>0;
+sanoS(S,DEF2);// campos de una partida rota (null o de otro tipo) → valor por defecto, como los que faltan
 for(const k in DEF2)if(S[k]===undefined)S[k]=JSON.parse(JSON.stringify(DEF2[k]));
 // quien ya jugaba la versión 1 recibe monedas por lo que ya había jugado
 if(_oldSave){const n=Object.values(S.temas).reduce((a,t)=>a+Object.keys((t&&t.g)||{}).length,0)*2;S.coins=S.coinsTot=n;save()}
@@ -6731,7 +6772,7 @@ function placeHome(id){if(S.home[id])return;const used=Object.values(S.home).map
 // newHome/newId (se acaba de comprar algo para la casa: el botón de la casa salta).
 SCENES.tienda={music:'casita',
   // Al entrar: Tito saluda (la primera vez explica cómo funciona; S.first.tienda lo recuerda).
-  enter(o){this.cat=this.cat||'ropa';this.conf=null;this.newHome=0;const seen=S.first.tienda;later(300,()=>say(seen?'¡La tienda! Tenés '+S.coins+' monedas. Tocá algo para ver cuánto cuesta.':V(['¡Bienvenido a la tienda! Con las monedas que ganás jugando, podés comprar cosas para mí y para mi casa. Arriba elegís qué mirar.','¡Bienvenido a la tienda! Con las monedas que ganas jugando, puedes comprar cosas para mí y para mi casa. Arriba eliges qué mirar.'])));S.first.tienda=1;save()},
+  enter(o){this.cat=this.cat||'ropa';this.conf=null;this.newHome=0;const seen=S.first.tienda;later(300,()=>sayQ(seen?'¡La tienda! Tenés '+S.coins+' monedas. Tocá algo para ver cuánto cuesta.':V(['¡Bienvenido a la tienda! Con las monedas que ganás jugando, podés comprar cosas para mí y para mi casa. Arriba elegís qué mirar.','¡Bienvenido a la tienda! Con las monedas que ganas jugando, puedes comprar cosas para mí y para mi casa. Arriba eliges qué mirar.'])));S.first.tienda=1;save()},
   // Pestañas visibles con su posición (la de vales solo si hay algún vale activo).
   tabs(){return SHOPCAT.filter(c=>c.id!=='vales'||S.vales.some(v=>v.on)).map((c,i,a)=>Object.assign({x:900-(a.length-1)*102+i*204,y:215},c))},
   // Artículos de la pestaña actual con su posición en la cuadrícula.
@@ -6812,7 +6853,7 @@ SCENES.casaTito={music:'casita',
   // Tito salta). Si no, Tito saluda según haya cosas o la casa esté vacía.
   enter(o){this.drag=null;this.jump=-9;this.petJump=-9;const nv=o.nuevo&&SHOP.find(i=>i.id===o.nuevo);this.nuevo=nv&&S.owned[nv.id]?nv:null;this.t0=T;const n=homeItems().length;
     if(this.nuevo){const it=this.nuevo;if(it.slot)this.jump=T+.3;later(300,()=>{SFX.sparkle();say('¡Acá está '+itemName(it)+'! '+(it.slot?'¡Mirá qué lindo me queda!':V(['Podés cambiar las cosas de lugar arrastrándolas.','Puedes cambiar las cosas de lugar arrastrándolas.'])))});return}
-    later(300,()=>say(n?V(['¡Esta es mi casa! Podés mover las cosas arrastrándolas, y tocarlas para jugar.','¡Esta es mi casa! Puedes mover las cosas arrastrándolas, y tocarlas para jugar.']):V(['¡Esta es mi casa! Está vacía. En la tienda podés comprar cosas con tus monedas.','¡Esta es mi casa! Está vacía. En la tienda puedes comprar cosas con tus monedas.'])))},
+    later(300,()=>sayQ(n?V(['¡Esta es mi casa! Podés mover las cosas arrastrándolas, y tocarlas para jugar.','¡Esta es mi casa! Puedes mover las cosas arrastrándolas, y tocarlas para jugar.']):V(['¡Esta es mi casa! Está vacía. En la tienda podés comprar cosas con tus monedas.','¡Esta es mi casa! Está vacía. En la tienda puedes comprar cosas con tus monedas.'])))},
   // Armario: la ropa y colores que tiene el niño, con su posición en la fila de abajo.
   wardrobe(){const L=SHOP.filter(i=>i.slot&&S.owned[i.id]);return L.map((it,i)=>({it,x:470+i*100,y:845}))},
   // Tito explica qué hacer en la casa.
@@ -6932,9 +6973,9 @@ SCENES.repaso={music:'casita',
   // Al entrar. o.seguir: viene del botón verde (se apunta seen); o.back: vuelve de un juego del repaso
   // (anima la apertura del siguiente). Si está todo hecho y sin cobrar, da el premio.
   enter(o){const R=repToday();this.L=R.list;this.unl=null;REP_ON=false;if(o.seguir){R.seen=1;save()}
-    if(repAllDone()&&!R.paid){R.paid=1;save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa');say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420);later(900,()=>say('Tocá la flecha verde para seguir el camino.'))})});return}
+    if(repAllDone()&&!R.paid){R.paid=1;save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa');say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420);later(900,()=>sayQ('Tocá la flecha verde para seguir el camino.'))})});return}
     const nx=this.next();
-    if(o.back&&nx>=0&&nx!==this.prevNx){this.unl={j:nx,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=this.pos(nx);burst(x,y,30)});later(300,()=>say('¡Muy bien! Ahora el número '+(nx+1)+'.'));return}
+    if(o.back&&nx>=0&&nx!==this.prevNx){this.unl={j:nx,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=this.pos(nx);burst(x,y,30)});later(300,()=>sayQ('¡Muy bien! Ahora el número '+(nx+1)+'.'));return}
     later(300,()=>this.prompt(!o.back))},
   // Posición en pantalla [x,y] de la estación j (centradas en fila).
   pos(j){const n=this.L.length;return[860-(n-1)*180+j*360,500]},
@@ -7145,8 +7186,8 @@ function openAdult(){
   q('#a-reset').onclick=()=>{q('#a-confirm').hidden=false};q('#a-no').onclick=()=>{q('#a-confirm').hidden=true};
   q('#a-yes').onclick=()=>{closeAdult();doReset()};
 }
-// closeAdult(): cierra el panel y pone a cero el tiempo de la sesión; si Tito estaba dormido (límite de tiempo), vuelve al mapa.
-function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;if(sceneName==='dormir')go('map',{hello:true})}
+// closeAdult(): cierra el panel y pone a cero el tiempo de la sesión (también el guardado en S.ses); si Tito estaba dormido (límite de tiempo), vuelve al mapa.
+function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;S.ses=null;save();if(sceneName==='dormir')go('map',{hello:true})}
 // Botón "Volver al juego".
 document.getElementById('a-close').onclick=()=>closeAdult();
 
@@ -7210,23 +7251,23 @@ function hoverTick(dt){
   if(hovNow!=null){hovT+=dt;if(hovT>1.1&&!dwellDone&&!talking&&scene.dwell&&typeof hovNow==='string'){dwellDone=true;try{scene.dwell(hovNow)}catch(e){console.error(e)}}}
 }
 /* frame(now): EL BUCLE DEL JUEGO. Se ejecuta en cada cuadro de pantalla (requestAnimationFrame; lo arranca boot.js).
-   Pasos: 1) calcula dt (máx. 0,05 s para que una pausa no dé un salto) y avanza T, idle y el velo fade;
-   2) ejecuta los temporizadores de later() que vencen (solo si siguen en su escena); 3) candado: 3 s pulsado abre la
+   Pasos: 1) calcula dt (máx. 0,05 s para que una pausa no dé un salto) y avanza T, idle (solo mientras Tito calla) y el velo fade;
+   2) ejecuta los temporizadores de later() que vencen (solo si siguen en su escena); 3) candado: 3 s reales pulsado abre la
    zona de adultos; 4) cuenta el tiempo jugado (S.days cada 15 s, límite S.limit -> escena 'dormir');
    5) música y scene.update(dt); 6) fondo: si la escena es 3D (scene.three), world3d.js la pinta con R3frame(dt);
    7) dibuja la escena 2D encima, ayudas, partículas, aviso de pegatina y monedas, y el candado, recortado a 1600x900;
    8) velo de transición; 9) rellena las bandas laterales en pantallas alargadas; 10) aviso de girar el móvil.
    Cada paso va en try/catch: un fallo de una escena se ve en la consola pero no para el juego. */
 function frame(now){
-  const dt=Math.min(.05,(now-lastF)/1000);lastF=now;T+=dt;idle+=dt;fade=Math.max(0,fade-dt*3);
+  const dt=Math.min(.05,(now-lastF)/1000);lastF=now;T+=dt;if(!talking)idle+=dt;fade=Math.max(0,fade-dt*3);
 // Temporizadores de later(): solo se ejecutan si siguen en la escena en la que se crearon (t.tok===sceneTok).
   for(const t of timers){t.t-=dt;if(t.t<=0&&!t.done){t.done=1;if(t.tok===sceneTok)try{t.fn()}catch(e){console.error(e)}}}timers=timers.filter(t=>!t.done);
-  if(lockDown){lockHold+=dt;if(lockHold>=3)openAdult()}
+  if(lockDown){lockHold+=Math.min(.25,(now-lockPrev)/1000);if(lockHold>=3)openAdult()}lockPrev=now;// en tiempo real, no de juego (dt tiene tope)
 // Tiempo de juego (no cuenta con el panel abierto, en la portada ni durmiendo). Cada 15 s se apunta en S.days (en
 // minutos) y se guardan solo los últimos 30 días.
   if(document.getElementById('adult').hidden&&sceneName!=='title'&&sceneName!=='dormir'){sessionT+=dt;minuteAcc+=dt;
     if(minuteAcc>=15){const d=today();S.days[d]=(S.days[d]||0)+minuteAcc/60;minuteAcc=0;
-      const ks=Object.keys(S.days).sort();while(ks.length>30)delete S.days[ks.shift()];save()}
+      const ks=Object.keys(S.days).sort();while(ks.length>30)delete S.days[ks.shift()];S.ses={t:Math.round(sessionT),at:Date.now()};save()}
     if(S.limit&&sessionT>=S.limit*60)go('dormir')}
   try{musicTick();scene.update&&scene.update(dt)}catch(e){console.error(e)}
 // Fondo: en las escenas 3D, el lienzo 2D se deja transparente y R3frame dibuja el mundo en el lienzo #gl de debajo.
@@ -7252,7 +7293,7 @@ function frame(now){
 }
 // window.__cl: puerta para las pruebas automáticas (y para depurar desde la consola): ir a escenas, leer S y la escena,
 // simular toques (tap), arrastres (drag) y ratón encima (hover), y abrir/cerrar la zona de adultos.
-window.__cl={go,get S(){return S},get scene(){return scene},get name(){return sceneName},SCENES,TEMA,TEMAS,
+window.__cl={go:(n,o)=>go(n,o),get S(){return S},get scene(){return scene},get name(){return sceneName},SCENES,TEMA,TEMAS,
   tap(x,y){scene.down&&scene.down(x,y);scene.up&&scene.up(x,y)},drag(a,b,c,d){scene.down(a,b);scene.move&&scene.move(c,d);scene.up&&scene.up(c,d)},
   hover(x,y){MX=x;MY=y;mouseOn=true},T:()=>T,say,openAdult,closeAdult};
 
@@ -7267,13 +7308,13 @@ async function bkEncode(){const j=JSON.stringify(S);
   if(typeof CompressionStream==='function'){try{const st=new Blob([j]).stream().pipeThrough(new CompressionStream('gzip'));return 'CURIO1.'+bk64(new Uint8Array(await new Response(st).arrayBuffer()))}catch(e){}}
   return 'CURIO0.'+bk64(new TextEncoder().encode(j))}
 // bkDecode(código): al revés que bkEncode. Acepta también el JSON tal cual (archivo descargado). Comprueba que parece una
-// partida (tiene temas) y devuelve el objeto; si no, lanza Error('formato') o Error('navegador').
+// partida (tiene temas, y es un objeto: ni null ni una lista) y devuelve el objeto; si no, lanza Error('formato') o Error('navegador').
 async function bkDecode(code){code=String(code||'').trim();let j;
   if(code.startsWith('{'))j=code;
   else{code=code.replace(/\s+/g,'');const m=code.match(/^CURIO([01])\.([A-Za-z0-9+/=]+)$/);if(!m)throw new Error('formato');const u=bkUn64(m[2]);
     if(m[1]==='1'){if(typeof DecompressionStream!=='function')throw new Error('navegador');j=await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}
     else j=new TextDecoder().decode(u)}
-  const d=JSON.parse(j);if(!d||typeof d!=='object'||typeof d.temas!=='object')throw new Error('formato');return d}
+  const d=JSON.parse(j);if(!d||typeof d!=='object'||Array.isArray(d)||!d.temas||typeof d.temas!=='object'||Array.isArray(d.temas))throw new Error('formato');return d}
 // bkWire(q): conecta los botones de la sección "Copia de seguridad": ver código, copiarlo, descargar archivo .json,
 // recuperar desde código o archivo. Al recuperar, enseña un resumen y, si se confirma, escribe la copia directamente en
 // localStorage y recarga la página (load() de core.js la mezcla con DEF como cualquier partida guardada).
