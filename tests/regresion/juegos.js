@@ -1,7 +1,7 @@
 // Regresión de todos los juegos: abre cada juego de cada tema (a su edad) y lo juega siguiendo la ayuda (hint) hasta
 // que termina. Apunta los que no terminan en el tiempo dado (con captura y la última ayuda) y los errores de JavaScript.
 // Va en modo rápido (window.__fast: la voz no espera al audio). Se puede repartir en varios trabajadores en paralelo.
-// Uso: node tests/regresion/juegos.js <carpeta web> [trabajador] [nº de trabajadores] [segundos por juego] [filtro]
+// Uso: node tests/regresion/juegos.js <carpeta web> [trabajador] [nº de trabajadores] [segundos por juego] [filtro: tema o lista de juegos «3A-T1#0,4A-T2#1»]
 const L = require('./lib');
 const [raiz, W = '0', NW = '1', segTxt = '60', filtro = ''] = process.argv.slice(2);
 const R = L.registro('juegos-' + W);
@@ -11,7 +11,7 @@ const R = L.registro('juegos-' + W);
   let p = await L.abrir(b, srv.port, { hora: 11, fecha: '2026-10-21' });
   const prep = () => p.evaluate(() => { const S = __cl.S; S.name = 'Lucía'; S.variant = 'es'; S.intro = true; S.unlockAll = true; S.first.askedName = 1 });
   await prep();
-  const jobs = (await p.evaluate(() => { const j = []; for (const t of __cl.TEMAS) t.games.forEach((g, i) => j.push([t.id, i, g.t || ''])); return j })).filter((j, i) => i % +NW === +W && (j[0] + '#' + j[1]).includes(filtro));
+  const jobs = (await p.evaluate(() => { const j = []; for (const t of __cl.TEMAS) t.games.forEach((g, i) => j.push([t.id, i, g.t || ''])); return j })).filter((j, i) => i % +NW === +W && (!filtro || filtro.split(',').some(f => (j[0] + '#' + j[1]) === f || (!f.includes('#') && j[0].includes(f)))));
   let ok = 0;
   for (const [tid, gi, nom] of jobs) {
     const id = tid + '#' + gi;
