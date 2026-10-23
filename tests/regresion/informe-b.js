@@ -1,5 +1,5 @@
 // Comprueba los fallos B1-B7 del informe «Pruebas jugadas de Curiolandia 3D» (23-10-2026, sobre la v1.585), uno a uno.
-// B1 repetir «Conocer» sin recargar; B2 Memoria apunta las parejas falladas; B3 el mapa 3D se rehace al cambiar libre/edad;
+// B1 repetir «Conocer» sin recargar; B2 Memoria apunta las parejas falladas (B2b: y da una moneda por pareja); B3 el mapa 3D se rehace al cambiar libre/edad;
 // B4 Tito 3D se pone el gorro del cofre al momento; B5 el centro de «saltar el cuento» funciona con el ratón de verdad;
 // B6 el cartel DÍA/NOCHE no queda debajo de las estrellas de rondas; B7 la copia {"temas":null} se rechaza.
 // Uso: node tests/regresion/informe-b.js <carpeta web>
@@ -41,6 +41,27 @@ const R = L.registro('informe-b');
       else if (d !== 0) return 'una pareja errada con una carta nueva cuenta como fallo';
     }
     if (!probado) return 'no salió el caso a probar en 12 intentos';
+  });
+
+  await caso('B2b', 'Memoria da una moneda por cada pareja encontrada (v1.588)', async p => {
+    await p.evaluate(() => __cl.go('juego', { t: '3A-T1', g: 3 })); await p.waitForTimeout(800);
+    // Rejilla de 3 años (6 cartas). Destapa cartas de dos en dos recordando qué hay en cada una y, en cuanto
+    // conoce una pareja, la destapa: tras la primera pareja las monedas deben haber subido exactamente 1.
+    const pos = []; for (const y of [345, 595]) for (const x of [650, 900, 1150]) pos.push({ x, y });
+    const c0 = await p.evaluate(() => __cl.S.coins || 0), vistas = {};
+    const ver = async i => { const k = await p.evaluate(([x, y]) => { const g = __cl.scene.g; g.down(x, y); const o = g.open[g.open.length - 1]; return o ? o.k : null }, [pos[i].x, pos[i].y]); vistas[i] = k; await p.waitForTimeout(900); return k };
+    for (let i = 0; i < 6; i++) {
+      const k = await ver(i);
+      const j = Object.keys(vistas).map(Number).find(n => n !== i && vistas[n] === k);
+      if (j !== undefined) { await ver(j); break }
+      if (i < 5) await ver(++i);
+      await p.waitForTimeout(900);
+      if (await p.evaluate(() => __cl.scene.g.done) > 0) break;
+    }
+    await p.waitForTimeout(900);
+    const [c1, hechas] = await p.evaluate(() => [__cl.S.coins || 0, __cl.scene.g.done]);
+    if (hechas < 1) return 'no se encontró ninguna pareja';
+    if (c1 - c0 !== hechas) return 'parejas ' + hechas + ', monedas ganadas ' + (c1 - c0);
   });
 
   await caso('B3', 'Al cambiar a libre y 4 años desde el mapa, el mapa se rehace', async p => {

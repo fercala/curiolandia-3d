@@ -552,7 +552,8 @@ function Atrapa(cfg,onDone){
 /* ---------- memoria ---------- */
 // COMPONENTE Memoria: parejas de cartas boca abajo. cfg: pool (claves),
 // pairs (por defecto 3, 4 o 6 según la edad), intro, bg. Una estrella por
-// pareja. Lo crea makeGame para {t:'memoria'}. No llama a onRight.
+// pareja. Lo crea makeGame para {t:'memoria'}. Cada pareja encontrada llama a
+// onRight(true): da una moneda (máximo 5 por juego, tienda.js).
 function Memoria(cfg,onDone){
   const np=cfg.pairs||({3:3,4:4,5:6})[AGE()], ks=shuffle(cfg.pool).slice(0,np), cards=shuffle([...ks,...ks]).map(k=>({k,up:0,ok:0,flip:0}));
   const cols=cards.length<=6?3:4,rows=Math.ceil(cards.length/cols),s=Math.min(220,640/rows-30);
@@ -573,7 +574,7 @@ function Memoria(cfg,onDone){
       else{card(-s/2,-s/2,s,s,'#FFA94D',7,32);ctx.save();ctx.beginPath();for(let i=0;i<=60;i++){const a=i/60*PI*2*2.2,r=4+i/60*s*.32;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.lineWidth=8;ctx.strokeStyle='#D9762A';ctx.lineCap='round';ctx.stroke();ctx.restore()}
       ctx.restore()}},
     // Toque: levanta la carta. Con dos levantadas: si son iguales quedan fijas
-    // (estrella y rec acierto; al completar todas, onDone); si no, se vuelven a girar en 1,3 s (y es fallo, rec false,
+    // (estrella, rec acierto y onRight, que da la moneda; al completar todas, onDone); si no, se vuelven a girar en 1,3 s (y es fallo, rec false,
     // solo si la pareja de alguna ya se había visto). c.seen: la carta ya se destapó alguna vez.
     down(x,y){if(this.busy)return;const c=cards.find(c=>Math.abs(x-c.x)<s/2&&Math.abs(y-c.y)<s/2);if(!c||c.up){SFX.tap();return}
       c.up=1;c.flip=T;SFX.pop();this.open.push(c);say(cap(nameT(c.k)));
@@ -581,7 +582,7 @@ function Memoria(cfg,onDone){
         // Fallo de memoria (apunta rec false): no encontrar la pareja cuando una de las dos cartas ya se había visto antes,
         // es decir, cuando se podía saber dónde estaba su pareja. Destapar cartas nuevas no es fallo, es explorar.
         const known=[a,b].some(x=>cards.some(o=>o!==x&&o.k===x.k&&o.seen));a.seen=b.seen=1;
-        if(a.k===b.k){later(500,()=>{a.ok=b.ok=T;SFX.good();burst(a.x,a.y,16);burst(b.x,b.y,16);this.done++;scene.starPop=T;rec('memoria',true);this.open=[];this.busy=false;
+        if(a.k===b.k){later(500,()=>{a.ok=b.ok=T;SFX.good();burst(a.x,a.y,16);burst(b.x,b.y,16);this.done++;scene.starPop=T;rec('memoria',true);onRight(true);this.open=[];this.busy=false;
           if(this.done>=np){later(500,onDone)}else say(praise())})}
         else{if(known)rec('memoria',false);later(1300,()=>{a.up=b.up=0;a.flip=b.flip=T;SFX.whoosh();this.open=[];this.busy=false})}}}
   };

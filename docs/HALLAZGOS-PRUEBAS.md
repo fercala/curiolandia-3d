@@ -115,7 +115,7 @@ Informe externo del 23-10-2026 (pruebas con clics y arrastres en la web publicad
 
 ### B2. Memoria no apunta las parejas falladas (media)
 - **Qué pasa:** «Cómo le va» mostraba siempre 100 % en Memoria y el repaso no podía ver que costaba.
-- **Arreglo (v1.587):** una pareja errada cuenta como fallo (`rec('memoria', false)`) solo cuando se podía saber dónde estaba la pareja: una de las dos cartas ya se había destapado antes. Destapar cartas nuevas es explorar, no fallar. Sigue sin dar monedas por pareja (ver PROBLEMAS-CONOCIDOS: `onRight`).
+- **Arreglo (v1.587):** una pareja errada cuenta como fallo (`rec('memoria', false)`) solo cuando se podía saber dónde estaba la pareja: una de las dos cartas ya se había destapado antes. Destapar cartas nuevas es explorar, no fallar. Desde la v1.588 cada pareja da una moneda (`onRight(true)`), como pidió Fernando.
 
 ### B3. Cambiar a libre o de edad no refresca el mapa 3D (media)
 - **Qué pasa:** tras activar «Libre» o cambiar la edad, el mapa seguía con zonas grises y candados, aunque se podía entrar.

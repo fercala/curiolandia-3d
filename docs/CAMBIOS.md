@@ -2,6 +2,10 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.588 (2026-10-23)
+- Para el niño: en Memoria, cada pareja encontrada da una moneda, como en los demás juegos (máximo 5 por juego).
+- Por dentro: `comps.js`, `Memoria` llama a `onRight(true)` en cada pareja (moneda de `tienda.js` y racha de dificultad). Quitado `Memoria` de la fila de `onRight` en PROBLEMAS-CONOCIDOS. Sin frases nuevas.
+
 ## v1.587 (2026-10-23)
 Arreglos del informe de pruebas jugadas a mano (B1-B6 en [HALLAZGOS-PRUEBAS.md](HALLAZGOS-PRUEBAS.md)).
 - Para el niño:
