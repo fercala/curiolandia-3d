@@ -2,6 +2,10 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## Sin versión (2026-10-23): pruebas de regresión
+- Para el niño: nada cambia (no se publica una versión nueva del juego).
+- Pruebas nuevas en `tests/regresion/` (ver su `LEEME.md`): partida de punta a punta por edad, todos los juegos hasta el final, casos límite y caminos alternativos, y medición del audio (frases cortadas, mezcla de voces). Los resultados van a `tests/regresion/salida/`, que no se sube. Lo que encuentren se apuntará en `docs/HALLAZGOS-PRUEBAS.md`.
+
 ## v1.585 (2026-10-23)
 - Para la familia: en la zona de adultos, «Voz de Tito» tiene una tercera opción, «Solo voz del navegador»: Tito lo dice todo con la voz del navegador, sin ninguna grabación.
 - Por dentro: `S.voz = 'nav'` (`core.js`, `vozLoad` no carga ningún manifiesto y `VOZ` queda en null; `adult.js`, opción nueva). Las partidas guardadas no cambian. Documentado en ESTADO-GUARDADO y VOCES.
