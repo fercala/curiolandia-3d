@@ -2,6 +2,11 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.583 (2026-10-23)
+- Para el niño: nada cambia si todo va bien; si alguna parte del juego pide una escena que no existe, el juego se queda donde está en vez de romperse.
+- Por dentro (`core.js`): `go()` comprueba que `SCENES[nombre]` exista; si no, avisa en la consola y no hace nada.
+- Documentación: quitado de PROBLEMAS-CONOCIDOS el fallo de `doReset()`, que no era tal: tienda.js y repaso.js ya añaden sus campos a `DEF` (`Object.assign(DEF, ...)`). Comprobado: tras borrar el progreso, `S` tiene los mismos campos y se puede jugar sin errores.
+
 ## v1.582 (2026-10-23)
 - Para el niño: en el cofre, al tocar el cangrejo Tito dice «uno» una sola vez; antes contaba dos veces seguidas. Sin frases nuevas.
 - Por dentro (`world3d.js`, rama `u.crab` de `wobTap`): el grupo del mapa (`map4`) solo cuenta en el mapa; en el cofre cuenta solo `cof2`.

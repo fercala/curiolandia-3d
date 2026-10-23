@@ -1635,8 +1635,10 @@ let scene=null,sceneName='',sceneTok=0,T=0,fade=0,timers=[],parts=[],idle=0,hint
 function later(ms,fn){timers.push({t:ms/1000,fn,tok:sceneTok})}
 // go(nombre, o): cambia a la escena SCENES[nombre]. Anula temporizadores, partículas, arrastre y voz de la escena anterior,
 // pone el velo de transición (fade=1), elige la música (scene.music) y llama a enter(o) de la nueva escena.
+// Si SCENES[nombre] no existe, avisa en la consola y no cambia de escena.
 // Ejemplos: go('map',{hello:true}) vuelve al mapa saludando; go('casita',{t:idTema}) abre un tema.
 function go(n,o={}){
+  if(!SCENES[n]){console.warn('go: no existe la escena',n);return}// nombre mal escrito: se queda en la escena actual en vez de romperse
   sceneTok++; timers=[]; parts=[]; idle=0; hintSaid=false; drag=null; setCursor('pt');
   try{speechSynthesis.cancel()}catch(e){} talking=false;
   sceneName=n; sceneArg=o; scene=SCENES[n]; fade=1; musKey=scene.music||null; scene.enter&&scene.enter(o);

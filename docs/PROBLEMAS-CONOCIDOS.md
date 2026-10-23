@@ -6,7 +6,6 @@ Al comentar todo el código (octubre de 2026) se apuntaron estos fallos y rareza
 
 | Dónde | Qué pasa |
 |---|---|
-| adult.js, `doReset()` | "Borrar todo el progreso" rehace `S` solo con `DEF`: los campos de `DEF2` (tienda.js: monedas, `owned`, `home`, `tito`...) y de repaso.js (`kg`, `gs`) desaparecen hasta recargar la página, y mientras tanto pueden salir errores. Arreglo probable: recargar la página tras borrar o volver a rellenar `DEF2`. |
 | comps.js, `Conocer` | Si se juega dos veces el mismo "conocer" sin recargar, la segunda vez no se puede terminar cuando las palabras del tema son objetos (`{k:...}`): reutiliza los objetos de `t.words` y les deja marcado `seen`. Deducido leyendo el código, sin probar. |
 | comps2.js, `Llena` | Bucle infinito si se configura con `min` igual a `max`. |
 | comps.js, `Excava` | Falla con más de 6 objetos (solo hay 6 posiciones). |
@@ -30,7 +29,6 @@ Al comentar todo el código (octubre de 2026) se apuntaron estos fallos y rareza
 - `SYL3` repite la clave `ESTRELLA`; `SKILL` repite `arrastra` y `calendario`; `GNAME` recibe `memoria` dos veces; `TU` y lex.js tienen pares repetidos o que no cambian nada.
 - Campos y variables sin uso: `S.album`, `trim` de los temas, `GICON`, `lm` en `post3`, `now` en la envoltura de `finishGame` de tienda.js.
 - `skyClouds`/`orbFace` deciden la noche con su propia hora, distinta de `skyNow()`.
-- `go()` con un nombre de escena que no existe da error (no se comprueba).
 - `EnCuenta` (ingles.js) ignora `cfg.key`.
 - `Gira`, `Semaforo` y `Cruce` ignoran `cfg.bg`.
 - `load()` solo mezcla el primer nivel de `S` (subcampos nuevos no reciben valor por defecto en partidas viejas).
