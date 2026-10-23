@@ -6,7 +6,6 @@ Al comentar todo el código (octubre de 2026) se apuntaron estos fallos y rareza
 
 | Dónde | Qué pasa |
 |---|---|
-| world3d.js, rama `u.crab` de `wobTap` | En el cofre, el cangrejo cuenta en dos grupos (`cof2` y `map4`): sale dos veces el número 1 y se dice «uno» dos veces. |
 | adult.js, `doReset()` | "Borrar todo el progreso" rehace `S` solo con `DEF`: los campos de `DEF2` (tienda.js: monedas, `owned`, `home`, `tito`...) y de repaso.js (`kg`, `gs`) desaparecen hasta recargar la página, y mientras tanto pueden salir errores. Arreglo probable: recargar la página tras borrar o volver a rellenar `DEF2`. |
 | comps.js, `Conocer` | Si se juega dos veces el mismo "conocer" sin recargar, la segunda vez no se puede terminar cuando las palabras del tema son objetos (`{k:...}`): reutiliza los objetos de `t.words` y les deja marcado `seen`. Deducido leyendo el código, sin probar. |
 | comps2.js, `Llena` | Bucle infinito si se configura con `min` igual a `max`. |

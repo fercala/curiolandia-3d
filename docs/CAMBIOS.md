@@ -2,6 +2,10 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.582 (2026-10-23)
+- Para el niño: en el cofre, al tocar el cangrejo Tito dice «uno» una sola vez; antes contaba dos veces seguidas. Sin frases nuevas.
+- Por dentro (`world3d.js`, rama `u.crab` de `wobTap`): el grupo del mapa (`map4`) solo cuenta en el mapa; en el cofre cuenta solo `cof2`.
+
 ## v1.581 (2026-10-23)
 - Para el niño: al tocar una abeja, Tito dice «La abeja. Hace miel con las flores.» y escribe ABEJA; antes decía «La mariposa.». Frase ya grabada, sin frases nuevas.
 - Por dentro (`world3d.js`): en `NAMES3` la fila `bee` va antes que `bfly` (las abejas llevan las dos marcas y gana la primera); `allTap` con `'bfly'` ya no cuenta las abejas como mariposas.
