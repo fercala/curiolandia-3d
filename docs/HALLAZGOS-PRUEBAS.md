@@ -1,0 +1,112 @@
+# Hallazgos de las pruebas de regresión
+
+Resultado de la campaña de pruebas de octubre de 2026 sobre la v1.585 (web publicada). Las pruebas están en `tests/regresion/` (ver su `LEEME.md`) y se pueden repetir. Cada hallazgo dice qué pasa, cómo se reproduce, qué prueba lo vio y la causa probable en el código. Cuando un hallazgo se arregle, se marca aquí como **arreglado (v1.N)** y se quita de `PROBLEMAS-CONOCIDOS.md` si estaba.
+
+Gravedad: **alta** = el niño lo nota a menudo o el juego se rompe; **media** = se nota a veces o solo en un caso raro; **baja** = casi nunca se nota.
+
+## Resumen
+
+| # | Hallazgo | Gravedad | Estado |
+|---|---|---|---|
+| A1 | La ayuda automática corta las páginas largas de los cuentos | alta | abierto |
+| A2 | Tras el segundo fallo, la consigna corta la explicación del error | alta | abierto |
+| A3 | Frases que se cortan solas, sin que el niño toque | alta | abierto |
+| A4 | Dos voces en la misma frase (grabada y del navegador) | media | abierto |
+| A5 | Con el acento rioplatense, más de la mitad de las frases van con la voz del navegador | media | abierto |
+| A6 | En iPhone y iPad las voces grabadas podrían no sonar nunca | alta (sin comprobar) | abierto |
+| A7 | Alguna reproducción de MP3 rechazada por el navegador | baja | abierto |
+| G1 | Una copia de seguridad con campos vacíos (`null`) se acepta y rompe el juego | alta | abierto |
+| G2 | Una partida guardada con tipos raros rompe el juego | media | abierto |
+| C1 | El candado de adultos cuenta tiempo de juego, no tiempo real | baja | abierto |
+| C2 | Recargar la página se salta el aviso de «a dormir» del límite de tiempo | baja (informativo) | abierto |
+| P1 | `__cl.go` (puerta de pruebas) no pasa por el envoltorio de `world3d.js` | baja (solo pruebas) | rodeado en las pruebas |
+
+## Audio
+
+Las pruebas de audio (`audio.js`, `audio-espera.js`) usan los MP3 de verdad de `voz/` y una voz del navegador simulada que tarda lo que tardaría (70 ms por letra), y apuntan cuándo empieza, acaba o se corta cada frase. «Cortada» quiere decir que la siguiente frase empezó antes de que acabara la anterior; las cortadas justo después de un toque del niño se cuentan aparte, porque ahí cortar es lo correcto.
+
+### A1. La ayuda automática corta las páginas largas de los cuentos (alta)
+- **Qué pasa:** en los cuentos, si una página dura más de unos 11 s, Tito la empieza otra vez a mitad de lectura; y alrededor de un segundo después pasa a la página siguiente, que corta esa relectura. Esa página no se oye entera nunca.
+- **Cómo se reproduce:** entrar en un juego de cuento (por ejemplo, el cuento de cualquier tema de 3 años) y no tocar nada.
+- **Visto en:** `audio-espera.js`, en 17 páginas de cuentos de 21 juegos en el tercio de los juegos revisado en la primera pasada.
+- **Causa probable:** `idle` sube cada cuadro aunque Tito esté hablando (`adult.js`, `frame()`, `idle+=dt`). A los 11 s, `drawHelp()` (`core.js`) llama a `scene.prompt()`, que en `Story` (`comps2.js`) vuelve a leer la página. Esa nueva frase corta la anterior, cuyo `fin` ejecuta su callback (`later(900, turn)`), y el paso de página corta la relectura.
+- **Arreglo propuesto:** no contar `idle` mientras `talking`; no llamar a `prompt()` mientras Tito habla; no ejecutar el callback de una frase cortada por la ayuda.
+
+### A2. Tras el segundo fallo, la consigna corta la explicación del error (alta)
+- **Qué pasa:** al fallar dos veces seguidas, Tito empieza a explicar el error y la consigna repetida le corta casi enseguida.
+- **Ejemplo:** 3A-T1#1: «Esa es la mochila. ¿Dónde está el cuento?» cortada por «¿Dónde está el cuento?».
+- **Cómo se reproduce:** en un juego de elegir (casitas de 3 años), tocar dos veces una respuesta equivocada.
+- **Causa probable:** varios componentes ponen `idle=12` tras el segundo fallo para que salga la ayuda: `comps.js` (líneas ~369 y ~468), `comps2.js` (~133 y ~235); con `idle=7` en `comps.js` (~825) y `scenes.js` (~613). Con `idle>11`, `drawHelp()` llama a `prompt()` en el cuadro siguiente, mientras Tito aún dice la explicación.
+- **Arreglo propuesto:** el mismo que A1: que la ayuda espere a que Tito calle.
+
+### A3. Frases que se cortan solas (alta)
+- **Qué pasa:** en una partida normal (el niño espera a que Tito calle antes de tocar), alrededor de una de cada cinco frases se corta porque el juego empieza la siguiente antes de que acabe.
+- **Números (`audio.js`, 6 min de juego, voz grabada de España):** 52 de 247 frases cortadas sin toque, 33 de ellas en el primer segundo. Con la voz de Fer: 76 de 239. Con el acento rioplatense: 81 de 221.
+- **Ejemplos:** «¡Toca tu foto!» que se corta a sí misma en la asamblea; «¡Qué bien! La pelota.» cortada por «¡Muy bien, Lucía! ¡Una estrella más!»; «¡Muy bien! Del más pequeñito al más grande.» cortada por «¡Bravo! ¡Terminaste el juego!»; «Esta es una máquina de rayos X…» (5A-T2#1) cortada a los 5,5 s por «Busca el hueso.».
+- **Causa probable:** una mezcla de A1/A2 (la ayuda) y de juegos que encadenan una frase con un `later()` de tiempo fijo en vez de esperar al final de la anterior (el callback de `say`).
+- **Nota:** estas cifras se tomaron con la puerta de pruebas sin corregir (ver P1); se repiten con la prueba corregida y se ponen aquí al terminar.
+
+### A4. Dos voces en la misma frase (media)
+- **Qué pasa:** cuando solo una parte de la frase tiene MP3, Tito alterna dentro de la misma frase la voz del navegador y la grabada. Ejemplo: «Esa es la mochila.» con la voz del navegador y «¿Dónde está el cuento?» grabada. El nombre del niño siempre va primero con la voz del navegador.
+- **Números:** 18 de 247 frases (7 %) con la voz de España; 19 de 239 con la de Fer.
+- **Causa:** el plan de `vozFile` en `core.js` trocea la frase y cada trozo va con lo que haya. Es a propósito (v1.580), pero suena raro. Se puede evitar con la opción «Solo voz del navegador» (v1.585) o grabando las frases que faltan (`dialogos/pendientes.txt`).
+
+### A5. Con el acento rioplatense, la mayoría de las frases van con la voz del navegador (media)
+- **Qué pasa:** con `S.variant='ar'`, solo 88 de 221 frases (40 %) sonaron con MP3; 117 con la voz del navegador y 16 mezcladas. Las grabaciones son de España, así que en rioplatense se mezclan dos acentos.
+- **Nota:** es lo esperado mientras no haya grabaciones rioplatenses; se apunta para decidir si el acento por defecto debe ser España.
+
+### A6. En iPhone y iPad las voces grabadas podrían no sonar nunca (alta, sin comprobar)
+- **Qué pasa (deducido del código, no probado: aquí solo hay Chromium):** Safari solo deja reproducir audio en un elemento que se haya «desbloqueado» con un toque. `VOZ_EL` (`core.js`) se crea tarde, dentro de una promesa, nunca dentro de un toque; Safari podría rechazar todos los `play()` y Tito usaría siempre la voz del navegador.
+- **Cómo comprobarlo:** abrir la web en un iPhone con «Voz grabada» y escuchar si suena la grabación.
+- **Arreglo propuesto:** crear `VOZ_EL` y darle un `play()` silencioso en el primer toque (`initAudio()`).
+
+### A7. Reproducciones de MP3 rechazadas (baja)
+- **Qué pasa:** 1 o 2 `play()` rechazados por partida de 6 min. El juego pasa a la voz del navegador, así que la frase se oye igual.
+
+## Partidas guardadas y copias de seguridad
+
+### G1. Una copia de seguridad con campos `null` se acepta y rompe el juego (alta)
+- **Qué pasa:** `bkDecode('{"temas":null}')` responde «ok». Al recuperarla, el juego falla con «Cannot convert undefined or null to object» / «Cannot read properties of null».
+- **Cómo se reproduce:** zona de adultos > Copia de seguridad > Recuperar, pegar `{"temas":null}`.
+- **Visto en:** `limites.js`, casos `copia-ida-vuelta` y `guardado-nulos`.
+- **Causa:** `bkDecode` (`adult.js`) comprueba `typeof d.temas === 'object'`, que es cierto para `null`; y `load()` (`core.js`) copia los `null` con `Object.assign` encima de los valores por defecto.
+- **Arreglo propuesto:** en `load()` y `bkDecode`, ignorar los campos `null` y los de tipo distinto al de `DEF`.
+
+### G2. Una partida guardada con tipos raros rompe el juego (media)
+- **Qué pasa:** si el nombre guardado no es texto (por ejemplo, un número), el juego falla al dibujar: `(S.name||"¡Yo!").toUpperCase is not a function`.
+- **Visto en:** `limites.js`, caso `guardado-tipos`.
+- **Causa y arreglo:** los de G1.
+
+## Otros
+
+### C1. El candado de adultos cuenta tiempo de juego (baja)
+- **Qué pasa:** el candado pide mantenerlo 3 s, pero cuenta con el reloj del juego, que avanza como mucho 0,05 s por cuadro. En un aparato muy lento (en la prueba, unos 2 cuadros por segundo) hay que mantenerlo mucho más; en la prueba ni con 10 s se abrió.
+- **Causa:** `dt` limitado a 0,05 s en `frame()` (`adult.js`). Lo mismo afecta a los `later()`, pero ahí no importa.
+- **Arreglo propuesto:** medir el candado con `performance.now()`.
+
+### C2. Recargar se salta el «a dormir» (baja, informativo)
+- **Qué pasa:** cuando se acaba el tiempo de juego, recargar la página vuelve a dejar jugar. Para niños de 3 a 5 años no es probable.
+
+### P1. La puerta de pruebas `__cl.go` se salta el envoltorio de `world3d.js` (solo pruebas)
+- **Qué pasa:** `window.__cl` (`adult.js`) guarda `go` antes de que `world3d.js` lo envuelva. Si una prueba salta con `__cl.go` de una escena 3D a un juego 2D, no se restaura el rectángulo de Tito (`TITO`) y los toques donde estaba Tito en 3D se toman por toques a Tito (que repite la consigna). Hizo que 73 juegos parecieran «no terminar». El juego de verdad no pasa por ahí.
+- **Rodeo:** `tests/regresion/lib.js` sustituye `__cl.go` por `(n,o)=>go(n,o)` al abrir la página. **Arreglo propuesto:** lo mismo en `adult.js`.
+
+## Lo que funciona
+
+- **Los 253 juegos de todos los temas se terminan** siguiendo la ayuda (`juegos.js`). El de regar pide mantener la regadera sobre la maceta unos segundos; la prueba la suelta enseguida, pero sujetándola se termina.
+- **Partida nueva de punta a punta** con el ratón de verdad a los 3, 4 y 5 años (`camino.js`): portada, edad, nombre, cuento, mapa, asamblea, casitas, juegos, cofre; temas terminados, monedas, cofres, sin errores, y el progreso se conserva al recargar.
+- **Casos límite (`limites.js`):** partida guardada corrupta o vieja; temas o animal de Tito desconocidos; importar de Letrilandia; almacenamiento bloqueado o lleno; copia de seguridad ida y vuelta y mínima; nombres raros (largos, emojis, HTML); toques muy rápidos; salir a mitad de un juego; borrar todo el progreso; modo libre (todas las casitas y su primer juego); cambiar de edad; pantallas en vertical, diminutas, enormes y giradas; sin WebGL (sigue en 2D); sin voz del navegador; volumen de voz a 0; MP3 sin conexión; fechas especiales (noche, 3 de la mañana, Navidad, Año Nuevo, 29 de febrero, cambio de hora, domingo); pasar la medianoche; hemisferio sur; tienda sin monedas y con muchísimas; partida con todo terminado; opción «Solo voz del navegador».
+
+## Cómo repetir
+
+Ver `tests/regresion/LEEME.md`. En resumen, desde la raíz del repo:
+
+```sh
+node tests/regresion/camino.js . 3,4,5 8
+node tests/regresion/juegos.js . 0 1 120
+node tests/regresion/limites.js .
+node tests/regresion/audio.js . es '' 6
+node tests/regresion/audio-espera.js . 0 1
+```
+
+Si un juego no termina, repítelo solo con más tiempo (`juegos.js . 0 1 180 3A-T7#3`) antes de darlo por fallido: con varias pruebas a la vez el juego va a pocos cuadros por segundo.
