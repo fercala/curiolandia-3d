@@ -4,6 +4,7 @@ Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUME
 
 ## Sin publicar
 - Carpeta `dialogos/`: `pendientes.txt` (diálogos por grabar, 1.130: los 1.097 nuevos más 33 por regrabar) y `todos.csv` (catálogo de los 3.281 diálogos, grabados y pendientes, para grabar y para traducir algún día), con `herramientas/voces/dialogos.py` para rehacerlo. Cada diálogo nuevo o cambiado se apunta ahí; el gancho de git lo comprueba. El juego no cambia.
+- `dialogos/informe-sin-voz.md`: el informe de la revisión de frases sin voz, que antes solo estaba en la carpeta del proyecto.
 
 ## v1.580 (2026-10-22)
 - Para el niño: si la familia ha puesto su nombre, Tito lo dice (con la voz del navegador) antes de la frase grabada; antes, con voz grabada, el nombre se perdía. Las frases que solo están grabadas en parte ya no pasan enteras a la voz del navegador: lo grabado suena con la voz grabada y solo lo que falta con la del navegador. Las fechas, monedas y estrellas se arman con piezas grabadas (cuando se graben).

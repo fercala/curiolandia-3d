@@ -1,0 +1,1176 @@
+# Frases de Curiolandia 3D sin voz grabada
+
+Revisión del 22 de octubre de 2026 (v1.580). Un robot jugó los 253 juegos, recorrió todas las escenas de día y de noche, repitió la asamblea en 14 fechas y sacó las frases de la tienda para cada artículo. Se oyeron 2.730 frases distintas.
+
+## Qué grabar
+
+Todo está en **`frases-curiolandia-nuevas.txt`** (en esta carpeta y en el repo, `herramientas/voces/`): **1.097 líneas**, una por frase, listas para `generar-curiolandia-nuevas.bat`. Están en este orden:
+
+| Parte | Líneas | Qué es |
+|---|---|---|
+| Pendientes de antes | 3 | Las presentaciones del erizo, la tortuga y el conejo. |
+| Frases | 869 | Frases o trozos de frase sin voz, **sin el nombre del niño**. Las felicitaciones del principio ("¡Muy bien!", "¡Genial!"...) ya están grabadas: se graba solo lo que va detrás. |
+| Frases con número fijo | 78 | Precios de la tienda y "los 4/5 años": el número no cambia, así que se graban enteras. |
+| Piezas | 37 | Palabras que van alrededor de un dato que cambia ("hoy es jueves", "de octubre", "tienes", "monedas"). Van **en minúsculas y sin signos**: grábalas tal cual. |
+| Números | 110 | Del 0 al 100 escritos con cifras ("22" se graba diciendo "veintidós") y las centenas ("ciento", "doscientos"... "novecientos"). |
+
+Con las piezas y los números, el juego arma solo frases como "Hoy es jueves 22 de octubre" o "Tienes 453 monedas" con tu voz. Mientras no estén grabadas, esos trozos los dice la voz del navegador y el resto de la frase suena con tu voz.
+
+## Cómo suena el nombre
+
+200 frases llevaban el nombre del niño. En la lista está la frase **sin el nombre**. Al jugar, Tito dice primero el nombre con la voz del navegador y luego la frase grabada: "Lucía. ¡Muy bien! ¡Una estrella más!". Ejemplos:
+
+| Lo que dice Tito | Lo que se graba |
+|---|---|
+| ¡Lo encontraste, Lucía! ¡Con la nariz! La nariz sirve para oler. | ¡Con la nariz! La nariz sirve para oler. (la felicitación ya está grabada) |
+| ¡Excelente, Lucía! ¡La olla! Pero la olla va en la cocina. | ¡La olla! Pero la olla va en la cocina. (la felicitación ya está grabada) |
+| ¡Excelente, Lucía! La mariquita es roja. | La mariquita es roja. (la felicitación ya está grabada) |
+| ¡Súper, Lucía! La moto hace ¡Brum, brum! | La moto hace ¡Brum, brum! (la felicitación ya está grabada) |
+| ¡Genial, Lucía! ¡El avión! Vuela por el cielo. | ¡El avión! Vuela por el cielo. (la felicitación ya está grabada) |
+| ¡Súper, Lucía! ¡Hay tres peces! | ¡Hay tres peces! (la felicitación ya está grabada) |
+| ¡Eso es, Lucía! ¡Bellotas, nueces y castañas! | ¡Bellotas, nueces y castañas! (la felicitación ya está grabada) |
+| ¡Eso es, Lucía! ¡En un agujero del árbol! | ¡En un agujero del árbol! (la felicitación ya está grabada) |
+| ¡Eso es, Lucía! ¡Una carta! Porque Pipo vivía lejísimos. | ¡Una carta! Porque Pipo vivía lejísimos. (la felicitación ya está grabada) |
+| ¡Bravo, Lucía! El semáforo. | El semáforo. (la felicitación ya está grabada) |
+| ¡Eso es, Lucía! El paso de cebra. | El paso de cebra. (la felicitación ya está grabada) |
+| ¡Genial, Lucía! El parque. | El parque. (la felicitación ya está grabada) |
+
+## Voz de Fer
+
+Las 1.097 líneas también faltan en la Voz de Fer (usa los mismos nombres de archivo). Además, estas frases están grabadas en la voz principal pero no en la de Fer (son las que se descartaron por salir mal):
+
+- El pan. Rico en el desayuno.
+- La leche. Para el desayuno.
+- Rojo.
+- El miércoles.
+- ¿Con qué fruta se manchó Paula la cara?
+- ¡La canción de las estaciones! Escucha.
+- Pez.
+- El león. Es el rey de la sabana. ¡Grrr!
+- ¿Cuántas lunas hay? Toca el número.
+- La botella de vidrio. Va al contenedor verde.
+- El cubo.
+
+## A tener en cuenta
+
+- **"¡Ahora te toca a tú!"**: el juego convierte "a vos" en "a tú" (debería ser "a ti"). Ya hay tres frases grabadas así y en la lista va una cuarta igual, para que coincida. Si quieres corregirlo, hay que regrabar las cuatro: dímelo y lo cambio.
+- Unos 15 juegos el robot no los terminó del todo y las felicitaciones o los objetos salen al azar, así que puede quedar alguna combinación sin voz. Esas frases las dice la voz del navegador. Se puede repetir la búsqueda cuando quieras con `herramientas/voces/auditoria/` (ver su LEEME).
+- Los números de más de 999 (por ejemplo, 1.200 monedas) siempre los dice la voz del navegador.
+- Lo que va en inglés (el Rincón del inglés) usa a propósito la voz inglesa del navegador y no está en la lista.
+
+## Lista completa por partes
+
+### Frases
+
+```text
+¡Con la nariz! La nariz sirve para oler.
+¡Con las orejas! Miau, miau.
+El pájaro es azul.
+El sol.
+¿Dónde está la ardilla?
+¿Dónde está el paraguas?
+La abuela.
+Del más pequeñito al más grande.
+Ese es el dos. Contamos uno.
+El inodoro.
+El inodoro va en el baño.
+¡El cepillo de dientes! Pero va en el baño.
+¡La olla! Pero la olla va en la cocina.
+El cerdo
+Ahora toca la hoja.
+Ahora toca la mariquita.
+La mariquita es roja.
+Ahora toca la rana.
+Ahora toca el pato.
+Ahora toca la ballena.
+El tren hace ¡Chu, chu!
+El avión hace ¡Fiuuum!
+¿Quién hace fiuuum?
+La moto hace ¡Brum, brum!
+El barco hace ¡Buuuu!
+¡En barco! El barco va por el agua.
+¡El avión! Vuela por el cielo.
+Vamos a contar helados. Toca cada uno.
+¿Cuántos helados hay? Toca el número.
+¡Hay un helado!
+¡Hay tres peces!
+¿Cuántas estrellas de mar hay? Toca el número.
+Ese es el dos. Contamos tres.
+El jueves.
+Esa es la hoja marrón.
+¡Bellotas, nueces y castañas!
+¡En un agujero del árbol!
+¡La calabaza! Un fruto de otoño.
+Desayuno, comida, merienda y cena.
+¡La morsa! Rrrrr.
+¡Una carta! Porque Pipo vivía lejísimos.
+¡Sus plumas! Lo tienen calentito.
+¡Sí! Soy la cocinera.
+Cocino comidas ricas en la cocina. ¿Quién soy?
+El semáforo.
+El paso de cebra.
+El parque.
+¡El conejo! Es un animal doméstico.
+¡El tigre! Shhh.
+¡El cocodrilo! Uaaah.
+Del más corto al más largo.
+El camión.
+¡Encontraste la abeja!
+¡Una oruga verde! Ñam, ñam.
+¡Las hormigas! Una detrás de la otra.
+¡En una mariposa! Qué bonita.
+¿Cuándo sale el sol?
+¡Sí! La mañana.
+¿Cuándo desayunamos?
+Esos son los pulmones.
+Ese es el cerebro.
+¡El cerebro! Piensa y manda.
+¡Los pulmones! Sirven para respirar.
+¡La niebla! Era muy espesa.
+¡La golondrina! Y en primavera vuelve.
+¡Un huevo! Los huevos vienen de la gallina.
+¡De las aceitunas!
+Marte.
+La Tierra.
+Marte es pequeñito, la Tierra es mediana y Júpiter es enorme.
+La luna.
+La luna es más chica que la Tierra, y Júpiter es el más grande.
+¡Encontraste el triceratops!
+¡Encontraste el huevo de dinosaurio!
+¡Encontraste el tiranosaurio!
+¡Encontraste el hueso!
+¡Un fósil! Una piedra muy, muy antigua.
+¡El tiranosaurio! Era carnívoro.
+¡De un huevo enorme! Crac.
+La tortuga.
+El conejo.
+La caja de cartón.
+La lata.
+¿Dónde está la botella de plástico?
+Doblamos a la derecha y llegamos a la piscina.
+Doblamos a la derecha y llegamos a la tienda.
+Vamos a la tienda. ¿Doblamos a la derecha o a la izquierda?
+Doblamos a la derecha y llegamos al hospital.
+Doblamos a la izquierda y llegamos al cole.
+¡El cinturón de seguridad! Clic.
+¡La señal de stop! Hay que parar y mirar.
+Dos manzanas y una manzana. ¿Cuántas hay en total?
+¡Sí! Dos más uno son tres.
+¡Sí! Dos más dos son cuatro.
+Dos estrellas y dos estrellas. ¿Cuántas hay en total?
+¡Sí! Uno más tres son cuatro.
+Una pelota y tres pelotas. ¿Cuántas hay en total?
+Una fresa y dos fresas. ¿Cuántas hay en total?
+¿Quién está entre el perro y el pato?
+¡Sí! El oso.
+¿Quién está a la derecha del conejo?
+¿Quién está entre el gato y el oso?
+¿Cuál sigue? Toca el martes.
+Ese va después. ¿Cuál sigue?
+¡Hay tres estrellas!
+¡Hay dos regalos!
+¡Hay cuatro estrellas!
+¡Hay un regalo!
+¡Hay dos estrellas!
+¡Es el cerdito!
+¡Es el libro!
+¿Dónde está el lápiz?
+¿Dónde está la pelota?
+¡El lápiz! La pelota se quedó fuera.
+¡En el tobogán! ¡Uiii!
+¡Las hojas! En otoño se caen de los árboles.
+¡Una castaña! La ardilla la guardó.
+¿Dónde está el pan?
+El pan.
+¡Las uvas! Y también plátano, fresa y pera.
+La tele.
+¿Dónde está la bañera?
+¿Qué salió por todos lados en primavera?
+Mmm, no. Piensa en el cuento. ¿Qué salió por todos lados en primavera?
+¡Las flores! En primavera salen flores.
+¡La abeja! Bzzz... ¡achís!
+La bici.
+¡Encontraste la estrella de mar!
+Los hombros.
+Los tobillos.
+Las rodillas.
+¡Miel! Con la boca sentimos los sabores.
+¡La ardilla tiene tres frutos!
+¡La ardilla tiene cinco frutos!
+¡La ardilla tiene cuatro frutos!
+Enfado.
+La sandía es una fruta.
+La zanahoria es una verdura.
+¡El kiwi! Verde por dentro.
+¡El brócoli! Un arbolito para comer.
+¡Con la sandía! Roja y jugosa.
+Ese es el cuatro. Contamos cinco.
+Ese es el seis. Contamos cinco.
+El panadero.
+La granjera
+El cartero.
+Está verde: cruzamos por el paso de cebra, mirando a los dos lados.
+¡La pelota! Y Bruno no corrió a la calle.
+¡Por el paso de cebra, de la mano!
+¡Al parque! A jugar toda la tarde.
+El perro hace ¡Guau, guau!
+El gato hace ¡Miau!
+El mono hace ¡U, u, a, a!
+El conejo hace ¡Snif, snif!
+El fruto. Adentro tiene semillas nuevas.
+La ambulancia.
+El helicóptero.
+El metro.
+La lancha.
+El submarino.
+El barco.
+¡En metro! Por un túnel.
+¡El camión de bomberos! Uiu, uiu.
+¡La ambulancia! Para que las curen.
+¡Sí! Después va la mariposa.
+¡Sí! Después va la hormiga.
+Vamos a pintar el chocolate de marrón.
+Marrón.
+Ahora toca el chocolate.
+El chocolate es marrón.
+Vamos a pintar la flor de rosa.
+Ahora toca la flor.
+Primero pintamos la flor.
+La flor es rosa.
+Ahora toca el elefante.
+El elefante es gris.
+Vamos a pintar el cerdo de rosa.
+Ahora toca el cerdo.
+El cerdo es rosa.
+Ahora toca la ardilla.
+La ardilla es marrón.
+Vamos a pintar la piedra de gris. Toca el gris.
+Ahora toca la piedra.
+La piedra es gris.
+Vamos a pintar las uvas de morado.
+Ahora toca las uvas.
+Las uvas son moradas.
+¡El cumpleaños! Noviembre viene antes que diciembre.
+¡Una mochila nueva!
+¡La Navidad! Con el árbol.
+Ese es el hueso.
+Ese es el músculo.
+Ese es el corazón.
+El chocolate.
+¡Sí! El chocolate, solo de vez en cuando.
+Ahí no le da el sol, es de noche. Sigue girando.
+¡En cohete! Tres, dos, uno... ¡despegue!
+¡La Tierra! Gira despacito.
+¡El Sol! Del lado que mira al Sol es de día.
+¡Sí! Es la sombra del cocodrilo.
+¡La cometa! Con el viento vuela alto.
+¡El arcoíris! Sale cuando hay sol y lluvia.
+El gato es un ser vivo.
+El pez es un ser vivo.
+El reloj.
+¡La botella de vidrio! El vidrio va al verde.
+¡La piel del plátano! Se convierte en abono.
+Teníamos siete globos y se volaron tres. ¿Cuántos quedan?
+Teníamos tres globos y se volaron uno. ¿Cuántos quedan?
+Teníamos siete globos y se volaron seis. ¿Cuántos quedan?
+Teníamos cinco globos y se volaron tres. ¿Cuántos quedan?
+¡Sí! El elefante es más pesado.
+¡Sí! El pájaro es más ligero.
+Empieza en el punto verde.
+Deja las pinturas fuera de la mochila, en la mesa.
+La oreja.
+Vamos a pintar la manzana de rojo.
+Mmm, la manzana no es verde.
+Primero pintamos la manzana.
+¡La ballena! Una ballena azul.
+¡La rana verde! Croac.
+El bebé. Es pequeñito y toma leche.
+El bebé.
+¿Dónde está mamá?
+¡Los guantes! Para las manos.
+¡Su bufanda! Para el cuello.
+Pon el plátano en el bol.
+La vaca hace ¡Muuu!
+El caballo hace ¡Iiiiii!
+¡La vaca! Muuu.
+¡Hay dos mariposas!
+¡Hay una abeja!
+¡Hay dos mariquitas!
+¿Dónde está el tren?
+¿Dónde está el coche?
+¡La crema solar! Y la gorra y las gafas.
+¡Una concha, como una corona!
+¡Hay una pelota!
+Vamos a contar osos. Toca cada uno.
+¿Cuántos osos hay? Toca el número.
+¡Hay dos osos!
+¡Hay un oso!
+¡Hay tres flores!
+¿Cuándo jugamos en el parque?
+Lunes, martes, miércoles, mmm... ¿Qué día falta?
+Martes, miércoles, mmm... , viernes. ¿Qué día falta?
+¡Al cole! De lunes a viernes hay cole.
+¡A la piscina! A nadar con papá.
+¡A los abuelos!
+¿Con qué vemos los colores del arcoíris?
+La nuez
+La calabaza
+¡Pobre Martín, su helado!
+¡El bebé le tiró la torre!
+¿Cómo se sintió Martín con la tormenta?
+Y papá lo abrazó fuerte.
+Pon el pimiento en la olla.
+La foca.
+El cartero usa la carta.
+¡Al panadero! El panadero hace el pan.
+¡El fonendo! Pum, pum.
+El cuento va al cole.
+El fonendo va al hospital.
+El médico.
+¡Sí! Es la sombra del león.
+¡Sí! Es la sombra de la cebra.
+El fruto. Adentro tiene las semillas.
+Las hojas. Busca el tallo.
+El tallo.
+La raíz. Toma el agua de la tierra.
+¡Una semilla pequeñita!
+¡El sol! Agua y sol para crecer.
+¿Qué necesita la planta, además de agua?
+¡Un tomate rojo y redondo!
+¿Qué fruto le salió a la planta?
+El tractor hace ¡Put, put, put!
+El helicóptero hace ¡Tacatacataca!
+El submarino hace ¡Piiing!
+La ambulancia hace ¡Niinoo, niinoo!
+El rectángulo.
+Detrás
+¡Sí! Es el árbol del invierno.
+¿Cuál es el árbol del invierno? Hace frío y a veces nieva.
+Diciembre, enero... ¿Qué mes viene después?
+¡Sí! Después de enero viene febrero.
+Otoño, invierno, primavera y verano. ¡Y después vuelve el otoño!
+La miel viene de un animal.
+¡Un antifaz! Y una capa.
+¡Una vela de la tarta!
+Ese es el nueve. Contamos tres.
+El pez vive en el mar.
+La estrella de mar vive en el mar.
+El oso polar vive en el polo.
+¿Quién vivía en el desierto?
+Mmm, no. Piensa en el cuento. ¿Quién vivía en el desierto?
+El robot no hace falta para vivir.
+El coche no hace falta para vivir.
+La tele no hace falta para vivir.
+El trineo.
+Los esquís.
+Los esquís, para la nieve.
+¿Qué forma tiene la pelota?
+Ese es el óvalo.
+¡Sí! La oveja es el primero.
+¡Sí! El gato es el último.
+¡Sí! El gato es el segundo.
+¡Sí! El perro es el primero.
+¡Sí! Después va el óvalo.
+Mmm, el cuadrado no. Mira cómo se repite la fila.
+¡Hay tres regalos!
+¡Hay tres globos!
+¡Hay cinco globos!
+¡Hay seis regalos!
+¿Dónde está el regalo?
+Esa es la estrella.
+Esa es la vela.
+¿Dónde está la serpentina?
+La casa de ladrillos.
+El cerdito.
+El lobo
+La casa de madera.
+¡Hay ocho!
+Ahora toca la manzana.
+Ahora toca el sol.
+Ahora toca el sol para pintarlo.
+Ahora toca la fresa.
+Ahora toca la gota de agua.
+Vamos a contar plátanos. Toca cada uno.
+¿Cuántos plátanos hay? Toca el número.
+¡Hay un plátano!
+¡Hay tres naranjas!
+¡Hay dos naranjas!
+¡Hay dos estrellas de mar!
+Vamos a contar conchas. Toca cada una.
+¿Cuántas conchas hay? Toca el número.
+¡Hay una concha!
+¡Hay tres conchas!
+¡Hay dos conchas!
+¡Encontraste el cubo!
+¡Es la cara!
+Sale en el bosque cuando llueve.
+La fresa es una fruta.
+El kiwi.
+La berenjena.
+La berenjena es una verdura.
+Las uvas es una fruta.
+La lechuga.
+La lechuga es una verdura.
+La patata.
+La patata es una verdura.
+Pon la patata en la olla.
+¡Hay cinco copos de nieve!
+¡Hay cuatro copos de nieve!
+¡Hay tres pingüinos!
+La granjera usa el tractor.
+La policía usa el silbato.
+La ambulancia va al hospital.
+La pelota va al parque.
+La bici va al parque.
+La leche va a la tienda.
+La manzana va a la tienda.
+El elefante.
+Primero la semilla, después crece la planta y al final sale la flor.
+El estómago
+¡Es el esqueleto!
+¡Es el corazón!
+¡Hay diez cohetes!
+¡Hay seis cohetes!
+¡Hay diez lunas!
+¡Hay siete lunas!
+¡Hay dos cohetes!
+El triceratops.
+El triceratops comía plantas.
+El tiranosaurio comía carne.
+El pterodáctilo comía carne.
+El diplodoco y el triceratops comían plantas. El tiranosaurio y el pterodáctilo comían carne.
+¡Es el tiranosaurio!
+¡Es el triceratops!
+El pulpo.
+¡El camello! Aguanta sin beber agua.
+¡El pulpo! Vive en el mar.
+¡El búho! Ve muy bien de noche.
+Así crecen los seres vivos.
+El niño.
+El niño es un ser vivo.
+El reloj no está vivo.
+La silla no está vivo.
+La flor es un ser vivo.
+La piedra no está vivo.
+El lápiz no está vivo.
+¡El brote! Después vinieron la planta, la flor y el fruto.
+¡Agua! Sin agua, la planta se pone triste.
+¡Semillas! Para plantar otra vez.
+¡Sí! El rectángulo.
+Una fresa y una fresa. ¿Cuántas hay en total?
+¡Sí! Uno más uno son dos.
+¡Sí! Cuatro más cuatro son ocho.
+Cuatro pelotas y cuatro pelotas. ¿Cuántas hay en total?
+¡Sí! Cuatro más uno son cinco.
+Cuatro manzanas y una manzana. ¿Cuántas hay en total?
+¡Sí! Después va el círculo.
+¡Hay tres!
+¡Hay siete!
+¿Qué día es hoy? ¿De qué color es el cielo? ¿Qué come la vaca?
+¿Me ayudas a encontrar las respuestas? ¡Vamos a Curiolandia!
+¡Sí! Ahora es de día.
+¿Ahora es de día o de noche?
+Cantemos los días de la semana.
+Hoy es jueves. ¡Toca el vagón de hoy, el que salta!
+Hoy es jueves. Es día de escuela.
+¿Qué tiempo hace hoy? Mira por la ventana de tu casa y toca el dibujo.
+¡Hoy llueve! Lo anotamos en el calendario del tiempo.
+¿Cómo te sientes hoy? Toca la carita.
+Hoy sientes enojo. Cuando me enojo, respiro como un globo: inflo, inflo... y suelto despacito.
+¡Terminamos la asamblea! ¡Ahora a jugar!
+Las canciones se abren cuando termines una casita del camino.
+Se despierta cuando Tito tenga seis flores del bosque.
+Los días especiales se abren cuando termines cuatro casitas del camino.
+Se despierta cuando Tito tenga seis flores del jardín.
+El Rincón del inglés se abre cuando termines dos casitas del camino.
+Ayer fue miércoles. ¿Qué día es hoy? Toca el vagón.
+Ese es el viernes. Ayer fue miércoles. Hoy es el que viene después.
+Ayer fue miércoles. ¿Qué día es hoy?
+Con este tiempo, ¿qué nos ponemos para salir?
+¡Sí! Nos ponemos las botas de agua.
+¿En qué estación estamos? Toca el árbol.
+¡Sí! Estamos en otoño. Las hojas se caen.
+Hoy sientes tristeza. Está bien estar triste a veces. Un abrazo ayuda mucho.
+¡Buen día! Toca el botón verde para seguir el camino. También puedes ir a la tienda o a la casa de Tito.
+¡Presente! Y hoy eres el encargado de la asamblea. ¡Te ganaste la gorra!
+Ese es el sábado. Ayer fue miércoles. Hoy es el que viene después.
+Hoy es jueves. ¿Y mañana qué día será? Toca el vagón de mañana.
+¿Qué día será mañana?
+Mañana será viernes.
+Estamos en octubre.
+¡Hoy hay niebla! Lo anotamos en el calendario del tiempo.
+Ahora es otoño. ¿Qué estación viene después?
+¡Sí! Después viene el invierno.
+Hoy sientes calma. ¡Qué bonito sentirse así!
+¡La tienda!
+Toca algo para ver cuánto cuesta.
+¡Mira! ¡Se abrieron las canciones! Toca para jugar.
+Las canciones. Empieza por el primero.
+Toca la casita que brilla: mi cole.
+Mi cole. Empieza por el primero: ¡vamos a conocer!
+Toca la casita que brilla: los días de la semana.
+Los días de la semana. Empieza por el primero: ¡vamos a conocer!
+Toca la casita que brilla: los meses del año.
+De viaje con cuidado. Empieza por el primero: ¡vamos a conocer!
+Toca la casita que brilla: el cumpleaños.
+Toca la casita que brilla: los saludos en inglés.
+Los saludos en inglés. Empieza por el primero.
+Mi cuerpo. Empieza por el primero.
+Los colores. Empieza por el primero: ¡vamos a conocer!
+Empieza por el primero: ¡vamos a conocer!
+Mi familia. Empieza por el primero: ¡vamos a conocer!
+El invierno y la ropa. Empieza por el primero: ¡vamos a conocer!
+Las frutas y el desayuno. Empieza por el primero: ¡vamos a conocer!
+Mi casa. Empieza por el primero: ¡vamos a conocer!
+Los animales de la granja. Empieza por el primero: ¡vamos a conocer!
+Los transportes. Empieza por el primero: ¡vamos a conocer!
+El verano y la playa. Empieza por el primero: ¡vamos a conocer!
+Rincón de los Conceptos. Empieza por el primero.
+Mi cuerpo y los sentidos. Empieza por el primero: ¡vamos a conocer!
+El otoño y sus frutos. Empieza por el primero: ¡vamos a conocer!
+Las emociones. Empieza por el primero: ¡vamos a conocer!
+Frutas y verduras. Empieza por el primero: ¡vamos a conocer!
+El invierno y el polo. Empieza por el primero: ¡vamos a conocer!
+Los oficios. Empieza por el primero: ¡vamos a conocer!
+La calle y la ciudad. Empieza por el primero: ¡vamos a conocer!
+Animales domésticos y salvajes. Empieza por el primero: ¡vamos a conocer!
+Las plantas. Empieza por el primero: ¡vamos a conocer!
+Los transportes por tierra, mar y aire. Empieza por el primero: ¡vamos a conocer!
+Los bichitos y el verano. Empieza por el primero: ¡vamos a conocer!
+Los meses del año. Empieza por el primero: ¡vamos a conocer!
+Mi cuerpo por dentro. Empieza por el primero: ¡vamos a conocer!
+El otoño y los cambios. Empieza por el primero: ¡vamos a conocer!
+Comer sano. Empieza por el primero: ¡vamos a conocer!
+Las fiestas del año. Empieza por el primero: ¡vamos a conocer!
+El universo. Empieza por el primero: ¡vamos a conocer!
+Los dinosaurios. Empieza por el primero: ¡vamos a conocer!
+Los animales y dónde viven. Empieza por el primero: ¡vamos a conocer!
+El tiempo y el clima. Empieza por el primero: ¡vamos a conocer!
+Los seres vivos. Empieza por el primero: ¡vamos a conocer!
+Cuidamos el planeta. Empieza por el primero: ¡vamos a conocer!
+Rutinas y hábitos. Las cosas que hacemos todos los días. Empieza por el primero.
+Los trazos. Con los trazos preparamos la mano para escribir. Se juegan en orden: cuando terminas uno, se abre el siguiente. Empieza por el primero.
+El cumpleaños. Empieza por el primero.
+La Navidad. Empieza por el primero.
+El carnaval. Empieza por el primero.
+El Día del Libro. Empieza por el primero.
+Los colores en inglés. Empieza por el primero.
+Los números en inglés. Empieza por el primero.
+¡Mira lo que había: el gorrito de fiesta! ¡Tito ya se lo puso! ¡Y diez monedas!
+Toca la casa para verlo, o la flecha verde para seguir el camino.
+El gorrito de fiesta.
+Mascotas.
+Ropa para Tito.
+Toca el verde para comprar.
+¿Lo compras? Toca el verde para comprar o la cruz para volver.
+¡Es tuyo! ¡Mira qué bonito le queda a Tito!
+Tito se quitó el gorro de Navidad.
+¡Tito se puso la gorra!
+Ganas estrellas terminando juegos.
+Este es tu álbum.
+¡Sí! Ahora es de noche.
+¡Buenas noches! Toca el botón verde para seguir el camino. También puedes ir a la tienda o a la casa de Tito.
+Ese es el lunes. Ayer fue miércoles. Hoy es el que viene después.
+¡Hoy hay viento! Lo anotamos en el calendario del tiempo.
+¿Qué nos ponemos?
+¡Sí! Nos ponemos la bufanda.
+Es un huevo misterioso.
+¡Hoy está nublado! Lo anotamos en el calendario del tiempo.
+Hoy sientes tristeza. Está bien estar triste a veces. Un abrazo ayuda mucho. Puedes contarle a alguien lo que te pasa.
+Los animales en inglés. Empieza por el primero.
+Colores para Tito.
+¡Tito se puso la bufanda roja!
+Guarda el cuento dentro de la mochila.
+Hoy es lunes. ¡Toca el vagón de hoy, el que salta!
+Hoy es lunes. Es día de escuela.
+¿Cómo te sientes hoy?
+¡Hoy hace sol! Lo anotamos en el calendario del tiempo.
+¡Qué bueno! Hoy sientes alegría. ¡Yo también estoy feliz de verte!
+Ayer fue domingo. ¿Qué día es hoy? Toca el vagón.
+Ese es el domingo. Ayer fue domingo. Hoy es el que viene después.
+¿Qué tiempo hace hoy?
+¡Sí! Nos ponemos el paraguas.
+¡Sí! Estamos en invierno. Hace frío.
+Ayer fue domingo. ¿Qué día es hoy?
+Ese es el miércoles. Ayer fue domingo. Hoy es el que viene después.
+¡Sí! Nos ponemos la gorra.
+Ese es el jueves. Ayer fue domingo. Hoy es el que viene después.
+Hoy es lunes. ¿Y mañana qué día será? Toca el vagón de mañana.
+Mañana será martes.
+Estamos en enero.
+¡Hoy hay tormenta! Lo anotamos en el calendario del tiempo.
+Ahora es invierno. ¿Qué estación viene después?
+¡Sí! Después viene la primavera.
+Ese es el sábado. Mañana es el que viene después de hoy.
+Hoy es martes. ¡Toca el vagón de hoy, el que salta!
+Ese es el sábado. Hoy es martes, el que salta.
+Hoy es martes. Es día de escuela.
+Ayer fue lunes. ¿Qué día es hoy? Toca el vagón.
+Ese es el sábado. Ayer fue lunes. Hoy es el que viene después.
+Ese es el árbol de la primavera. Prueba con otro.
+Hoy sientes miedo. Si tienes miedo, busca a un mayor que te cuide.
+¡Sí! Nos ponemos el abrigo.
+¡Hoy sientes sorpresa! ¡Qué emocionante!
+Ese es el miércoles. Ayer fue lunes. Hoy es el que viene después.
+Hoy es martes. ¿Y mañana qué día será? Toca el vagón de mañana.
+Ese es el martes. Mañana es el que viene después de hoy.
+Mañana será miércoles.
+Estamos en febrero.
+Hoy sientes enojo. Cuando me enojo, respiro como un globo: inflo, inflo... y suelto despacito. Y después cuenta lo que te enojó con palabras.
+Ese es el jueves. Mañana es el que viene después de hoy.
+¡Hoy nieva! Lo anotamos en el calendario del tiempo.
+Mira por la ventana. Ahora hay luz.
+Hoy es miércoles. ¡Toca el vagón de hoy, el que salta!
+Hoy es miércoles. Es día de escuela.
+Ayer fue martes. ¿Qué día es hoy? Toca el vagón.
+Ayer fue martes. ¿Qué día es hoy?
+Ese es el viernes. Ayer fue martes. Hoy es el que viene después.
+¡Sí! Nos ponemos los guantes.
+Ese es el jueves. Ayer fue martes. Hoy es el que viene después.
+¡Sí! Nos ponemos el gorro.
+Hoy es miércoles. ¿Y mañana qué día será? Toca el vagón de mañana.
+Mañana será jueves.
+Estamos en marzo.
+Mmm, después de invierno no viene verano.
+Ese es el domingo. Ayer fue martes. Hoy es el que viene después.
+Ese es el viernes. Mañana es el que viene después de hoy.
+Ese es el árbol del otoño. Prueba con otro.
+Mira por la ventana. Ahora no hay sol.
+Ese es el miércoles. Ayer fue miércoles. Hoy es el que viene después.
+¡Sí! Estamos en primavera. Salen las flores.
+Ese es el martes. Ayer fue miércoles. Hoy es el que viene después.
+Ese es el domingo. Mañana es el que viene después de hoy.
+Estamos en abril.
+Ahora es primavera. ¿Qué estación viene después?
+Mmm, después de primavera no viene invierno.
+¡Sí! Después viene el verano.
+Hoy es viernes. ¡Toca el vagón de hoy, el que salta!
+Hoy es viernes. Es día de escuela.
+Ayer fue jueves. ¿Qué día es hoy? Toca el vagón.
+Ese es el sábado. Ayer fue jueves. Hoy es el que viene después.
+Ese es el lunes. Ayer fue jueves. Hoy es el que viene después.
+Ese es el jueves. Ayer fue jueves. Hoy es el que viene después.
+Hoy es viernes. ¿Y mañana qué día será? Toca el vagón de mañana.
+Ese es el lunes. Mañana es el que viene después de hoy.
+Mañana será sábado.
+Estamos en mayo.
+¿En qué estación estamos?
+Hoy sientes vergüenza. Nos pasa a todos. Respira hondo y sonríe.
+Hoy es sábado. ¡Toca el vagón de hoy, el que salta!
+Hoy es sábado. ¡Es fin de semana, no hay escuela!
+Ayer fue viernes. ¿Qué día es hoy? Toca el vagón.
+Ese es el lunes. Ayer fue viernes. Hoy es el que viene después.
+Ese es el viernes. Ayer fue viernes. Hoy es el que viene después.
+Hoy es sábado. ¿Y mañana qué día será? Toca el vagón de mañana.
+Mañana será domingo.
+Estamos en junio.
+Hoy es domingo. ¡Toca el vagón de hoy, el que salta!
+Hoy es domingo. ¡Es fin de semana, no hay escuela!
+Ayer fue sábado. ¿Qué día es hoy? Toca el vagón.
+¡Sí! Estamos en verano. Hace calor.
+Ese es el miércoles. Ayer fue sábado. Hoy es el que viene después.
+Hoy es domingo. ¿Y mañana qué día será? Toca el vagón de mañana.
+Mañana será lunes.
+Estamos en julio.
+Ahora es verano. ¿Qué estación viene después?
+Mmm, después de verano no viene primavera.
+¡Sí! Después viene el otoño.
+Ese es el sábado. Ayer fue sábado. Hoy es el que viene después.
+Ese es el miércoles. Ayer fue jueves. Hoy es el que viene después.
+Estamos en agosto.
+Mmm, después de verano no viene invierno.
+Ese es el lunes. Hoy es miércoles, el que salta.
+Ese es el lunes. Ayer fue martes. Hoy es el que viene después.
+Estamos en septiembre.
+Toca el vagón que salta.
+Ese es el martes. Ayer fue martes. Hoy es el que viene después.
+Hoy sientes miedo. Si tienes miedo, busca a un mayor que te cuide. Hablar de lo que da miedo lo hace más pequeñito.
+La camiseta no va con este tiempo.
+Estamos en noviembre.
+Ese es el domingo. Ayer fue miércoles. Hoy es el que viene después.
+¡Sí! Nos ponemos las gafas de sol.
+Estamos en diciembre.
+Ayer fue sábado. ¿Qué día es hoy?
+Ese es el martes. Ayer fue sábado. Hoy es el que viene después.
+Ese es el jueves. Ayer fue sábado. Hoy es el que viene después.
+Ese es el lunes. Ayer fue sábado. Hoy es el que viene después.
+¡Tito se puso el gorrito de fiesta!
+¡Me puse el gorrito de fiesta!
+Tito se quitó el gorrito de fiesta.
+Me quité el gorrito de fiesta.
+¡Aquí está el gorrito de fiesta!
+¡Mira lo que había: el gorrito de fiesta!
+¡Me puse la gorra!
+Tito se quitó la gorra.
+Me quité la gorra.
+¡Aquí está la gorra!
+¡Mira lo que había: la gorra!
+El lazo.
+¡Tito se puso el lazo!
+¡Me puse el lazo!
+Tito se quitó el lazo.
+Me quité el lazo.
+¡Aquí está el lazo!
+¡Mira lo que había: el lazo!
+¡Tito se puso las gafas de sol!
+¡Me puse las gafas de sol!
+Tito se quitó las gafas de sol.
+Me quité las gafas de sol.
+¡Aquí está las gafas de sol!
+¡Mira lo que había: las gafas de sol!
+¡Tito se puso el gorro!
+¡Me puse el gorro!
+Tito se quitó el gorro.
+Me quité el gorro.
+¡Aquí está el gorro!
+¡Mira lo que había: el gorro!
+¡Tito se puso el gorro de Navidad!
+¡Me puse el gorro de Navidad!
+Me quité el gorro de Navidad.
+¡Aquí está el gorro de Navidad!
+¡Mira lo que había: el gorro de Navidad!
+¡Tito se puso el sombrero de copa!
+¡Me puse el sombrero de copa!
+Tito se quitó el sombrero de copa.
+Me quité el sombrero de copa.
+¡Aquí está el sombrero de copa!
+¡Mira lo que había: el sombrero de copa!
+¡Tito se puso el sombrero de pirata!
+¡Me puse el sombrero de pirata!
+Tito se quitó el sombrero de pirata.
+Me quité el sombrero de pirata.
+¡Aquí está el sombrero de pirata!
+¡Mira lo que había: el sombrero de pirata!
+¡Tito se puso la corona!
+¡Me puse la corona!
+Tito se quitó la corona.
+Me quité la corona.
+¡Aquí está la corona!
+¡Mira lo que había: la corona!
+El caparazón naranja.
+¡Tito se puso el caparazón naranja!
+¡Me puse el caparazón naranja!
+¡Aquí está el caparazón naranja!
+¡Mira lo que había: el caparazón naranja!
+El caparazón azul.
+¡Tito se puso el caparazón azul!
+¡Me puse el caparazón azul!
+¡Aquí está el caparazón azul!
+¡Mira lo que había: el caparazón azul!
+El caparazón rosa.
+¡Tito se puso el caparazón rosa!
+¡Me puse el caparazón rosa!
+¡Aquí está el caparazón rosa!
+¡Mira lo que había: el caparazón rosa!
+El caparazón verde.
+¡Tito se puso el caparazón verde!
+¡Me puse el caparazón verde!
+¡Aquí está el caparazón verde!
+¡Mira lo que había: el caparazón verde!
+El caparazón violeta.
+¡Tito se puso el caparazón violeta!
+¡Me puse el caparazón violeta!
+¡Aquí está el caparazón violeta!
+¡Mira lo que había: el caparazón violeta!
+El caparazón dorado.
+¡Tito se puso el caparazón dorado!
+¡Me puse el caparazón dorado!
+¡Aquí está el caparazón dorado!
+¡Mira lo que había: el caparazón dorado!
+La bufanda roja.
+¡Me puse la bufanda roja!
+¡Aquí está la bufanda roja!
+¡Mira lo que había: la bufanda roja!
+La bufanda azul.
+¡Tito se puso la bufanda azul!
+¡Me puse la bufanda azul!
+¡Aquí está la bufanda azul!
+¡Mira lo que había: la bufanda azul!
+La bufanda amarilla.
+¡Tito se puso la bufanda amarilla!
+¡Me puse la bufanda amarilla!
+¡Aquí está la bufanda amarilla!
+¡Mira lo que había: la bufanda amarilla!
+La bufanda violeta.
+¡Tito se puso la bufanda violeta!
+¡Me puse la bufanda violeta!
+¡Aquí está la bufanda violeta!
+¡Mira lo que había: la bufanda violeta!
+La alfombra.
+La alfombra ya es tuyo. Está en la casa de Tito.
+¡Aquí está la alfombra!
+¡Mira lo que había: la alfombra!
+El cuadro.
+El cuadro ya es tuyo. Está en la casa de Tito.
+¡Aquí está el cuadro!
+¡Mira lo que había: el cuadro!
+La planta ya es tuyo. Está en la casa de Tito.
+¡Aquí está la planta!
+¡Mira lo que había: la planta!
+La lámpara.
+La lámpara ya es tuyo. Está en la casa de Tito.
+¡Aquí está la lámpara!
+¡Mira lo que había: la lámpara!
+El banco.
+El banco ya es tuyo. Está en la casa de Tito.
+¡Aquí está el banco!
+¡Mira lo que había: el banco!
+La estantería.
+La estantería ya es tuyo. Está en la casa de Tito.
+¡Aquí está la estantería!
+¡Mira lo que había: la estantería!
+El reloj ya es tuyo. Está en la casa de Tito.
+¡Aquí está el reloj!
+¡Mira lo que había: el reloj!
+El farol.
+El farol ya es tuyo. Está en la casa de Tito.
+¡Aquí está el farol!
+¡Mira lo que había: el farol!
+El piano.
+El piano ya es tuyo. Está en la casa de Tito.
+¡Aquí está el piano!
+¡Mira lo que había: el piano!
+La fuente.
+La fuente ya es tuyo. Está en la casa de Tito.
+¡Aquí está la fuente!
+¡Mira lo que había: la fuente!
+La pelota de playa ya es tuyo. Está en la casa de Tito.
+¡Aquí está la pelota de playa!
+¡Mira lo que había: la pelota de playa!
+Los bloques ya es tuyo. Está en la casa de Tito.
+¡Aquí está los bloques!
+¡Mira lo que había: los bloques!
+El peluche ya es tuyo. Está en la casa de Tito.
+¡Aquí está el peluche!
+¡Mira lo que había: el peluche!
+La cometa.
+La cometa ya es tuyo. Está en la casa de Tito.
+¡Aquí está la cometa!
+¡Mira lo que había: la cometa!
+El xilófono.
+El xilófono ya es tuyo. Está en la casa de Tito.
+¡Aquí está el xilófono!
+¡Mira lo que había: el xilófono!
+La muñeca ya es tuyo. Está en la casa de Tito.
+¡Aquí está la muñeca!
+¡Mira lo que había: la muñeca!
+El robot ya es tuyo. Está en la casa de Tito.
+¡Aquí está el robot!
+¡Mira lo que había: el robot!
+El trenecito ya es tuyo. Está en la casa de Tito.
+¡Aquí está el trenecito!
+¡Mira lo que había: el trenecito!
+La guitarra.
+La guitarra ya es tuyo. Está en la casa de Tito.
+¡Aquí está la guitarra!
+¡Mira lo que había: la guitarra!
+El telescopio.
+El telescopio ya es tuyo. Está en la casa de Tito.
+¡Aquí está el telescopio!
+¡Mira lo que había: el telescopio!
+La pecera.
+La pecera ya es tuyo. Está en la casa de Tito.
+¡Aquí está la pecera!
+¡Mira lo que había: la pecera!
+El hámster.
+El hámster ya es tuyo. Está en la casa de Tito.
+¡Aquí está el hámster!
+¡Mira lo que había: el hámster!
+La casita del perro.
+La casita del perro ya es tuyo. Está en la casa de Tito.
+¡Aquí está la casita del perro!
+¡Mira lo que había: la casita del perro!
+Cosas para la casa.
+Juguetes.
+Vales para canjear.
+¡Hola! Soy Tito. ¿Jugamos? Toca la plaza.
+¡Todas las flores crecieron!
+¡Salió una flor!
+¡Mira qué bonita flor!
+¡Es la fiesta de cumpleaños! Sopla las velitas: toca cada una y contamos.
+Gira la Tierra hasta que Leo quede del lado oscuro.
+Gira la Tierra hasta que Leo quede del lado del sol.
+Ahí le da el sol, es de día. Sigue girando.
+¡Cuidado! Está rojo: los coches pasan. Esperamos.
+¡Vamos a cantar! Escucha la canción.
+¡Ahora te toca a tú! Toca cada uno en orden, como en la canción.
+¡Qué bien cantamos!
+Toca la flecha verde para seguir el camino.
+Todavía no hay nada para repasar. ¡Primero juega algunos juegos del camino!
+¡Ya hiciste el repaso de hoy! Mañana Tito prepara otro. Toca la flecha verde para seguir el camino.
+Empieza por el primero.
+El repaso con Tito.
+Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.
+Toca una casita para jugar.
+Toca un juego. Te falta el que no tiene estrella.
+¡Ya jugaste todos! Puedes repetir el que más te guste.
+Mañana es el que viene después de hoy.
+¡Es fin de semana, no hay escuela!
+Es día de escuela.
+Prueba otra vez.
+Todavía no tienes pegatinas. ¡Las ganas terminando juegos!
+Esta todavía no la tienes.
+Bueno, ¡otra vez será!
+¡Es tuyo! Ya está en la casa de Tito. Toca la casita de arriba para verlo.
+¡Mira qué bonito me queda!
+Puedes cambiar las cosas de lugar arrastrándolas.
+¡Esta es mi casa! Puedes mover las cosas arrastrándolas, y tocarlas para jugar.
+Arrastra las cosas para acomodar la casa. Abajo está mi ropa: tócala para ponérmela.
+Toca el carrito para ir a la tienda.
+¡Pipo te quiere mucho!
+Pipo dice: ¡grrr! Así saludan los dinosaurios.
+¡Pipo es el dinosaurio más grande del mundo!
+¡La casa de Tito ya es un castillo!
+¡Me encanta mi casa!
+¡Gracias por jugar conmigo!
+¡Qué bonito día!
+¿Has visto mi ropa nueva?
+¡Terminaste todo el camino! Puedes repetir la casita que quieras.
+Seguir el camino.
+¡Hola! Soy Pipo, el dinosaurio de Tito.
+La casa de Tito.
+¡Tito ya se lo puso!
+Ya está en la casa de Tito.
+¡Que los cumplas feliz! Tito te regala diez monedas.
+```
+
+### Frases con número fijo
+
+```text
+La Montaña de los 5 años todavía está dormida.
+El Bosque de los 4 años todavía está dormido.
+¿Quieres comprar la gorra por 8 monedas?
+¿Quieres comprar el gorro de Navidad por 12 monedas?
+¿Quieres comprar el gorro por 10 monedas?
+La corona se abre cuando tengas 20 estrellas.
+¿Quieres comprar el caparazón verde por 20 monedas?
+¿Quieres comprar el caparazón rosa por 15 monedas?
+¿Quieres comprar el caparazón azul por 15 monedas?
+¿Quieres comprar el gorrito de fiesta por 6 monedas?
+Cuesta 6 monedas.
+Cuesta 8 monedas.
+¿Quieres comprar el lazo por 6 monedas?
+¿Quieres comprar las gafas de sol por 10 monedas?
+Cuesta 10 monedas.
+Cuesta 12 monedas.
+El gorro de Navidad se abre cuando tengas 8 estrellas.
+¿Quieres comprar el sombrero de copa por 18 monedas?
+Cuesta 18 monedas.
+El sombrero de copa se abre cuando tengas 8 estrellas.
+¿Quieres comprar el sombrero de pirata por 18 monedas?
+El sombrero de pirata se abre cuando tengas 8 estrellas.
+¿Quieres comprar la corona por 30 monedas?
+Cuesta 30 monedas.
+¿Quieres comprar el caparazón naranja por 0 monedas?
+Cuesta 0 monedas.
+Cuesta 15 monedas.
+El caparazón rosa se abre cuando tengas 8 estrellas.
+Cuesta 20 monedas.
+El caparazón verde se abre cuando tengas 8 estrellas.
+¿Quieres comprar el caparazón violeta por 25 monedas?
+Cuesta 25 monedas.
+El caparazón violeta se abre cuando tengas 20 estrellas.
+¿Quieres comprar el caparazón dorado por 40 monedas?
+Cuesta 40 monedas.
+El caparazón dorado se abre cuando tengas 20 estrellas.
+¿Quieres comprar la bufanda roja por 0 monedas?
+¿Quieres comprar la bufanda azul por 8 monedas?
+¿Quieres comprar la bufanda amarilla por 8 monedas?
+¿Quieres comprar la bufanda violeta por 10 monedas?
+La bufanda violeta se abre cuando tengas 8 estrellas.
+¿Quieres comprar la alfombra por 10 monedas?
+¿Quieres comprar el cuadro por 8 monedas?
+¿Quieres comprar la planta por 8 monedas?
+¿Quieres comprar la lámpara por 12 monedas?
+¿Quieres comprar el banco por 12 monedas?
+El banco se abre cuando tengas 8 estrellas.
+¿Quieres comprar la estantería por 15 monedas?
+La estantería se abre cuando tengas 8 estrellas.
+¿Quieres comprar el reloj por 15 monedas?
+El reloj se abre cuando tengas 8 estrellas.
+¿Quieres comprar el farol por 15 monedas?
+El farol se abre cuando tengas 8 estrellas.
+¿Quieres comprar el piano por 30 monedas?
+El piano se abre cuando tengas 20 estrellas.
+¿Quieres comprar la fuente por 35 monedas?
+Cuesta 35 monedas.
+La fuente se abre cuando tengas 20 estrellas.
+¿Quieres comprar la pelota de playa por 6 monedas?
+¿Quieres comprar los bloques por 8 monedas?
+¿Quieres comprar el peluche por 10 monedas?
+¿Quieres comprar la cometa por 10 monedas?
+¿Quieres comprar el xilófono por 12 monedas?
+¿Quieres comprar la muñeca por 15 monedas?
+La muñeca se abre cuando tengas 8 estrellas.
+¿Quieres comprar el robot por 18 monedas?
+El robot se abre cuando tengas 8 estrellas.
+¿Quieres comprar el trenecito por 18 monedas?
+El trenecito se abre cuando tengas 8 estrellas.
+¿Quieres comprar la guitarra por 20 monedas?
+La guitarra se abre cuando tengas 8 estrellas.
+¿Quieres comprar el telescopio por 30 monedas?
+El telescopio se abre cuando tengas 20 estrellas.
+¿Quieres comprar la pecera por 20 monedas?
+¿Quieres comprar el hámster por 25 monedas?
+El hámster se abre cuando tengas 8 estrellas.
+¿Quieres comprar la casita del perro por 40 monedas?
+La casita del perro se abre cuando tengas 20 estrellas.
+```
+
+### Piezas
+
+```text
+Hoy es lunes
+Hoy es martes
+Hoy es miércoles
+Hoy es jueves
+Hoy es viernes
+Hoy es sábado
+Hoy es domingo
+de enero
+de febrero
+de marzo
+de abril
+de mayo
+de junio
+de julio
+de agosto
+de septiembre
+de octubre
+de noviembre
+de diciembre
+Hoy es
+Toca el número
+en el calendario
+Tienes
+monedas
+Ya tienes
+pegatina
+Le faltan
+juegos para abrirse
+Ese es el
+Busca el
+estrellas
+Te faltan
+Faltan
+para que crezca
+Tito tiene
+flores en su caparazón
+pegatinas
+```
+
+### Números
+
+```text
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+ciento
+doscientos
+trescientos
+cuatrocientos
+quinientos
+seiscientos
+setecientos
+ochocientos
+novecientos
+```
+
