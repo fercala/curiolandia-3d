@@ -34,7 +34,7 @@ El objetivo es que cualquier programador, también uno que empieza, pueda abrir 
 | La forma de añadir algo (objeto 3D, tema, juego, componente, cuento, dibujo, tienda, escena, zona de adultos) o el proceso de montar, probar y publicar | [COMO-AGREGAR.md](COMO-AGREGAR.md) (su receta) |
 | Un campo nuevo o distinto del estado guardado `S` | [ESTADO-GUARDADO.md](ESTADO-GUARDADO.md) (tabla de campos, con su valor por defecto) |
 | Cómo habla Tito o el proceso de grabar voces | [VOCES.md](VOCES.md) |
-| Frases nuevas de `say()` | `herramientas/voces/frases-curiolandia-nuevas.txt` (una por línea, texto exacto) |
+| Diálogos nuevos o cambiados de `say()` | `dialogos/pendientes.txt` (una por línea, texto exacto) y el catálogo `dialogos/todos.csv` (`python3 herramientas/voces/dialogos.py`). Ver [dialogos/LEEME.md](../dialogos/LEEME.md) |
 | Arreglas un fallo de la lista, o encuentras uno que no arreglas | [PROBLEMAS-CONOCIDOS.md](PROBLEMAS-CONOCIDOS.md) (quítalo o añádelo) |
 | Una herramienta, una prueba o un comando nuevo | El README y la sección del proceso en COMO-AGREGAR.md |
 | Una regla de trabajo nueva | `CLAUDE.md` y esta política |
@@ -74,7 +74,7 @@ Antes de cada commit:
    - [ ] La lógica complicada lleva comentarios dentro.
    - [ ] Los comentarios de lo que he cambiado o borrado siguen siendo verdad.
    - [ ] He actualizado los documentos de `docs/` que tocan (tabla 1.2).
-   - [ ] He apuntado las frases nuevas para grabar.
+   - [ ] He apuntado los diálogos nuevos o cambiados en `dialogos/pendientes.txt` y he rehecho `dialogos/todos.csv`.
    - [ ] Si publico: he subido `VER` y he añadido la entrada en `docs/CAMBIOS.md`.
 
 ## 3. Estilo

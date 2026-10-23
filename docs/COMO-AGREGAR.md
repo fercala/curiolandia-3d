@@ -59,7 +59,7 @@ Esta guía explica el **proceso de trabajo** (sección 1) y trae **recetas paso 
 
 ## 2. Reglas que no se pueden saltar
 
-1. **No cambies el texto de ninguna frase que ya dice `say()`**: cada una tiene su MP3. Las frases nuevas, en castellano de España y apuntadas para grabar. → [VOCES.md](VOCES.md)
+1. **Evita cambiar el texto de una frase que ya dice `say()`**: cada una tiene su MP3. Cada diálogo nuevo o cambiado, en castellano de España y apuntado en `dialogos/pendientes.txt`. → [VOCES.md](VOCES.md), [dialogos/LEEME.md](../dialogos/LEEME.md)
 2. **No rompas las partidas guardadas**: no cambies el formato de `S`, ni `id` de temas, artículos o dibujos guardados; campos nuevos con valor por defecto. → [ESTADO-GUARDADO.md](ESTADO-GUARDADO.md)
 3. **Los juegos de un tema se guardan por posición**: no quites ni reordenes juegos publicados; los nuevos, al final (cuidado con el cuento: ver receta 5).
 4. **Sube `VER`** cada vez que publiques.

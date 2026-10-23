@@ -23,7 +23,7 @@ Sigue `docs/POLITICA-DOCUMENTACION.md` en cada modificación, por pequeña que s
 La guía completa está en `docs/`: `ARQUITECTURA.md` (cómo está hecho), `COMO-AGREGAR.md` (proceso y recetas), `ESTADO-GUARDADO.md` (campos de `S`), `VOCES.md` (frases grabadas) y `PROBLEMAS-CONOCIDOS.md`. Todo el código de `src/` lleva comentarios de cabecera en cada función: mantenlos al día cuando cambies algo y comenta igual las funciones nuevas.
 
 ## Reglas
-- No cambies el texto de ninguna frase que ya diga `say()`: cada frase tiene su MP3 grabado (`voz/manifest.json`, `voz-fer/manifest.json`) y si cambia el texto se pierde el audio. Las frases nuevas se escriben en castellano de España y se apuntan para grabarlas.
+- Evita cambiar el texto de una frase que ya diga `say()`: cada frase tiene su MP3 grabado (`voz/manifest.json`, `voz-fer/manifest.json`) y si cambia el texto se pierde el audio hasta que se regrabe. Si hay que cambiarla, o es nueva, se escribe en castellano de España y se apunta en `dialogos/pendientes.txt`.
 - No cambies el estado guardado `S` de forma incompatible: hay partidas guardadas en los móviles.
-- Las frases nuevas se apuntan en `herramientas/voces/frases-curiolandia-nuevas.txt` para grabarlas.
+- Cada diálogo nuevo o cambiado se apunta en `dialogos/pendientes.txt` y se rehace el catálogo `dialogos/todos.csv` con `python3 herramientas/voces/dialogos.py` (ver `dialogos/LEEME.md`). Lo que no esté grabado lo dice la voz del navegador.
 - Para probar, abre `src/web/index.html` con un servidor local (por ejemplo `python3 -m http.server`) y ejecuta `node tests/humo.js src/web`.

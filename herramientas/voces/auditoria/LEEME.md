@@ -9,7 +9,7 @@ sh herramientas/voces/auditoria/auditar.sh src/web
 
 Necesita Node.js y Playwright (igual que `tests/humo.js`). Tarda cerca de una hora y deja todo en `salida/` (está en `.gitignore`):
 
-- `frases-nuevas.txt`: lo que hay que grabar, una frase por línea. Se copia (o se añade) a `../frases-curiolandia-nuevas.txt` y se graba como dice [docs/VOCES.md](../../../docs/VOCES.md).
+- `frases-nuevas.txt`: lo que hay que grabar, una frase por línea. Lo que no esté ya se añade a `dialogos/pendientes.txt` (y luego `python3 herramientas/voces/dialogos.py`) y se graba como dice [docs/VOCES.md](../../../docs/VOCES.md).
 - `lista.json`: lo mismo por secciones y con dónde se oyó cada frase (`grabar`, `fijas_con_numero`, `piezas`, `numeros`, `nombre`, `variables`, `fer_solo`).
 
 ## Cómo funciona

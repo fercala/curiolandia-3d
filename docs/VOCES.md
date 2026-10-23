@@ -35,13 +35,13 @@ El juego nació en español rioplatense ("Tocá", "Buscá", "¿Cómo te llamás?
 
 ## 3. Reglas
 
-1. **No cambies el texto de ninguna frase que ya dice `say()`** (ni una coma, ni un acento). Perdería su MP3. Tampoco cambies pares de la tabla `TU`: cambiarían muchas frases a la vez.
+1. **Evita cambiar el texto de una frase que ya dice `say()`** (ni una coma, ni un acento): perdería su MP3 y la diría la voz del navegador hasta que se regrabe. Si hay que cambiarla, apunta el texto nuevo en `dialogos/pendientes.txt`, como una frase nueva. Tampoco cambies pares de la tabla `TU`: cambiarían muchas frases a la vez.
 2. **Las frases nuevas se escriben directamente en castellano de España** ("Toca", no "Tocá"), tal como deben sonar.
 3. **Reutilizar una frase que ya está grabada es lo mejor**: no hay que grabar nada. Para ver si una frase existe, búscala en `voz/manifest.json`:
    ```sh
    grep -o '"La regadera[^"]*"' voz/manifest.json
    ```
-4. Cada frase nueva **se apunta para grabarla** (ver abajo). Mientras no se grabe, la dirá la voz del navegador: el juego funciona, pero suena peor.
+4. Cada frase nueva o cambiada **se apunta para grabarla** en `dialogos/pendientes.txt` y queda en el catálogo `dialogos/todos.csv` ([dialogos/LEEME.md](../dialogos/LEEME.md)). Mientras no se grabe, la dirá la voz del navegador: el juego funciona, pero suena peor.
 5. Si una frase lleva datos que cambian (números, fechas), pon el dato en una oración aparte con palabras fijas alrededor ("Tienes 12 monedas."): así se arma con piezas grabadas. Apunta para grabar las piezas nuevas (las palabras de alrededor, en minúsculas y sin signos). Los nombres de artículos son finitos: graba la oración entera para cada uno.
 
 ## 4. Buscar todas las frases sin voz
@@ -52,8 +52,8 @@ El juego nació en español rioplatense ("Tocá", "Buscá", "¿Cómo te llamás?
 
 Las voces se generan en el ordenador de Fernando con **Voicebox** (un programa de síntesis de voz que funciona en local) y los scripts de [`herramientas/voces/`](../herramientas/voces/):
 
-1. **Apunta cada frase nueva** al final de `herramientas/voces/frases-curiolandia-nuevas.txt`: una por línea, sin repetir, con el texto exacto que dirá Tito en castellano de España (ya pasado por `tx()`; puedes copiarlo de `window.__said`). Antes comprueba que no esté ya grabada (`grep` en `voz/manifest.json`). Esa lista es la que se le pasa a Fernando para grabar. Las frases que ya están en ella siguen pendientes. Las **piezas** para oraciones con números ("hoy es jueves", "monedas") van en minúsculas y sin signos, y los números con cifras ("22"): el texto de la línea es la clave del manifiesto, así que se graban tal cual.
-2. En Windows, con Voicebox abierto, se ejecuta `generar-curiolandia-nuevas.bat` (lee la lista de frases nuevas). Llama a `generar-voces.ps1`, que crea un `.wav` por frase con el nombre `md5(frase)[:12].wav`. Si se cierra, al volver a abrirlo sigue donde lo dejó. `generar-curiolandia.bat` hace lo mismo con la lista completa.
+1. **Apunta cada frase nueva o cambiada** al final de `dialogos/pendientes.txt` (ver [dialogos/LEEME.md](../dialogos/LEEME.md)) y rehaz el catálogo con `python3 herramientas/voces/dialogos.py`: una por línea, sin repetir, con el texto exacto que dirá Tito en castellano de España (ya pasado por `tx()`; puedes copiarlo de `window.__said`). Antes comprueba que no esté ya grabada (`grep` en `voz/manifest.json`). Esa lista es la que se le pasa a Fernando para grabar. Las frases que ya están en ella siguen pendientes. Las **piezas** para oraciones con números ("hoy es jueves", "monedas") van en minúsculas y sin signos, y los números con cifras ("22"): el texto de la línea es la clave del manifiesto, así que se graban tal cual.
+2. En Windows, con Voicebox abierto, se ejecuta `generar-curiolandia-nuevas.bat` (lee `dialogos/pendientes.txt`). Llama a `generar-voces.ps1`, que crea un `.wav` por frase con el nombre `md5(frase)[:12].wav`. Si se cierra, al volver a abrirlo sigue donde lo dejó. `generar-curiolandia.bat` hace lo mismo con la lista completa.
 3. Se convierten los WAV en MP3 y se regenera el manifiesto con `preparar_voz.py`:
    ```sh
    python3 herramientas/voces/preparar_voz.py <lista de frases.txt> <carpetas con los .wav, separadas por comas> voz/ [excluir.txt]
@@ -61,4 +61,4 @@ Las voces se generan en el ordenador de Fernando con **Voicebox** (un programa d
    Recorta los silencios, los pasa a MP3 mono de 48 kbps (necesita `ffmpeg`) y escribe `voz/manifest.json`. **Ojo:** el manifiesto se genera solo con las frases de la lista que le pases, así que hay que usar la lista **completa** (todas las frases ya grabadas más las nuevas), no solo las nuevas. La lista completa se puede sacar del propio manifiesto: `python3 -c "import json;print('\n'.join(json.load(open('voz/manifest.json'))['f']))"`.
 4. Se escuchan las nuevas en el juego. Si alguna sale cortada o rara, va al archivo de excluir: la dirá el navegador hasta que se regrabe.
 5. La "Voz de Fer" (`voz-fer/`) usa los mismos nombres de archivo.
-6. Se publican los MP3 y el manifiesto (carpeta `voz/` de la raíz del repo), se vacía `frases-curiolandia-nuevas.txt` y se **sube `VER`** en `src/build_web.py`.
+6. Se publican los MP3 y el manifiesto (carpeta `voz/` de la raíz del repo), se quitan de `dialogos/pendientes.txt` las frases ya grabadas, se ejecuta `dialogos.py` (pasan a `grabada` en `todos.csv`) y se **sube `VER`** en `src/build_web.py`.

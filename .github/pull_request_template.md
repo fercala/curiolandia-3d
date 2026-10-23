@@ -11,5 +11,5 @@
 - [ ] La lógica complicada lleva comentarios dentro
 - [ ] Los comentarios de lo que he cambiado o borrado siguen siendo verdad
 - [ ] He actualizado los documentos de `docs/` que tocan
-- [ ] He apuntado las frases nuevas en `herramientas/voces/frases-curiolandia-nuevas.txt`
+- [ ] He apuntado los diálogos nuevos o cambiados en `dialogos/pendientes.txt` y he ejecutado `python3 herramientas/voces/dialogos.py`
 - [ ] Si se publica: he subido `VER` y he añadido la entrada en `docs/CAMBIOS.md`

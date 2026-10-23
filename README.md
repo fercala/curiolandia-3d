@@ -20,6 +20,7 @@ Empieza por aquí:
 | [docs/VOCES.md](docs/VOCES.md) | Cómo habla Tito, las frases grabadas y cómo grabar frases nuevas. |
 | [docs/POLITICA-DOCUMENTACION.md](docs/POLITICA-DOCUMENTACION.md) | **Obligatoria**: qué hay que documentar en cada cambio y cómo se comprueba. |
 | [docs/CAMBIOS.md](docs/CAMBIOS.md) | Registro de cambios de cada versión publicada. |
+| [dialogos/LEEME.md](dialogos/LEEME.md) | Todos los diálogos de Tito (`todos.csv`) y los pendientes de grabar (`pendientes.txt`). |
 | [docs/PROBLEMAS-CONOCIDOS.md](docs/PROBLEMAS-CONOCIDOS.md) | Fallos y rarezas detectados que aún no se han arreglado. |
 | [CLAUDE.md](CLAUDE.md) | Resumen de reglas para trabajar con Claude Code. |
 
@@ -38,7 +39,7 @@ Comprobación de comentarios: `python3 tests/comentarios.py`. Para que se ejecut
 
 ### Cuatro reglas de oro
 
-1. No cambies el texto de ninguna frase que ya diga `say()`: cada una tiene su MP3 grabado.
+1. Evita cambiar el texto de una frase que ya diga `say()` (cada una tiene su MP3 grabado), y apunta cada diálogo nuevo o cambiado en [`dialogos/pendientes.txt`](dialogos/LEEME.md).
 2. No cambies el estado guardado `S` de forma incompatible: hay partidas guardadas en los móviles.
 3. Sube `VER` en `src/build_web.py` cada vez que publiques.
 4. Ningún cambio está terminado hasta que está documentado: comentarios en el código, `docs/` y `docs/CAMBIOS.md` (ver [la política](docs/POLITICA-DOCUMENTACION.md)).
