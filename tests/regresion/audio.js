@@ -58,8 +58,10 @@ const espia = require('./espia');
     const corte = ev.find(e => e[1] === 'mp3-corte' || e[1] === 'tts-corte');
     if (corte && i + 1 < D.length && corte[0] >= D[i + 1].t - 5) { }
     // ¿la cortó la siguiente frase? (hubo audio de esta frase y la siguiente empezó antes de que acabara)
-    const termino = ev.some(e => e[1] === 'mp3-fin' || e[1] === 'tts-fin') && !ev.some(e => e[1] === 'mp3-corte' || e[1] === 'tts-corte');
-    const toco = ev.some(e => e[1] === 'toque');
+    // Solo cuentan los cortes del audio que empezó esta frase (un corte en el mismo instante en que empieza es de la anterior).
+    const mios = new Set(ev.filter(e => e[1] === 'mp3' || e[1] === 'tts').map(e => e[2]));
+    const termino = ev.some(e => (e[1] === 'mp3-fin' || e[1] === 'tts-fin') && mios.has(e[2])) && !EV.some(e => (e[1] === 'mp3-corte' || e[1] === 'tts-corte') && mios.has(e[2]) && e[0] >= d.t && e[0] <= fin + 5);
+    const toco = EV.some(e => e[1] === 'toque' && e[0] >= d.t - 50 && e[0] <= fin + 60);// el toque que provoca la frase siguiente suele ir en el mismo milisegundo
     if (empezo && !termino && i + 1 < D.length && !toco) { res.cortadas++; const dur = fin - d.t; if (dur < 1200) res.cortadasPronto++; if (ej.cortadas.length < 25) ej.cortadas.push({ texto: d.texto, siguiente: D[i + 1].texto, oidoMs: dur, escena: d.escena }) }
     if (empezo && !termino && i + 1 < D.length && toco) res.cortadasPorToque++;
     if (ev.some(e => e[1] === 'mp3-rechazo')) res.rechazos++;

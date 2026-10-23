@@ -59,7 +59,7 @@ function enGrid(items,top=180,h=660,w=1220,cx=900){const n=items.length,cols=n<=
 function EnConocer(cfg,onDone){const items=cfg.items.map(o=>Object.assign({},o));enGrid(items);const n=items.length;
   return {total:n,done:0,open:null,
     // Al empezar: explica el juego.
-    enter(){later(300,()=>say(cfg.intro||'Tocá cada dibujo y escuchá cómo se dice en inglés. ¡Repetilo en voz alta!'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Tocá cada dibujo y escuchá cómo se dice en inglés. ¡Repetilo en voz alta!'))},
     // Recuerda qué hacer.
     prompt(){say(this.open?'Tocá para cerrar.':'Tocá un dibujo que todavía no tenga estrella.')},
     // Pista: la tarjeta abierta (cuando ya habló) o la primera sin ver.
@@ -149,7 +149,7 @@ function EnCuenta(cfg,onDone){const max=AGE()<=3?5:AGE()===4?8:10,R=3,ks=['manza
     // Prepara una ronda: cuántas cosas (distinto de la anterior), qué dibujo, y las coloca en una o dos filas.
     round(){const prev=this.n;let n;do{n=Math.floor(rnd(2,max+1))}while(n===prev);this.n=n;this.c=0;this.k=ks[this.i%ks.length];this.busy=false;
       const per=n<=5?n:Math.ceil(n/2),s=Math.min(200,1100/per-30);this.os=Array.from({length:n},(_,j)=>{const r=j<per?0:1,c=r?j-per:j,inRow=r?n-per:per;return{x:900-(inRow-1)*(s+30)/2+c*(s+30),y:(n<=5?470:360)+r*(s+60),s,on:0}});
-      later(400,()=>say(this.i===0?'¡Contamos en inglés! Tocá cada dibujo, de a uno.':'Otra vez: tocá cada dibujo y contamos.'))},
+      later(400,()=>sayQ(this.i===0?'¡Contamos en inglés! Tocá cada dibujo, de a uno.':'Otra vez: tocá cada dibujo y contamos.'))},
     // Recuerda qué hacer.
     prompt(){say('Tocá cada dibujo y contamos en inglés.')},
     // Pista: la primera cosa sin contar.

@@ -24,6 +24,7 @@ const DEF2={coins:0,coinsTot:0,gift:'',woke:{},home:{},tito:{shell:'naranja',sca
 // Se añaden a DEF (copia profunda) y se rellenan en S los que falten en partidas antiguas.
 Object.assign(DEF,JSON.parse(JSON.stringify(DEF2)));
 const _oldSave=S.coins===undefined&&Object.keys(S.temas||{}).length>0;
+sanoS(S,DEF2);// campos de una partida rota (null o de otro tipo) → valor por defecto, como los que faltan
 for(const k in DEF2)if(S[k]===undefined)S[k]=JSON.parse(JSON.stringify(DEF2[k]));
 // quien ya jugaba la versión 1 recibe monedas por lo que ya había jugado
 if(_oldSave){const n=Object.values(S.temas).reduce((a,t)=>a+Object.keys((t&&t.g)||{}).length,0)*2;S.coins=S.coinsTot=n;save()}
@@ -148,7 +149,7 @@ function placeHome(id){if(S.home[id])return;const used=Object.values(S.home).map
 // newHome/newId (se acaba de comprar algo para la casa: el botón de la casa salta).
 SCENES.tienda={music:'casita',
   // Al entrar: Tito saluda (la primera vez explica cómo funciona; S.first.tienda lo recuerda).
-  enter(o){this.cat=this.cat||'ropa';this.conf=null;this.newHome=0;const seen=S.first.tienda;later(300,()=>say(seen?'¡La tienda! Tenés '+S.coins+' monedas. Tocá algo para ver cuánto cuesta.':V(['¡Bienvenido a la tienda! Con las monedas que ganás jugando, podés comprar cosas para mí y para mi casa. Arriba elegís qué mirar.','¡Bienvenido a la tienda! Con las monedas que ganas jugando, puedes comprar cosas para mí y para mi casa. Arriba eliges qué mirar.'])));S.first.tienda=1;save()},
+  enter(o){this.cat=this.cat||'ropa';this.conf=null;this.newHome=0;const seen=S.first.tienda;later(300,()=>sayQ(seen?'¡La tienda! Tenés '+S.coins+' monedas. Tocá algo para ver cuánto cuesta.':V(['¡Bienvenido a la tienda! Con las monedas que ganás jugando, podés comprar cosas para mí y para mi casa. Arriba elegís qué mirar.','¡Bienvenido a la tienda! Con las monedas que ganas jugando, puedes comprar cosas para mí y para mi casa. Arriba eliges qué mirar.'])));S.first.tienda=1;save()},
   // Pestañas visibles con su posición (la de vales solo si hay algún vale activo).
   tabs(){return SHOPCAT.filter(c=>c.id!=='vales'||S.vales.some(v=>v.on)).map((c,i,a)=>Object.assign({x:900-(a.length-1)*102+i*204,y:215},c))},
   // Artículos de la pestaña actual con su posición en la cuadrícula.
@@ -229,7 +230,7 @@ SCENES.casaTito={music:'casita',
   // Tito salta). Si no, Tito saluda según haya cosas o la casa esté vacía.
   enter(o){this.drag=null;this.jump=-9;this.petJump=-9;const nv=o.nuevo&&SHOP.find(i=>i.id===o.nuevo);this.nuevo=nv&&S.owned[nv.id]?nv:null;this.t0=T;const n=homeItems().length;
     if(this.nuevo){const it=this.nuevo;if(it.slot)this.jump=T+.3;later(300,()=>{SFX.sparkle();say('¡Acá está '+itemName(it)+'! '+(it.slot?'¡Mirá qué lindo me queda!':V(['Podés cambiar las cosas de lugar arrastrándolas.','Puedes cambiar las cosas de lugar arrastrándolas.'])))});return}
-    later(300,()=>say(n?V(['¡Esta es mi casa! Podés mover las cosas arrastrándolas, y tocarlas para jugar.','¡Esta es mi casa! Puedes mover las cosas arrastrándolas, y tocarlas para jugar.']):V(['¡Esta es mi casa! Está vacía. En la tienda podés comprar cosas con tus monedas.','¡Esta es mi casa! Está vacía. En la tienda puedes comprar cosas con tus monedas.'])))},
+    later(300,()=>sayQ(n?V(['¡Esta es mi casa! Podés mover las cosas arrastrándolas, y tocarlas para jugar.','¡Esta es mi casa! Puedes mover las cosas arrastrándolas, y tocarlas para jugar.']):V(['¡Esta es mi casa! Está vacía. En la tienda podés comprar cosas con tus monedas.','¡Esta es mi casa! Está vacía. En la tienda puedes comprar cosas con tus monedas.'])))},
   // Armario: la ropa y colores que tiene el niño, con su posición en la fila de abajo.
   wardrobe(){const L=SHOP.filter(i=>i.slot&&S.owned[i.id]);return L.map((it,i)=>({it,x:470+i*100,y:845}))},
   // Tito explica qué hacer en la casa.

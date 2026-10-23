@@ -185,8 +185,8 @@ function zoneScene(z){const Z=ZONES[z],P=ZPOS[z],path=z==='fiestas'?FIESTAS:path
     enter(o){this.cur=curTema(z);this.unl=null;
       const nw=newlyOpen('z:'+z,Z.temas.filter(temaOpen).map(t=>t.id));
       if(nw.length){const t=TEMA[nw[0]];this.unl={id:t.id,t:T+1};later(1000,()=>{SFX.sparkle();const p=P[t.id];burst(p.x,p.y,40)});
-        later(500,()=>say('¡Mirá! ¡Se abrió '+(t.concepts?'el Rincón de los Conceptos':'una casita nueva: '+lowName(t))+'! Tocala para jugar.'))}
-      else if(o.from&&!this.cur)later(400,()=>say('¡Terminaste todo el camino'+kid()+'! ¡Increíble! Podés repetir la casita que quieras.'))
+        later(500,()=>sayQ('¡Mirá! ¡Se abrió '+(t.concepts?'el Rincón de los Conceptos':'una casita nueva: '+lowName(t))+'! Tocala para jugar.'))}
+      else if(o.from&&!this.cur)later(400,()=>sayQ('¡Terminaste todo el camino'+kid()+'! ¡Increíble! Podés repetir la casita que quieras.'))
       else if(o.hello)later(400,()=>this.prompt(!S.first[z]));
       S.first[z]=1;save()},
 // prompt(long): saludo de la zona (si long) y qué casita tocar.
@@ -363,9 +363,9 @@ SCENES.map=Object.assign(SCENES.map,{
     if(!msg&&n>S.seenFl){S.seenFl=n;save();msg=`¡Mirá${kid()}! ¡Tito tiene ${n===1?'una flor':(n<=10?NUM[n]:n)+' flores'} en su caparazón!`;fx=()=>{SFX.sparkle();burst(130,740,40)}}
 // La animación (fx) y la frase se lanzan juntas a los 0,6 s, cuando ya se ve el mapa.
     if(msg){later(600,()=>{if(this.wake){SFX.tada();const z=mzOf(this.wake.z);burst(z.x,z.y,70);this.wake.t=T}if(fx)fx();say(msg)})}
-    else if(S.gift!==today()){S.gift=today();save();later(900,()=>say(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40))}
+    else if(S.gift!==today()){S.gift=today();save();later(900,()=>sayQ(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40))}
     else if(o.hello)later(400,()=>this.prompt(true));
-    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>say('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
+    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>sayQ('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
   },
 // ageZone(): zona que corresponde a la edad (la usa world3d.js para colocar a Tito).
   ageZone(){return ageZoneOpen()},
@@ -428,7 +428,7 @@ Object.assign(SCENES.casita,{
   enter(o){this.t=TEMA[o.t];S.last=o.t;save();this.unl=null;
     if(o.fin){go('cofre',{t:o.t});return}
     const t=this.t,nw=newlyOpen('g:'+t.id,t.games.map((g,j)=>j).filter(j=>gameOpen(t,j)));
-    if(nw.length&&!o.hello){const j=nw[0];this.unl={j,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=stationPos(t,j);burst(x,y,30)});later(300,()=>say('¡Se abrió el juego número '+(j+1)+'! Tocalo para seguir.'))}
+    if(nw.length&&!o.hello){const j=nw[0];this.unl={j,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=stationPos(t,j);burst(x,y,30)});later(300,()=>sayQ('¡Se abrió el juego número '+(j+1)+'! Tocalo para seguir.'))}
     else if(o.hello)later(300,()=>this.prompt(true))},
 // prompt(long): nombre e intro del tema (si long) y qué juego tocar.
   prompt(long){const t=this.t,nx=nextGameOf(t);say((long?V(t.n)+'. '+(t.intro&&!t.words?V(t.intro)+' ':''):'')+(nx===0?(t.games[0].t==='conocer'?'Empezá por el primero: ¡vamos a conocer!':'Empezá por el primero.'):nx>0?'Tocá el que brilla, el número '+(nx+1)+'.':'¡Ya jugaste todos! Podés repetir el que más te guste.'))},
@@ -525,7 +525,7 @@ SCENES.cofre={music:'casita',
     if(inTito(x,y)){this.prompt();return}
     if(!this.openT){if(inR(x,y,800,520,380,360)){if(T-this.shakeT<.18)return;this.taps++;this.shakeT=T;SFX.pop();tone(500+this.taps*180,.12,'triangle',.15);sparkles(800,420,10);
         if(this.taps>=3){this.openT=T+.15;later(150,()=>{SFX.tada();burst(800,420,100);burst(400,300,30);burst(1200,300,30);this.reward()});
-          const it=this.gift;later(1300,()=>say(it?'¡Mirá lo que había'+kid()+': '+itemName(it)+'! '+(it.slot?'¡Tito ya se lo puso!':'Ya está en la casa de Tito.')+' ¡Y diez monedas!':'¡Mirá cuántas monedas'+kid()+'! ¡Veinte monedas!',()=>later(300,()=>say(it?'Tocá la casa para verlo, o la flecha verde para seguir el camino.':'Tocá la flecha verde para seguir el camino.'))))}
+          const it=this.gift;later(1300,()=>sayQ(it?'¡Mirá lo que había'+kid()+': '+itemName(it)+'! '+(it.slot?'¡Tito ya se lo puso!':'Ya está en la casa de Tito.')+' ¡Y diez monedas!':'¡Mirá cuántas monedas'+kid()+'! ¡Veinte monedas!',()=>later(300,()=>sayQ(it?'Tocá la casa para verlo, o la flecha verde para seguir el camino.':'Tocá la flecha verde para seguir el camino.'))))}
         else say(this.taps===1?'¡Otra vez!':'¡Una vez más!');return}
       SFX.tap();sparkles(x,y,3);return}
     if(T<this.openT+1.4)return;

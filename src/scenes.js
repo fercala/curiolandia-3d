@@ -147,7 +147,7 @@ SCENES.edad={music:'title',
 // ¿QUIÉN JUEGA? Pide el nombre del niño (lo escribe un adulto en el diálogo openNameDlg). Se puede saltar.
 SCENES.quien={music:'title',
 // enter(): Tito se presenta y pide el nombre.
-  enter(){later(300,()=>say('¡Hola! Yo soy Tito. ¿Cómo te llamás? Pedile a un grande que escriba tu nombre.'))},
+  enter(){later(300,()=>sayQ('¡Hola! Yo soy Tito. ¿Cómo te llamás? Pedile a un grande que escriba tu nombre.'))},
 // prompt(): repite la consigna (la llama drawHelp cuando el niño no hace nada).
   prompt(){say('Pedile a un grande que escriba tu nombre.')},
 // hint(): la ayuda señala el botón "Escribir el nombre".
@@ -242,7 +242,7 @@ SCENES.map={music:'map',
     const n=temasDone();
     if(n>S.seenFl){S.seenFl=n;save();later(600,()=>{SFX.sparkle();burst(130,740,40);say(`¡Mirá${kid()}! ¡Tito tiene ${n===1?'una flor':NUM[n]+' flores'} en su caparazón!`)})}
     else if(o.hello)later(400,()=>this.prompt(true));
-    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>say('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
+    if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>sayQ('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
   },
 // prompt(first): saludo según la hora (si first) y consigna: asamblea si no se ha hecho hoy; si no, el jardín. (Sustituido en zonas.js.)
   prompt(first){const h=new Date().getHours(),sal=h<13?'¡Buen día':h<20?'¡Buenas tardes':'¡Buenas noches';
@@ -414,7 +414,7 @@ SCENES.casita={music:'casita',
 // finishGame(t, gi): se llama cuando el niño acaba el juego gi del tema t (desde SCENES.juego).
 // Efectos en S: suma 1 a S.temas[t.id].g[gi] (veces jugado) y, si con esto ya están todos los juegos, pone done = 1
 // (el tema da una flor a Tito). La primera vez que acaba ese juego regala una figurita (S.stk) de una palabra del tema
-// que aún no tenga. Celebra, dice una felicitación y vuelve a go('casita', {t, fin}); fin = true si se acaba de terminar
+// que aún no tenga. Celebra, dice una felicitación (cuando Tito acaba la que esté diciendo) y vuelve a go('casita', {t, fin}); fin = true si se acaba de terminar
 // el tema (entonces la casita manda al cofre).
 function finishGame(t,gi){
   const st=S.temas[t.id]||(S.temas[t.id]={g:{},done:0});const first=!st.g[gi];st.g[gi]=(st.g[gi]||0)+1;
@@ -424,7 +424,7 @@ function finishGame(t,gi){
 // Figurita: una palabra del tema con dibujo que aún no esté en el álbum; si no queda ninguna, el icono del juego
 // (si es un dibujo real: los nombres cortos como 'lupa'/'memo' no lo son) o el del tema.
   if(first){const pool=(t.words||[]).map(w=>w.k).filter(k=>k&&PICS[k]&&!S.stk[k]);giveSticker(pool.length?pick(pool):(gIcon(t.games[gi],t).length>4&&PICS[gIcon(t.games[gi],t)]?gIcon(t.games[gi],t):t.icon))}
-  say(pick(['¡Lo lograste! ¡Ganaste una estrella!','¡Muy bien'+kid()+'! ¡Una estrella más!','¡Bravo! ¡Terminaste el juego!']),()=>later(600,()=>go('casita',{t:t.id,fin})));
+  sayQ(pick(['¡Lo lograste! ¡Ganaste una estrella!','¡Muy bien'+kid()+'! ¡Una estrella más!','¡Bravo! ¡Terminaste el juego!']),()=>later(600,()=>go('casita',{t:t.id,fin})));// espera a que acabe la última felicitación del juego
 }
 // JUEGO: escena "contenedor". makeGame (comps*.js) crea el juego concreto a partir de su descripción
 // (t.games[g], con g.t = tipo) y esta escena le pasa update/draw/down/move/up/hint/prompt. Se entra con
@@ -493,36 +493,39 @@ SCENES.asamblea={music:'plaza',
 // next(): pasa al siguiente paso: reinicia errores, opciones y selección y llama a in_<paso>() si existe.
 // busy = true bloquea los toques mientras Tito habla.
   next(){this.si++;this.s=this.steps[this.si];this.t0=T;this.errs=0;this.busy=false;this.opts=[];this.sel=null;this.bounce=-1;this.extra=null;const f=this['in_'+this.s];f&&f.call(this)},
+// ask(fn): pregunta del paso (fn dice la frase) a los 0,3 s y cuando Tito calle; no se dice si mientras tanto el niño ya
+// respondió (this.sel) o se pasó a otro paso. Así una respuesta rápida no queda cortada por su propia pregunta.
+  ask(fn){const si=this.si;later(300,()=>whenQuiet(()=>{if(this.si===si&&this.sel===null)fn()}))},
   // opciones genéricas: {x,y,s,draw(x,y,s),v,ok}
 // setOpts(list, y, s): coloca en fila, centradas, las opciones de un paso. Cada opción: {draw(x,y,s): la dibuja,
 // v: valor, ok: si es correcta}; se le añaden x, y, s (tamaño) e "in" (momento en que aparece, para la animación).
   setOpts(list,y=520,s=230){const n=list.length,gap=s+24;this.opts=list.map((o,i)=>Object.assign({x:800-(n-1)*gap/2+i*gap,y,s,in:T+i*.08},o))},
 // in_hola(): paso 1, pasar lista: tocar la foto propia.
-  in_hola(){later(300,()=>say(`¡Buen día${kid()}! Empieza la asamblea. ¿Estás acá? ¡Tocá tu foto!`))},
+  in_hola(){this.ask(()=>say(`¡Buen día${kid()}! Empieza la asamblea. ¿Estás acá? ¡Tocá tu foto!`))},
 // in_dianoche(): (3 años) ¿es de día o de noche? Correcto según la hora real (de 7 a 20 h es de día).
-  in_dianoche(){const h=this.d.getHours(),day=h>=7&&h<20;this.setOpts([{draw:(x,y,s)=>dayNight(1).draw(x,y,s),ok:day,v:'dia'},{draw:(x,y,s)=>dayNight(0).draw(x,y,s),ok:!day,v:'noche'}],500,300);later(300,()=>say('¿Ahora es de día o de noche?'))},
+  in_dianoche(){const h=this.d.getHours(),day=h>=7&&h<20;this.setOpts([{draw:(x,y,s)=>dayNight(1).draw(x,y,s),ok:day,v:'dia'},{draw:(x,y,s)=>dayNight(0).draw(x,y,s),ok:!day,v:'noche'}],500,300);this.ask(()=>say('¿Ahora es de día o de noche?'))},
 // in_dia(): el tren de los días (this.wag, un vagón por día). 3 años: Tito canta los días (sing) y hace saltar el
 // vagón de hoy. 4-5 años: dice qué día fue ayer y el niño busca hoy.
   in_dia(){const a=AGE();this.wag=DIASL.map((d,i)=>({x:330+i*168,y:520,i}));
-    if(a<=3){this.busy=true;later(300,()=>say('Cantemos los días de la semana.',()=>this.sing(()=>{this.bounce=this.ti;say('Hoy es '+DIASL[this.ti]+'. ¡Tocá el vagón de hoy, el que salta!',()=>{this.busy=false})})))}
-    else{const y=DIASL[(this.ti+6)%7];later(300,()=>say('Ayer fue '+y+'. ¿Qué día es hoy? Tocá el vagón.'))}},
+    if(a<=3){this.busy=true;later(300,()=>sayQ('Cantemos los días de la semana.',()=>this.sing(()=>{this.bounce=this.ti;say('Hoy es '+DIASL[this.ti]+'. ¡Tocá el vagón de hoy, el que salta!',()=>{this.busy=false})})))}
+    else{const y=DIASL[(this.ti+6)%7];this.ask(()=>say('Ayer fue '+y+'. ¿Qué día es hoy? Tocá el vagón.'))}},
 // in_manana(): (5 años) el tren con "HOY" marcado; hay que tocar mañana.
-  in_manana(){this.wag=DIASL.map((d,i)=>({x:330+i*168,y:520,i}));this.mark=this.ti;later(300,()=>say('Hoy es '+DIASL[this.ti]+'. ¿Y mañana qué día será? Tocá el vagón de mañana.'))},
+  in_manana(){this.wag=DIASL.map((d,i)=>({x:330+i*168,y:520,i}));this.mark=this.ti;this.ask(()=>say('Hoy es '+DIASL[this.ti]+'. ¿Y mañana qué día será? Tocá el vagón de mañana.'))},
 // in_mes(): (5 años) calendario del mes (this.cal: {n, x, y} por día, empezando en lunes); hay que tocar el número de hoy.
   in_mes(){const d=this.d,first=new Date(d.getFullYear(),d.getMonth(),1),n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),o=dayIdx(first);
     this.cal=[];for(let i=1;i<=n;i++){const p=o+i-1;this.cal.push({n:i,x:520+(p%7)*110,y:300+Math.floor(p/7)*92})}
-    later(300,()=>say('Estamos en '+MESES[d.getMonth()]+'. Hoy es '+d.getDate()+'. Tocá el número '+d.getDate()+' en el calendario.'))},
+    this.ask(()=>say('Estamos en '+MESES[d.getMonth()]+'. Hoy es '+d.getDate()+'. Tocá el número '+d.getDate()+' en el calendario.'))},
 // in_tiempo(): ¿qué tiempo hace? Todas las opciones valen (ok: true): se apunta lo que diga el niño.
-  in_tiempo(){this.setOpts(WX_AGE[AGE()].map(w=>({draw:(x,y,s)=>pic(WX[w].k,x,y,s*.85),v:w,ok:true})),520,AGE()>=5?170:AGE()===4?200:250);later(300,()=>say('¿Qué tiempo hace hoy? Mirá por la ventana de tu casa y tocá el dibujo.'))},
+  in_tiempo(){this.setOpts(WX_AGE[AGE()].map(w=>({draw:(x,y,s)=>pic(WX[w].k,x,y,s*.85),v:w,ok:true})),520,AGE()>=5?170:AGE()===4?200:250);this.ask(()=>say('¿Qué tiempo hace hoy? Mirá por la ventana de tu casa y tocá el dibujo.'))},
 // in_ropa(): (4 años) una prenda buena para el tiempo elegido y dos que no van, mezcladas.
   in_ropa(){const w=this.rec.tiempo||'sol',good=pick(WX_ROPA[w]),bad=shuffle(['gafas','gorra','guantes','gorro','paraguas','remera','bufanda'].filter(k=>!WX_ROPA[w].includes(k))).slice(0,2);
-    this.setOpts(shuffle([good,...bad]).map(k=>({draw:(x,y,s)=>pic(k,x,y,s*.8),v:k,ok:k===good})),540,250);later(300,()=>say('Con este tiempo, ¿qué nos ponemos para salir?'))},
+    this.setOpts(shuffle([good,...bad]).map(k=>({draw:(x,y,s)=>pic(k,x,y,s*.8),v:k,ok:k===good})),540,250);this.ask(()=>say('Con este tiempo, ¿qué nos ponemos para salir?'))},
 // in_estacion(): (4-5 años) cuatro árboles; correcto el de la estación actual (estacionDe, según el hemisferio).
-  in_estacion(){const e=estacionDe(this.d);this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===e})),520,250);later(300,()=>say('¿En qué estación estamos? Tocá el árbol.'))},
+  in_estacion(){const e=estacionDe(this.d);this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===e})),520,250);this.ask(()=>say('¿En qué estación estamos? Tocá el árbol.'))},
 // in_siguiente(): (5 años) ¿qué estación viene después? (SEASON_NEXT).
-  in_siguiente(){const e=estacionDe(this.d),n=SEASON_NEXT[e];this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===n})),520,250);later(300,()=>say('Ahora es '+e+'. ¿Qué estación viene después?'))},
+  in_siguiente(){const e=estacionDe(this.d),n=SEASON_NEXT[e];this.setOpts(ESTACIONES.map(s=>({draw:(x,y,sz)=>tree(x,y+sz*.25,sz/280,s),v:s,ok:s===n})),520,250);this.ask(()=>say('Ahora es '+e+'. ¿Qué estación viene después?'))},
 // in_emocion(): ¿cómo te sientes? Caritas según la edad; todas valen.
-  in_emocion(){this.setOpts(EMO_AGE[AGE()].map(m=>({draw:(x,y,s)=>drawFace(x,y,s*.42,m),v:m,ok:true})),520,AGE()>=5?175:AGE()===4?220:260);later(300,()=>say(tx('¿Cómo te sentís hoy? Tocá la carita.')))},
+  in_emocion(){this.setOpts(EMO_AGE[AGE()].map(m=>({draw:(x,y,s)=>drawFace(x,y,s*.42,m),v:m,ok:true})),520,AGE()>=5?175:AGE()===4?220:260);this.ask(()=>say(tx('¿Cómo te sentís hoy? Tocá la carita.')))},
 // in_fin(): cierra la asamblea: guarda S.asam[hoy] con done y edad, borra las más antiguas (se quedan 120 días) y,
 // si es la 3.ª asamblea de la semana (desde el lunes, wk), regala una figurita una sola vez por semana (S.first.wk).
 // Después vuelve al mapa.
@@ -621,7 +624,7 @@ const ALBUM_KEYS=(()=>{const s=new Set();for(const t of TEMAS){if(t.words)t.word
 // ÁLBUM DE FIGURITAS: 18 por página (per); las que se tienen (S.stk) en color, las demás en sombra.
 SCENES.album={music:'book',
 // enter(): primera página; Tito dice cuántas figuritas hay.
-  enter(){this.pg=0;const n=Object.keys(S.stk).length;later(300,()=>say(n?V(['Este es tu álbum. Tenés ','Este es tu álbum. Tienes '])+n+(n===1?V([' figurita.',' pegatina.']):V([' figuritas.',' pegatinas.'])):V(['Todavía no tenés figuritas. ¡Las ganás terminando juegos!','Todavía no tienes pegatinas. ¡Las ganas terminando juegos!'])))},
+  enter(){this.pg=0;const n=Object.keys(S.stk).length;later(300,()=>sayQ(n?V(['Este es tu álbum. Tenés ','Este es tu álbum. Tienes '])+n+(n===1?V([' figurita.',' pegatina.']):V([' figuritas.',' pegatinas.'])):V(['Todavía no tenés figuritas. ¡Las ganás terminando juegos!','Todavía no tienes pegatinas. ¡Las ganas terminando juegos!'])))},
 // per: figuritas por página (6 x 3).
   per:18,
 // draw(): la página actual, número de página y flechas de anterior/siguiente.
@@ -643,7 +646,7 @@ SCENES.album={music:'book',
 // Tito duerme bajo la luna. No tiene down(): no se puede seguir jugando desde aquí.
 SCENES.dormir={music:null,
 // enter(): Tito se despide.
-  enter(){later(300,()=>say(`¡Qué lindo jugamos${kid()}! Ahora Tito se va a descansar. ¡Hasta mañana!`))},
+  enter(){later(300,()=>sayQ(`¡Qué lindo jugamos${kid()}! Ahora Tito se va a descansar. ¡Hasta mañana!`))},
 // draw(): cielo de noche con estrellas que parpadean, luna, Tito dormido y "z" que suben.
   draw(){sky('#2E3F7A','#5B6FB0');for(let i=0;i<30;i++){ctx.globalAlpha=.5+.5*Math.sin(T*2+i);star((i*197)%1600,(i*131)%560,6+i%3*3,'#FFE08A',0)}ctx.globalAlpha=1;
     pic('luna',1300,180,200);drawTito(600,430,400,{sleep:true,bubble:false});

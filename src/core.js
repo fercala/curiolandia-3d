@@ -14,7 +14,7 @@
  *  - Tito en 2D: TITO, drawTito(), inTito(), titoKind(), temasDone().
  *  - Sonido: initAudio, setVol, tone, noise, syn, SFX, SOUNDS, ONO, playSound; música: MUSIC, musKey, musicTick.
  *  - Voz: say(), voces grabadas (vozLoad, vozFile, vozGet, vozPlay, vozSeq, sayTTS, vozStop), pickVoice, talking, kid, PRAISE, praise, cap.
- *  - Escenas: scene, sceneName, sceneArg, sceneTok, go(), later(), T, fade, idle, drag, timers.
+ *  - Escenas: scene, sceneName, sceneArg, sceneTok, go(), later(), whenQuiet(), sayQ(), T, fade, idle, drag, timers.
  *  - Partículas: parts, burst(), sparkles(), heart(), drawParts().
  *  - Interfaz común: HOME, drawHome, atHome, drawRounds, drawLock (candado de adultos), drawHelp (ayudas).
  *  - Dificultad adaptativa: ADAPT, streak, REP, nOpts, onRight, onWrongTwice, nRounds; tiempo: sessionT, minuteAcc.
@@ -99,19 +99,38 @@ const KEY='curiolandia.v1';
 const DEF={age:0,name:'',variant:'',hemi:'N',vol:{voz:1,mus:.45,fx:.8},limit:0,temas:{},stats:{},days:{},asam:{},stk:{},album:[],intro:false,first:{},seenFl:0};
 // S empieza siendo una copia de DEF (JSON.parse(JSON.stringify(...)) hace una copia profunda) y load() la completa.
 let S=JSON.parse(JSON.stringify(DEF));
+// sanoS(d, def): arregla en el sitio los campos de una partida guardada d que no tienen el tipo de su valor por defecto
+// en def, para que una partida o copia rota no rompa el juego. Solo mira los campos que def tiene con un valor no null:
+//   - null o undefined: se borra (queda el valor por defecto);
+//   - def es objeto/lista y d no lo es (o uno es lista y el otro no): se borra;
+//   - def es texto: un número se pasa a texto (nombre 123 → "123"); otra cosa se borra;
+//   - def es número: un texto con número se pasa a número ("4" → 4); otra cosa se borra;
+//   - def es sí/no: se deja como esté (las partidas viejas pueden tener 1/0).
+// Dentro de temas quita las entradas que no son objetos ({"3A-T1": null}). Devuelve d.
+function sanoS(d,def){
+  for(const k in def){const v=d[k],dv=def[k];if(dv===null||!(k in d))continue;
+    if(v==null){delete d[k];continue}
+    if(typeof dv==='object'){if(typeof v!=='object'||Array.isArray(v)!==Array.isArray(dv))delete d[k]}
+    else if(typeof dv==='string'){if(typeof v==='number')d[k]=String(v);else if(typeof v!=='string')delete d[k]}
+    else if(typeof dv==='number'){if(typeof v==='string'&&v.trim()!==''&&isFinite(+v))d[k]=+v;else if(typeof v!=='number'||!isFinite(v))delete d[k]}}
+  if(d.temas&&typeof d.temas==='object')for(const t in d.temas)if(!d.temas[t]||typeof d.temas[t]!=='object')delete d.temas[t];
+  return d}
 // load(): se ejecuta una sola vez, al arrancar. Lee la partida guardada y la mezcla encima de DEF: lo que falte en una
-// partida vieja queda con su valor por defecto; vol se mezcla aparte para no perder volúmenes nuevos.
+// partida vieja queda con su valor por defecto; vol se mezcla aparte para no perder volúmenes nuevos. Antes, sanoS() quita
+// los campos con un tipo imposible (null, un nombre que no es texto...), que también quedan con su valor por defecto.
 // Si no hay partida, intenta traer nombre, edad, acento y volumen de Letrilandia (otro juego que guarda en
 // 'letrilandia.v1' en el mismo dominio). Los try/catch evitan fallos si el navegador bloquea localStorage.
 (function load(){
   let d=null; try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  if(d){S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
+  if(d&&typeof d==='object'&&!Array.isArray(d)){sanoS(d,DEF);if(d.vol)sanoS(d.vol,DEF.vol);S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
   // primera vez: si Letrilandia ya se jugó en este dispositivo, traemos nombre, edad, acento y volúmenes
   try{const l=JSON.parse(localStorage.getItem('letrilandia.v1')||'null');
     if(l){if(l.name)S.name=l.name;if(l.age)S.age=l.age;if(l.accent)S.variant=l.accent==='es'?'es':'ar';if(l.vol)S.vol=Object.assign({},DEF.vol,l.vol);S.first.fromLetri=1}}catch(e){}
 })();
-// Por defecto, rioplatense (es como está escrito el texto original).
-if(!S.variant)S.variant='ar';
+// Por defecto (partida nueva), castellano de España: es el acento de las voces grabadas (voz/, voz-fer/); con
+// rioplatense casi todas las frases irían con la voz del navegador. Las partidas que ya eligieron acento no cambian.
+// El texto original está escrito en rioplatense y tx() lo pasa a España.
+if(!S.variant)S.variant='es';
 // save(): guarda S entero en localStorage. Llámala después de cada cambio de S. Si falla (modo privado, sin espacio)
 // no pasa nada: el juego sigue, pero sin guardar.
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -321,9 +340,14 @@ let AC=null,FX=null,MUS=null;
 // SPK_OK: ya se "desbloqueó" la voz del navegador (en iOS hay que hablar una vez dentro de un toque).
 let SPK_OK=false;
 // initAudio(): se llama en cada toque (pointerdown en adult.js). Desbloquea la voz del navegador con una frase vacía
-// y elige voz, crea el AudioContext la primera vez (o lo reanuda si estaba parado) y aplica los volúmenes.
+// y elige voz, crea y desbloquea el reproductor de voces grabadas (VOZ_EL), crea el AudioContext la primera vez (o lo
+// reanuda si estaba parado) y aplica los volúmenes.
 function initAudio(){
   if('speechSynthesis' in window){try{if(!SPK_OK){SPK_OK=true;const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);pickVoice()}else if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}}
+  // Reproductor de las voces grabadas: se crea aquí, dentro del primer toque, y suena un instante de silencio. Safari
+  // (iPhone/iPad) solo deja reproducir más tarde (vozPlay, tras descargar el MP3) un <audio> que ya sonó en un toque.
+  if(!VOZ_EL&&typeof Audio==='function'){try{const a=VOZ_EL=new Audio(),sil='data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+    a.src=sil;const p=a.play();if(p)p.then(()=>{if(a.src===sil)a.pause()}).catch(()=>{})}catch(e){}}
   if(AC){if(AC.state!=='running')AC.resume();return}
   try{AC=new (window.AudioContext||window.webkitAudioContext)();FX=AC.createGain();MUS=AC.createGain();FX.connect(AC.destination);MUS.connect(AC.destination);setVol()}catch(e){AC=null}
 }
@@ -551,6 +575,7 @@ function vozSeq(plan,tok,fin,fail){plan.forEach(f=>{if(typeof f==='string')vozGe
 function say(t,cb,o={}){
   if(!o.en)t=tx(t);
   const tok=++sayTok, my=sceneTok; let done=false;
+  idle=0;// la ayuda cuenta desde que Tito calla (quien quiera la ayuda enseguida pone idle=12 después de say)
   const fin=()=>{if(done)return;done=true;if(tok===sayTok)talking=false;if(MUS&&AC)MUS.gain.setTargetAtTime(S.vol.mus*.22,AC.currentTime,.2);if(cb&&my===sceneTok)cb()};
 // est: duración estimada de la frase en ms (para los temporizadores de seguridad).
   const est=900+t.length*85/(o.rate||1);
@@ -605,6 +630,13 @@ let scene=null,sceneName='',sceneTok=0,T=0,fade=0,timers=[],parts=[],idle=0,hint
 // later(ms, fn): ejecuta fn dentro de ms milisegundos, pero solo si se sigue en la misma escena. Dentro de las escenas
 // usa esto en vez de setTimeout: lo cuenta frame() con el reloj del juego y go() lo anula.
 function later(ms,fn){timers.push({t:ms/1000,fn,tok:sceneTok})}
+// whenQuiet(fn, max): llama a fn en cuanto Tito calla (talking false), o como mucho a los max segundos (8) por si la
+// voz se queda colgada. Va con later(), así que si se cambia de escena mientras espera, fn no se llama.
+function whenQuiet(fn,max=8){const t0=T,chk=()=>{if(!talking||T-t0>max)fn();else later(100,chk)};chk()}
+// sayQ(texto, cb, o): como say(), pero espera a que Tito acabe la frase que esté diciendo (whenQuiet). Para las frases
+// que el juego dice solo, programadas con later() (consignas, presentaciones): así no cortan una frase que dijo Tito al
+// responder a un toque del niño en ese rato.
+function sayQ(t,cb,o){whenQuiet(()=>say(t,cb,o))}
 // go(nombre, o): cambia a la escena SCENES[nombre]. Anula temporizadores, partículas, arrastre y voz de la escena anterior,
 // pone el velo de transición (fade=1), elige la música (scene.music) y llama a enter(o) de la nueva escena.
 // Si SCENES[nombre] no existe, avisa en la consola y no cambia de escena.
@@ -652,8 +684,9 @@ function drawRounds(done,of,y=80){
   for(let i=0;i<of;i++){const sc=i===done-1&&scene.starPop?1+.4*Math.max(0,1-(T-scene.starPop)*3):1;star(x+48+i*66,y,25*sc,i<done?'#FFC93C':'#EADFCF',3.5)}
 }
 // Candado de la zona de adultos (abajo a la derecha): hay que mantenerlo pulsado 3 s. lockDown = se está pulsando;
-// lockHold = segundos que lleva. Lo gestionan pointerdown y frame() en adult.js.
-let lockHold=0,lockDown=false;
+// lockHold = segundos que lleva, en tiempo real (aunque el aparato vaya a pocos cuadros por segundo); lockPrev = hora
+// del cuadro anterior. Lo gestionan pointerdown y frame() en adult.js.
+let lockHold=0,lockDown=false,lockPrev=0;
 // drawLock(): dibuja el candado semitransparente y, mientras se pulsa, un arco que se va llenando.
 function drawLock(){
   const x=1546,y=852; ctx.globalAlpha=.45; ctx.fillStyle=K; rr(x-18,y-12,36,28,6); ctx.fill(); ctx.beginPath(); ctx.arc(x,y-12,11,PI,0); ctx.lineWidth=5; ctx.strokeStyle=K; ctx.stroke(); ctx.globalAlpha=1;
@@ -662,11 +695,12 @@ function drawLock(){
 /* ayuda: brillo y manito */
 // drawHelp(): ayuda automática si el niño no hace nada. Pide a la escena su hint(): a los 6 s sin tocar dibuja un brillo
 // alrededor; a los 11 s, la manita (siguiendo h.path si lo hay, o moviéndose con h.dx/h.dy) y repite una vez la consigna con scene.prompt().
+// idle no cuenta mientras Tito habla (frame) y vuelve a 0 con cada say(): la ayuda nunca corta una frase de Tito.
 function drawHelp(){
   if(!scene.hint||drag)return; const h=scene.hint(); if(!h)return;
   if(idle>6){const p=(Math.sin(T*5)+1)/2;ctx.save();ctx.globalAlpha=.35+.35*p;ctx.lineWidth=12;ctx.strokeStyle='#FFC93C';ctx.beginPath();ctx.arc(h.x,h.y,(h.r||110)+10+p*12,0,PI*2);ctx.stroke();ctx.restore()}
   if(idle>11){const k=(T*1.2)%1;if(h.path&&h.path.length>1){const q=(T*.5)%1,f=q*(h.path.length-1),i=Math.floor(f),a=h.path[i],b=h.path[Math.min(h.path.length-1,i+1)];hand(lerp(a[0],b[0],f-i)+20,lerp(a[1],b[1],f-i)+14,90)}else hand(h.x+30-k*20+(h.dx||0)*k,h.y+20-k*10+(h.dy||0)*k,90);
-    if(!hintSaid&&scene.prompt){hintSaid=true;scene.prompt()}}
+    if(!hintSaid&&scene.prompt&&!talking){hintSaid=true;scene.prompt()}}// nunca mientras Tito habla: cortaría su frase
 }
 /* adaptativo */
 // Dificultad adaptativa (no se guarda en S): ADAPT va de -1 (más fácil) a 1 (más difícil); streak cuenta aciertos a la
@@ -683,7 +717,9 @@ const nRounds=()=>(AGE()<=3?4:5)+(REP>=2?1:0);
 /* tiempo de juego */
 // sessionT: segundos jugados en esta sesión (para S.limit); restAsked: ya se propuso descansar; minuteAcc: segundos aún
 // no apuntados en S.days. Los usa frame() en adult.js.
-let sessionT=0,restAsked=false,minuteAcc=0;
+// La sesión sigue al recargar la página: si S.ses ({t: segundos, at: hora en ms}, se guarda cada 15 s) es de hace menos
+// de 30 min, sessionT sigue desde ahí. Así recargar no se salta el límite de tiempo («a dormir»).
+let sessionT=(()=>{const s=S.ses,ago=s&&Date.now()-s.at;return s&&isFinite(+s.t)&&ago>=0&&ago<30*60e3?+s.t:0})(),restAsked=false,minuteAcc=0;
 
 /* ---------- pegatinas ---------- */
 // toast: aviso de "¡Pegatina nueva!" que se ve unos segundos: {k: dibujo, t: momento T en que salió, x, y opcionales}.

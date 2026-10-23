@@ -65,7 +65,7 @@ Esta guía explica el **proceso de trabajo** (sección 1) y trae **recetas paso 
 4. **Sube `VER`** cada vez que publiques.
 5. **Sin dependencias nuevas**: nada de npm ni librerías externas en el juego.
 6. **Piensa en niños de 3 a 5 años**: zonas de toque grandes, nada de leer (todo se dice en voz), refuerzo positivo, nada de castigos ni prisas.
-7. **Usa `later()`**, no `setTimeout`, dentro de las escenas y los juegos.
+7. **Usa `later()`**, no `setTimeout`, dentro de las escenas y los juegos. Una frase que el juego dice solo, sin que el niño toque (una consigna con `later()`), va con `sayQ()`: espera a que Tito acabe lo que esté diciendo. Si es una pregunta, comprueba antes que el niño no la haya respondido ya. Tras un segundo fallo, pon `idle=12` **después** del `say()`.
 8. **Documenta cada cambio**: sin comentarios ni documentación al día no se publica. → [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md)
 
 ---

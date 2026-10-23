@@ -155,8 +155,8 @@ function openAdult(){
   q('#a-reset').onclick=()=>{q('#a-confirm').hidden=false};q('#a-no').onclick=()=>{q('#a-confirm').hidden=true};
   q('#a-yes').onclick=()=>{closeAdult();doReset()};
 }
-// closeAdult(): cierra el panel y pone a cero el tiempo de la sesión; si Tito estaba dormido (límite de tiempo), vuelve al mapa.
-function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;if(sceneName==='dormir')go('map',{hello:true})}
+// closeAdult(): cierra el panel y pone a cero el tiempo de la sesión (también el guardado en S.ses); si Tito estaba dormido (límite de tiempo), vuelve al mapa.
+function closeAdult(){document.getElementById('adult').hidden=true;sessionT=0;S.ses=null;save();if(sceneName==='dormir')go('map',{hello:true})}
 // Botón "Volver al juego".
 document.getElementById('a-close').onclick=()=>closeAdult();
 
@@ -220,23 +220,23 @@ function hoverTick(dt){
   if(hovNow!=null){hovT+=dt;if(hovT>1.1&&!dwellDone&&!talking&&scene.dwell&&typeof hovNow==='string'){dwellDone=true;try{scene.dwell(hovNow)}catch(e){console.error(e)}}}
 }
 /* frame(now): EL BUCLE DEL JUEGO. Se ejecuta en cada cuadro de pantalla (requestAnimationFrame; lo arranca boot.js).
-   Pasos: 1) calcula dt (máx. 0,05 s para que una pausa no dé un salto) y avanza T, idle y el velo fade;
-   2) ejecuta los temporizadores de later() que vencen (solo si siguen en su escena); 3) candado: 3 s pulsado abre la
+   Pasos: 1) calcula dt (máx. 0,05 s para que una pausa no dé un salto) y avanza T, idle (solo mientras Tito calla) y el velo fade;
+   2) ejecuta los temporizadores de later() que vencen (solo si siguen en su escena); 3) candado: 3 s reales pulsado abre la
    zona de adultos; 4) cuenta el tiempo jugado (S.days cada 15 s, límite S.limit -> escena 'dormir');
    5) música y scene.update(dt); 6) fondo: si la escena es 3D (scene.three), world3d.js la pinta con R3frame(dt);
    7) dibuja la escena 2D encima, ayudas, partículas, aviso de pegatina y monedas, y el candado, recortado a 1600x900;
    8) velo de transición; 9) rellena las bandas laterales en pantallas alargadas; 10) aviso de girar el móvil.
    Cada paso va en try/catch: un fallo de una escena se ve en la consola pero no para el juego. */
 function frame(now){
-  const dt=Math.min(.05,(now-lastF)/1000);lastF=now;T+=dt;idle+=dt;fade=Math.max(0,fade-dt*3);
+  const dt=Math.min(.05,(now-lastF)/1000);lastF=now;T+=dt;if(!talking)idle+=dt;fade=Math.max(0,fade-dt*3);
 // Temporizadores de later(): solo se ejecutan si siguen en la escena en la que se crearon (t.tok===sceneTok).
   for(const t of timers){t.t-=dt;if(t.t<=0&&!t.done){t.done=1;if(t.tok===sceneTok)try{t.fn()}catch(e){console.error(e)}}}timers=timers.filter(t=>!t.done);
-  if(lockDown){lockHold+=dt;if(lockHold>=3)openAdult()}
+  if(lockDown){lockHold+=Math.min(.25,(now-lockPrev)/1000);if(lockHold>=3)openAdult()}lockPrev=now;// en tiempo real, no de juego (dt tiene tope)
 // Tiempo de juego (no cuenta con el panel abierto, en la portada ni durmiendo). Cada 15 s se apunta en S.days (en
 // minutos) y se guardan solo los últimos 30 días.
   if(document.getElementById('adult').hidden&&sceneName!=='title'&&sceneName!=='dormir'){sessionT+=dt;minuteAcc+=dt;
     if(minuteAcc>=15){const d=today();S.days[d]=(S.days[d]||0)+minuteAcc/60;minuteAcc=0;
-      const ks=Object.keys(S.days).sort();while(ks.length>30)delete S.days[ks.shift()];save()}
+      const ks=Object.keys(S.days).sort();while(ks.length>30)delete S.days[ks.shift()];S.ses={t:Math.round(sessionT),at:Date.now()};save()}
     if(S.limit&&sessionT>=S.limit*60)go('dormir')}
   try{musicTick();scene.update&&scene.update(dt)}catch(e){console.error(e)}
 // Fondo: en las escenas 3D, el lienzo 2D se deja transparente y R3frame dibuja el mundo en el lienzo #gl de debajo.
@@ -262,7 +262,7 @@ function frame(now){
 }
 // window.__cl: puerta para las pruebas automáticas (y para depurar desde la consola): ir a escenas, leer S y la escena,
 // simular toques (tap), arrastres (drag) y ratón encima (hover), y abrir/cerrar la zona de adultos.
-window.__cl={go,get S(){return S},get scene(){return scene},get name(){return sceneName},SCENES,TEMA,TEMAS,
+window.__cl={go:(n,o)=>go(n,o),get S(){return S},get scene(){return scene},get name(){return sceneName},SCENES,TEMA,TEMAS,
   tap(x,y){scene.down&&scene.down(x,y);scene.up&&scene.up(x,y)},drag(a,b,c,d){scene.down(a,b);scene.move&&scene.move(c,d);scene.up&&scene.up(c,d)},
   hover(x,y){MX=x;MY=y;mouseOn=true},T:()=>T,say,openAdult,closeAdult};
 
@@ -277,13 +277,13 @@ async function bkEncode(){const j=JSON.stringify(S);
   if(typeof CompressionStream==='function'){try{const st=new Blob([j]).stream().pipeThrough(new CompressionStream('gzip'));return 'CURIO1.'+bk64(new Uint8Array(await new Response(st).arrayBuffer()))}catch(e){}}
   return 'CURIO0.'+bk64(new TextEncoder().encode(j))}
 // bkDecode(código): al revés que bkEncode. Acepta también el JSON tal cual (archivo descargado). Comprueba que parece una
-// partida (tiene temas) y devuelve el objeto; si no, lanza Error('formato') o Error('navegador').
+// partida (tiene temas, y es un objeto: ni null ni una lista) y devuelve el objeto; si no, lanza Error('formato') o Error('navegador').
 async function bkDecode(code){code=String(code||'').trim();let j;
   if(code.startsWith('{'))j=code;
   else{code=code.replace(/\s+/g,'');const m=code.match(/^CURIO([01])\.([A-Za-z0-9+/=]+)$/);if(!m)throw new Error('formato');const u=bkUn64(m[2]);
     if(m[1]==='1'){if(typeof DecompressionStream!=='function')throw new Error('navegador');j=await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}
     else j=new TextDecoder().decode(u)}
-  const d=JSON.parse(j);if(!d||typeof d!=='object'||typeof d.temas!=='object')throw new Error('formato');return d}
+  const d=JSON.parse(j);if(!d||typeof d!=='object'||Array.isArray(d)||!d.temas||typeof d.temas!=='object'||Array.isArray(d.temas))throw new Error('formato');return d}
 // bkWire(q): conecta los botones de la sección "Copia de seguridad": ver código, copiarlo, descargar archivo .json,
 // recuperar desde código o archivo. Al recuperar, enseña un resumen y, si se confirma, escribe la copia directamente en
 // localStorage y recarga la página (load() de core.js la mezcla con DEF como cualquier partida guardada).

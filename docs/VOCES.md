@@ -18,7 +18,11 @@ Tito habla con **frases grabadas en MP3**. Si una frase no tiene grabación, la 
 4. Si hay plan, lo dice `vozSeq`: los MP3 seguidos con `vozPlay` y los trozos `{t}` con `sayTTS` (voz del navegador). Si la frase llevaba el nombre del niño, `say()` pone el nombre delante, con la voz del navegador ("Lucía. ¡Muy bien! ¡Una estrella más!"), porque los nombres no se pueden grabar de antemano. Si no hay plan, dice la frase entera con `speechSynthesis`.
 5. Al terminar llama a `alAcabar`, **solo si el niño sigue en la misma escena**.
 
-Mientras habla, Tito mueve la boca y la música baja de volumen.
+Mientras habla, Tito mueve la boca y la música baja de volumen. Mientras habla, la ayuda automática no cuenta el tiempo ni repite la consigna (ver ARQUITECTURA, paso 6), así no le corta.
+
+El reproductor de los MP3 (`VOZ_EL`) se crea en el primer toque (`initAudio()`) y suena un instante de silencio: Safari (iPhone, iPad) solo deja reproducir después, cuando el MP3 ya se ha descargado, un `<audio>` que ya sonó dentro de un toque. Si aun así un MP3 no suena, la frase la dice la voz del navegador.
+
+El acento por defecto de una partida nueva es el de España (`S.variant = 'es'`, desde v1.586), el de las grabaciones.
 
 Variantes que verás en el código:
 - `say3(texto, cb)` y `sayMix3(...)` (world3d.js): lo que Tito comenta del paisaje 3D. Se callan si la familia activa "Paisaje: callado" (`S.quiet3`).

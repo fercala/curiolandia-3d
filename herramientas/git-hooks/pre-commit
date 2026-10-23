@@ -3,7 +3,7 @@
 # Se activa una vez por copia del repo con:  git config core.hooksPath herramientas/git-hooks
 # 1. Si el commit cambia algún .js de src/, comprueba que todas las funciones tengan comentario (tests/comentarios.py).
 # 2. Si cambia src/ pero ningún documento (docs/, README.md, CLAUDE.md), para el commit para que no se olvide.
-# 3. Si el texto de alguna llamada a say(), say3(), sayMix() o sayMix3() de src/ es nuevo o cambia (frases_diff.py) y no
+# 3. Si el texto de alguna llamada a say(), sayQ(), say3(), sayMix() o sayMix3() de src/ es nuevo o cambia (frases_diff.py) y no
 #    toca dialogos/pendientes.txt, para el commit: cada diálogo nuevo o cambiado se apunta para grabarlo. Cambiar otra
 #    cosa de una línea que habla, sin tocar la frase, no lo para.
 # 4. Si el commit toca dialogos/ o voz*/manifest.json, comprueba que dialogos/todos.csv esté al día (dialogos.py).

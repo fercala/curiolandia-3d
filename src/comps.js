@@ -219,9 +219,10 @@ function ChoiceGame(cfg,onDone){
     // Prepara la ronda this.i: pide los datos a cfg.gen, coloca las tarjetas
     // barajadas y dice la pregunta. lock=true: mientras Tito pregunta, tocar una
     // opción incorrecta solo dice su nombre (no cuenta como fallo); se desbloquea
-    // al acabar la frase o, por si la voz falla, a los 2,6 s.
+    // al acabar la frase o, por si la voz falla, a los 2,6 s. La pregunta espera a que Tito calle (whenQuiet) y no se
+    // dice si el niño ya acertó antes de oírla (busy): así no corta el «¡Muy bien!» de su respuesta.
     round(){this.r=cfg.gen(this.i);this.items=layoutChoice(shuffle(this.r.words),this.r.ok,cfg.y||600,cfg.big);this.errs=0;this.lock=true;this.busy=false;
-      later(400,()=>{this.r.snd&&this.r.snd();say(this.r.ask,()=>{this.lock=false})});later(2600,()=>{this.lock=false})},
+      const i0=this.i;later(400,()=>whenQuiet(()=>{if(this.busy||this.i!==i0)return;this.r.snd&&this.r.snd();say(this.r.ask,()=>{this.lock=false})}));later(2600,()=>{this.lock=false})},
     // Repite el sonido (si hay) y la pregunta.
     prompt(){this.r.snd&&this.r.snd();say(this.r.ask)},
     // Ayuda: señala la tarjeta correcta que aún no se ha acertado.
@@ -287,7 +288,7 @@ function Conocer(cfg,onDone){
   items.forEach((it,i)=>{const r=Math.floor(i/cols),c=i%cols,inRow=Math.min(cols,n-r*cols);it.x=900-(inRow-1)*(s+34)/2+c*(s+34);it.y=180+((660-rows*(s+34))/2)+(s+34)/2+r*(s+34);it.s=s;it.in=T+i*.08});
   return {total:n,done:0,open:null,
     // Dice la frase de bienvenida.
-    enter(){later(300,()=>say(cfg.intro||'Tocá cada dibujo para conocerlo.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Tocá cada dibujo para conocerlo.'))},
     // Recuerda qué hacer (cerrar la tarjeta o tocar una sin estrella).
     prompt(){say(this.open?'Tocá para cerrar.':'Tocá un dibujo que todavía no tenga estrella.')},
     // Ayuda: la tarjeta abierta (para cerrarla) o la primera que no se ha visto.
@@ -343,9 +344,9 @@ function Cuerpo(cfg,onDone){
   const kx=1000,ky=870,ks=1.3;
   return {total:R,done:0,i:0,seen:{},hl:null,hlT:0,
     // Empieza: en modo libre dice la bienvenida; si no, la primera pregunta.
-    enter(){if(free)later(300,()=>say(cfg.intro||'Este es mi cuerpo. Tocá cada parte y te digo cómo se llama.'));else this.ask()},
+    enter(){if(free)later(300,()=>sayQ(cfg.intro||'Este es mi cuerpo. Tocá cada parte y te digo cómo se llama.'));else this.ask()},
     // Elige la parte objetivo de esta ronda y la pide en voz alta.
-    ask(){this.t=order[this.i%order.length];this.errs=0;later(300,()=>say('Tocá '+V(this.t.n)+'.'))},
+    ask(){this.t=order[this.i%order.length];this.errs=0;later(300,()=>sayQ('Tocá '+V(this.t.n)+'.'))},
     // Repite la consigna.
     prompt(){if(free)say('Tocá una parte del cuerpo.');else say('Tocá '+V(this.t.n)+'.')},
     // Ayuda: centro de la parte objetivo (o de la primera no tocada en modo libre),
@@ -404,14 +405,14 @@ function Arrastra(cfg,onDone){
     enter(){this.load()},
     // Carga la ronda this.i: copia los items, los reparte barajados por la bandeja
     // (hx,hy = su sitio de vuelta), coloca los "preset" y dice la consigna (y en
-    // modo por pasos, el primer paso).
+    // modo por pasos, el primer paso). La consigna espera a que Tito calle y no se dice si ya cambió la ronda.
     load(){const r=this.r=cfg.gen(this.i);this.zones=r.zones;this.step=0;this.errs=0;this.placedN=0;
       const its=r.items.map(o=>Object.assign({s:o.s||170},o));
       const tray=r.tray||{x0:360,x1:1520,y:790}, n=its.length, gap=(tray.x1-tray.x0)/n;
       shuffle(its).forEach((it,j)=>{it.hx=it.x=it.x??(tray.x0+gap*(j+.5));it.hy=it.y=it.y??tray.y;it.in=T+j*.07;it.placed=0});
       this.items=its;
       if(r.preset)for(const j of r.preset){const it=its.find(i=>i.zone==='s'+j),zz=it&&this.zones.find(q=>q.id===it.zone);if(!zz)continue;const p=zz.slot(0,it);it.placed=T;it.zid=zz.id;it.px=it.x=p[0];it.py=it.y=p[1];it.ps=zz.ps||.8}
-      later(300,()=>say(V(r.ask),()=>{if(r.steps)this.askStep()}))},
+      const i0=this.i;later(300,()=>whenQuiet(()=>{if(this.i===i0)say(V(r.ask),()=>{if(r.steps)this.askStep()})}))},
     // Paso actual (modo steps) o null.
     cur(){return this.r.steps?this.r.steps[this.step]:null},
     // Dice el paso actual.
@@ -469,7 +470,7 @@ function Arrastra(cfg,onDone){
     },
     // Coloca la cosa it en la zona z (en su hueco slot o en filas de 3), suma
     // rec/onRight y avanza: en modo pasos, siguiente paso; en modo normal, cuando
-    // no quedan cosas por colocar, estrella, frase okAll y siguiente ronda u onDone.
+    // no quedan cosas por colocar, estrella, frase okAll (cuando Tito acaba la de colocar: sayQ) y siguiente ronda u onDone.
     place(it,z){
       it.placed=T;const n=this.items.filter(i=>i.placed&&i.zid===z.id).length;it.zid=z.id;
       const p=z.slot?z.slot(n,it):[z.x+((n%3)-1)*z.w*.27,z.y-z.h*.05+Math.floor(n/3)*-40];it.px=p[0];it.py=p[1];it.ps=z.ps||.8;
@@ -482,7 +483,7 @@ function Arrastra(cfg,onDone){
       const left=this.items.filter(i=>!i.placed&&i.zone&&i.zone!=='no').length;
       if(cfg.placeSay)say(cfg.placeSay(it,z));
       if(!left){SFX.good();this.done++;scene.starPop=T;this.busy=true;burst(900,420,40);
-        later(cfg.placeSay?1300:200,()=>say(this.r.okAll?V(this.r.okAll):praise(),()=>later(400,()=>{this.busy=false;this.i++;if(this.i>=R)onDone();else this.load()})))}
+        later(cfg.placeSay?1300:200,()=>sayQ(this.r.okAll?V(this.r.okAll):praise(),()=>later(400,()=>{this.busy=false;this.i++;if(this.i>=R)onDone();else this.load()})))}
     }
   };
 }
@@ -556,7 +557,7 @@ function Memoria(cfg,onDone){
   cards.forEach((c,i)=>{c.x=900-(cols-1)*(s+30)/2+(i%cols)*(s+30);c.y=470-(rows-1)*(s+30)/2+Math.floor(i/cols)*(s+30)});
   return {total:np,done:0,open:[],
     // Dice la explicación.
-    enter(){later(300,()=>say(cfg.intro||'Juego de memoria. Tocá dos tarjetas y buscá las que son iguales.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Juego de memoria. Tocá dos tarjetas y buscá las que son iguales.'))},
     // Repite la consigna.
     prompt(){say('Buscá dos tarjetas iguales.')},
     // Ayuda: si hay una carta levantada, su pareja; si no, una carta sin pareja
@@ -603,7 +604,7 @@ function Cuenta(cfg,onDone){
       const sz=n<=3?220:n<=5?180:140,cols=Math.min(n,5),rows=Math.ceil(n/cols);
       this.objs=Array.from({length:n},(_,j)=>({x:900-(Math.min(cols,n-Math.floor(j/cols)*cols)-1)*(sz+20)/2+(j%cols)*(sz+20),y:370-(rows-1)*(sz+10)/2+Math.floor(j/cols)*(sz+10),s:sz,c:0,in:T+j*.08}));
       if(cfg.one){this.objs=[{x:900,y:380,s:380,c:0,in:T,one:1}]}
-      this.opts=null;later(300,()=>say(cfg.one?cfg.ask(this):'Vamos a contar '+plural(this.k)+'. Tocá cada '+(fem(this.k)?'una.':'uno.')))},
+      this.opts=null;later(300,()=>sayQ(cfg.one?cfg.ask(this):'Vamos a contar '+plural(this.k)+'. Tocá cada '+(fem(this.k)?'una.':'uno.')))},
     // Repite la consigna de la fase actual.
     prompt(){say(this.phase==='count'?(cfg.one?cfg.ask(this):'Tocá cada uno para contar.'):'¿Cuántos hay?')},
     // Ayuda: el siguiente objeto sin contar, o la tarjeta con el número correcto.
@@ -647,7 +648,7 @@ function Puzzle(cfg,onDone){
     load(){this.k=cfg.list[this.i];const pw=B.s/cols,ph=B.s/rows;this.pw=pw;this.ph=ph;this.placed=0;
       const spots=shuffle([[340,250],[340,480],[340,710],[620,790],[1300,790],[1450,250],[1450,480],[1450,710],[960,800]]);
       this.ps=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const sp=spots[this.ps.length];this.ps.push({c,r,tx:B.x-B.s/2+pw*(c+.5),ty:B.y-B.s/2+ph*(r+.5),x:sp[0],y:sp[1],hx:sp[0],hy:sp[1],ok:0,rot:rnd(-.2,.2)})}
-      later(300,()=>say(this.i?'¡Otro rompecabezas! ¿Qué será?':'Armá el rompecabezas. Arrastrá cada pieza a su lugar.'))},
+      later(300,()=>sayQ(this.i?'¡Otro rompecabezas! ¿Qué será?':'Armá el rompecabezas. Arrastrá cada pieza a su lugar.'))},
     // Repite la consigna.
     prompt(){say('Arrastrá una pieza al cuadro.')},
     // Ayuda: una pieza suelta y hacia dónde va.
@@ -697,7 +698,7 @@ function Excava(cfg,onDone){
   const digs=[];
   return {total:objs.length,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(cfg.intro||'Hay cosas escondidas en la arena. Frotá con el dedo para descubrirlas.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Hay cosas escondidas en la arena. Frotá con el dedo para descubrirlas.'))},
     // Repite la consigna.
     prompt(){say('Frotá la arena para encontrar lo que está escondido.')},
     // Ayuda: la primera cosa sin descubrir (la manita se mueve a los lados).
@@ -734,7 +735,7 @@ function Riega(cfg,onDone){
   const can={x:1400,y:330,hx:1400,hy:330};
   return {total:n,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(cfg.intro||'Las semillas tienen sed. Agarrá la regadera y llevala arriba de cada maceta.'))},
+    enter(){later(300,()=>sayQ(cfg.intro||'Las semillas tienen sed. Agarrá la regadera y llevala arriba de cada maceta.'))},
     // Repite la consigna.
     prompt(){say('Llevá la regadera arriba de una maceta para regarla.')},
     // Ayuda: señala la regadera y la lleva hasta encima de una maceta sin flor.

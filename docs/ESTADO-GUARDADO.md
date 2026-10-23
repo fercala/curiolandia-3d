@@ -8,10 +8,10 @@
 
 - **Clave** en `localStorage`: `'curiolandia.v1'` (constante `KEY` en core.js). No se cambia nunca.
 - **Guardar**: `save()` escribe todo `S` como JSON. **No hay guardado automático**: llama a `save()` justo después de cambiar algo que deba recordarse.
-- **Cargar**: `load()` se ejecuta una vez al arrancar. Hace `S = Object.assign(copia de DEF, lo guardado)`. Es decir: parte de los valores por defecto `DEF` y encima pone lo guardado. Solo mezcla el **primer nivel** (los objetos de dentro, como `S.tito`, se toman tal cual de lo guardado).
-- Los campos de `tienda.js` (`DEF2`) se rellenan después: `for (k in DEF2) if (S[k] === undefined) S[k] = copia de DEF2[k]`. `repaso.js` hace lo mismo con los suyos.
+- **Cargar**: `load()` se ejecuta una vez al arrancar. Hace `S = Object.assign(copia de DEF, lo guardado)`. Es decir: parte de los valores por defecto `DEF` y encima pone lo guardado. Solo mezcla el **primer nivel** (los objetos de dentro, como `S.tito`, se toman tal cual de lo guardado). Antes de mezclar, `sanoS(lo guardado, DEF)` quita los campos con un tipo imposible (desde v1.586): un `null` donde `DEF` tiene un valor, un objeto que no es objeto, un número donde va texto (se pasa a texto) o un texto con número donde va número (se pasa a número), y las entradas de `temas` que no son objetos. Esos campos quedan con su valor por defecto, así una partida o copia rota no rompe el juego.
+- Los campos de `tienda.js` (`DEF2`) se rellenan después: `sanoS(S, DEF2)` y luego `for (k in DEF2) if (S[k] === undefined) S[k] = copia de DEF2[k]`. `repaso.js` hace lo mismo con los suyos.
 - Si no hay partida pero sí una de **Letrilandia** (otro juego de la familia, clave `letrilandia.v1`), se copian de ahí el nombre, la edad, el acento y el volumen.
-- **Copia de seguridad** (zona de adultos): `bkEncode()` genera un texto `CURIO1.` + JSON comprimido en base64; "Recuperar" lo vuelve a escribir en `localStorage` y recarga la página.
+- **Copia de seguridad** (zona de adultos): `bkEncode()` genera un texto `CURIO1.` + JSON comprimido en base64; "Recuperar" lo vuelve a escribir en `localStorage` y recarga la página. `bkDecode()` solo acepta un objeto con `temas` que sea un objeto (no `null` ni una lista).
 
 ## 2. Los campos
 
@@ -21,7 +21,7 @@
 |---|---|---|
 | `age` | `0` (sin elegir), `3`, `4` o `5` | Edad del niño. Usa `AGE()`, que devuelve 3 si aún es 0. |
 | `name` | texto (máx. 20) | Nombre del niño (`''` si no hay). |
-| `variant` | `''`, `'ar'` o `'es'` | Variante del español: `'es'` = España (la de las voces grabadas). |
+| `variant` | `''`, `'ar'` o `'es'` | Variante del español: `'es'` = España (la de las voces grabadas). Si está vacía al cargar, pasa a `'es'` (desde v1.586; antes `'ar'`). |
 | `hemi` | `'N'` o `'S'` | Hemisferio, para las estaciones del año. |
 | `vol` | `{voz, mus, fx}` de 0 a 1 | Volúmenes. |
 | `limit` | minutos: `0`, `10`, `15`, `20` | Límite de tiempo de juego al día (0 = sin límite). |
@@ -67,6 +67,7 @@
 | `voz` | `''`, `'fer'` o `'nav'` | Voz de Tito: grabada (`voz/`), de Fer (`voz-fer/`) o solo la voz del navegador (`'nav'`, sin MP3). |
 | `quiet3` | `0` o `1` | Si Tito se calla al tocar el paisaje 3D. |
 | `last` | id de tema | Último tema visitado. |
+| `ses` | `{t: segundos, at: hora en ms}` o `null` | Tiempo jugado en la sesión, para el límite `limit` (desde v1.586). Se guarda cada 15 s; al recargar, si es de hace menos de 30 min, la sesión sigue desde ahí. Se pone a `null` al cerrar la zona de adultos. |
 
 ## 3. Reglas para no romper partidas guardadas
 

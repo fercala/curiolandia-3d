@@ -31,7 +31,9 @@ const espia = require('./espia');
     for (let i = 0; i + 1 < D.length; i++) {
       const d = D[i], fin = D[i + 1].t, ev = EV.filter(e => e[0] >= d.t && (e[0] < fin || (e[0] <= fin + 2 && /fin$/.test(e[1]))));// un final en el mismo instante en que empieza la siguiente cuenta como entero
       const empezo = ev.some(e => e[1] === 'mp3' || e[1] === 'tts');
-      const cortada = ev.some(e => e[1] === 'mp3-corte' || e[1] === 'tts-corte') || (empezo && !ev.some(e => e[1] === 'mp3-fin' || e[1] === 'tts-fin'));
+      // solo cuentan los cortes y finales del audio que empezó esta frase (un corte justo al empezar es de la anterior)
+      const mios = new Set(ev.filter(e => e[1] === 'mp3' || e[1] === 'tts').map(e => e[2]));
+      const cortada = EV.some(e => (e[1] === 'mp3-corte' || e[1] === 'tts-corte') && mios.has(e[2]) && e[0] >= d.t && e[0] <= fin + 5) || (empezo && !ev.some(e => (e[1] === 'mp3-fin' || e[1] === 'tts-fin') && mios.has(e[2])));
       if (empezo && cortada && D[i + 1].escena === 'juego' && d.escena === 'juego') cortes.push({ juego: ctx, texto: d.texto, oidoMs: fin - d.t, siguiente: D[i + 1].texto, enS: Math.round((d.t - t0) / 100) / 10 });
     }
     process.stdout.write('.');

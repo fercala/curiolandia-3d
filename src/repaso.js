@@ -66,9 +66,9 @@ SCENES.repaso={music:'casita',
   // Al entrar. o.seguir: viene del botón verde (se apunta seen); o.back: vuelve de un juego del repaso
   // (anima la apertura del siguiente). Si está todo hecho y sin cobrar, da el premio.
   enter(o){const R=repToday();this.L=R.list;this.unl=null;REP_ON=false;if(o.seguir){R.seen=1;save()}
-    if(repAllDone()&&!R.paid){R.paid=1;save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa');say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420);later(900,()=>say('Tocá la flecha verde para seguir el camino.'))})});return}
+    if(repAllDone()&&!R.paid){R.paid=1;save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa');say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420);later(900,()=>sayQ('Tocá la flecha verde para seguir el camino.'))})});return}
     const nx=this.next();
-    if(o.back&&nx>=0&&nx!==this.prevNx){this.unl={j:nx,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=this.pos(nx);burst(x,y,30)});later(300,()=>say('¡Muy bien! Ahora el número '+(nx+1)+'.'));return}
+    if(o.back&&nx>=0&&nx!==this.prevNx){this.unl={j:nx,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=this.pos(nx);burst(x,y,30)});later(300,()=>sayQ('¡Muy bien! Ahora el número '+(nx+1)+'.'));return}
     later(300,()=>this.prompt(!o.back))},
   // Posición en pantalla [x,y] de la estación j (centradas en fila).
   pos(j){const n=this.L.length;return[860-(n-1)*180+j*360,500]},

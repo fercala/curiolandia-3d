@@ -2,6 +2,28 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.586 (2026-10-23)
+Arreglos de lo encontrado en las pruebas de regresión ([HALLAZGOS-PRUEBAS.md](HALLAZGOS-PRUEBAS.md)).
+- Para el niño:
+  - La ayuda automática ya no corta a Tito: espera a que acabe de hablar para repetir la consigna. Las páginas largas de los cuentos se oyen enteras y, tras fallar dos veces, se oye entera la explicación del fallo.
+  - Las frases que el juego dice solo (la pregunta de cada ronda, la felicitación al acabar un juego) esperan a que Tito acabe la que está diciendo, y la pregunta no se dice si el niño ya respondió antes de oírla. En las pruebas, ninguna frase se corta ya sin que el niño toque (antes, hasta una de cada cinco con la voz de Fer o el acento rioplatense).
+  - En iPhone y iPad las voces grabadas deberían sonar: el reproductor se desbloquea en el primer toque.
+  - En una partida nueva, Tito habla con acento de España, el de las grabaciones. Las partidas que ya tienen acento elegido no cambian.
+- Para la familia:
+  - El candado de la zona de adultos cuenta 3 s reales, también en aparatos lentos.
+  - Recargar la página ya no se salta el límite de tiempo: la sesión sigue si se recarga antes de 30 min.
+  - Una partida guardada o una copia de seguridad rota (campos vacíos o de otro tipo) ya no rompe el juego: esos campos vuelven a su valor por defecto. Una copia con `"temas": null` se rechaza.
+- Por dentro:
+  - `adult.js`, `frame()`: `idle` no avanza mientras `talking`; `core.js`, `say()` pone `idle=0`; `drawHelp()` no llama a `prompt()` mientras Tito habla.
+  - `core.js`: `whenQuiet()` y `sayQ()` nuevas; las frases programadas con `later(…, ()=>say(…))` pasan a `sayQ` (comps.js, comps2.js, ingles.js, repaso.js, scenes.js, tienda.js, zonas.js); `ChoiceGame.round`, `Arrastra.load` y la asamblea (`ask()`) no preguntan si ya se respondió; `finishGame()` usa `sayQ`.
+  - `core.js`, `initAudio()`: crea `VOZ_EL` y lo hace sonar con un silencio dentro del toque.
+  - `core.js`, `sanoS()` nueva, usada en `load()` y en tienda.js; `adult.js`, `bkDecode()` más estricta.
+  - `core.js` y `adult.js`: `lockPrev` y el candado en tiempo real; `S.ses` nuevo (campo suelto, compatible) para el tiempo de la sesión.
+  - `core.js`: `S.variant` vacío pasa a `'es'` (antes `'ar'`).
+  - `adult.js`: `window.__cl.go` llama al `go()` actual (el envuelto por world3d.js).
+  - `herramientas/git-hooks/frases_diff.py`: también vigila las frases de `sayQ()`, y las llamadas sin texto fijo se comparan por su expresión, no por la línea entera. Pruebas de audio: un corte o un toque en el mismo milisegundo en que empieza una frase ya no se atribuye a esa frase.
+  - Documentado en ARQUITECTURA, COMO-AGREGAR, ESTADO-GUARDADO, VOCES y HALLAZGOS-PRUEBAS. Sin frases nuevas.
+
 ## Sin versión (2026-10-23): pruebas de regresión
 - Para el niño: nada cambia (no se publica una versión nueva del juego).
 - Pruebas nuevas en `tests/regresion/` (ver su `LEEME.md`): partida de punta a punta por edad, todos los juegos hasta el final, casos límite y caminos alternativos, y medición del audio (frases cortadas, mezcla de voces). Los resultados van a `tests/regresion/salida/`, que no se sube. Lo que encuentren se apuntará en `docs/HALLAZGOS-PRUEBAS.md`.

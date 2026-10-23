@@ -82,6 +82,7 @@ Cada cuadro (unas 60 veces por segundo) `frame()` hace, en este orden:
 4. Música (`musicTick`) y `scene.update(dt)`.
 5. **Si la escena es 3D** (`scene.three`), llama a `R3frame(dt)` de `world3d.js`, que anima y pinta el 3D en `#gl`.
 6. `scene.draw()` pinta lo 2D en `#cv` (encima del 3D), y luego la ayuda (`drawHelp`), las partículas (`drawParts`), avisos y monedas.
+   La ayuda automática se rige por `idle`, los segundos sin tocar: brillo a los 6 s, manita y `prompt()` a los 11 s. `idle` no avanza mientras Tito habla y vuelve a 0 con cada `say()`, así la ayuda nunca corta una frase (desde v1.586). Por lo mismo, las frases que el juego dice solo con `later()` usan `sayQ()` en vez de `say()`: esperan a que Tito acabe la frase que esté diciendo (`whenQuiet()`). Un juego que quiere la ayuda enseguida (tras el segundo fallo) pone `idle=12` **después** de su `say()`: la manita sale ya y la consigna se repite cuando Tito acaba.
 
 Los toques llegan por eventos del navegador: `pointerdown` → `scene.down(x,y)`, `pointermove` → `scene.move`, `pointerup` → `scene.up`. La tecla Escape equivale a tocar el botón de la casa.
 
@@ -97,7 +98,7 @@ SCENES.miEscena = {
   draw() { ... },           // obligatorio: pinta la pantalla
   down(x, y) { ... },       // toque (también move/up para arrastrar)
   hint() { return {x, y, r} }, // dónde brilla la ayuda si el niño no toca nada
-  prompt() { say('...') },  // repite la consigna (se llama al tocar a Tito)
+  prompt() { say('...') },  // repite la consigna (al tocar a Tito, y una vez con la manita de ayuda)
   dwell(id) { ... },        // el ratón se queda quieto sobre algo: decir su nombre
   three: true,              // solo las escenas 3D (lo pone world3d.js)
 };

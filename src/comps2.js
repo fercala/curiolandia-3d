@@ -99,7 +99,7 @@ function Une(cfg,onDone){
     load(){const ps=shuffle(cfg.pairs).slice(0,n),gap=Math.min(190,600/Math.max(1,n-1)),s=Math.min(160,gap-24);
       this.s=s;this.L=ps.map((p,j)=>({k:p[0],m:j,x:560,y:480-(n-1)*gap/2+j*gap,in:T+j*.08}));
       const ry=shuffle(ps.map((p,j)=>j));this.R=ps.map((p,j)=>({k:p[1],m:j,x:1240,y:480-(n-1)*gap/2+ry[j]*gap,in:T+.3+j*.08}));
-      this.sel=null;this.errs=0;later(300,()=>say(V(cfg.ask)))},
+      this.sel=null;this.errs=0;later(300,()=>sayQ(V(cfg.ask)))},
     // Repite la consigna.
     prompt(){say(V(cfg.ask))},
     // Ayuda: desde el punto de la primera tarjeta izquierda sin unir hasta su pareja.
@@ -170,7 +170,7 @@ function Lens(cfg,onDone){
   const L={x:900,y:470,r:cfg.r||140};
   return {total:R,done:0,i:0,
     // Dice la explicación y, en modo pedido, lo primero que hay que buscar.
-    enter(){later(300,()=>say(V(cfg.intro),()=>this.ask()))},
+    enter(){later(300,()=>sayQ(V(cfg.intro),()=>this.ask()))},
     // Cosa que hay que buscar ahora (modo pedido) o null (modo libre).
     cur(){return cfg.ask?order[this.i]:null},
     // Pide la cosa actual.
@@ -214,7 +214,7 @@ function TocaPartes(cfg,onDone){
   const uniq=[...new Map(cfg.parts.map(p=>[p.id,p])).values()],R=cfg.rounds||Math.min(uniq.length,nRounds()+1);let order=shuffle(uniq);
   return {total:R,done:0,i:0,hl:null,hlT:0,
     // Dice la explicación y pide la primera parte.
-    enter(){later(300,()=>say(V(cfg.intro),()=>this.ask()))},
+    enter(){later(300,()=>sayQ(V(cfg.intro),()=>this.ask()))},
     // Elige la parte objetivo y la pide.
     ask(){this.t=order[this.i%order.length];this.errs=0;say('Tocá '+V(this.t.n)+'.')},
     // Repite la parte que hay que tocar.
@@ -244,7 +244,7 @@ function Apaga(cfg,onDone){
   const spots=cfg.spots.map(s=>Object.assign({on:1},s));
   return {total:spots.length,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(V(cfg.intro)))},
+    enter(){later(300,()=>sayQ(V(cfg.intro)))},
     // Repite la explicación.
     prompt(){say(V(cfg.intro))},
     // Ayuda: la primera cosa encendida.
@@ -273,7 +273,7 @@ function Frota(cfg,onDone){
   const spots=cfg.spots.map(([x,y,r])=>({x,y,r,h:1,ph:rnd(0,6)})),bub=[];
   return {total:spots.length,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(V(cfg.intro)))},
+    enter(){later(300,()=>sayQ(V(cfg.intro)))},
     // Repite la explicación.
     prompt(){say(V(cfg.intro))},
     // Ayuda: la primera mancha que queda.
@@ -314,7 +314,7 @@ function Llena(cfg,onDone){
     // Ronda: elige N (distinto del anterior, salvo que min = max) y pone al menos N+2 cosas a la derecha.
     load(){let n;do{n=ri(cfg.min||2,mx)}while(n===last&&mx>(cfg.min||2));/* si min = max solo hay un número posible: se repite en vez de buscar otro para siempre */last=n;this.n=n;this.c=0;this.busy=false;
       const P=Array.from({length:Math.max(n+2,7)},(_,j)=>j);this.its=P.map((j)=>({k:pick(cfg.pool),x:1080+(j%4)*120+(Math.floor(j/4)%2)*50,y:300+Math.floor(j/4)*170,s:130,in:T+j*.05}));this.its.forEach(o=>{o.hx=o.x;o.hy=o.y});
-      later(300,()=>say(V(cfg.ask(n))))},
+      later(300,()=>sayQ(V(cfg.ask(n))))},
     // Repite cuántas hay que meter.
     prompt(){say(V(cfg.ask(this.n)))},
     // Ayuda: una cosa que queda fuera y hacia el recipiente.
@@ -349,7 +349,7 @@ function Velas(cfg,onDone){
   const n=cfg.n||AGE()+1;const vs=Array.from({length:n},(_,j)=>({x:900-(n-1)*55+j*110,y:330,on:1}));let c=0;
   return {total:n,done:0,
     // Dice la explicación.
-    enter(){later(300,()=>say(V(cfg.intro||'¡Es la fiesta de cumpleaños! Soplá las velitas: tocá cada una y contamos.')))},
+    enter(){later(300,()=>sayQ(V(cfg.intro||'¡Es la fiesta de cumpleaños! Soplá las velitas: tocá cada una y contamos.')))},
     // Repite la consigna.
     prompt(){say('Tocá las velitas para soplarlas.')},
     // Ayuda: la primera vela encendida.
@@ -375,7 +375,7 @@ function Gira(cfg,onDone){
     // Carga la primera ronda.
     enter(){this.load()},
     // Ronda: decide si se pide noche (rondas pares) o día y lo dice.
-    load(){this.want=this.i%2===0?'noche':'dia';this.ok=false;later(300,()=>say(this.want==='noche'?'Girá la Tierra para que sea de noche donde está Leo. ¡Que no le dé el sol!':'Ahora girá la Tierra para que sea de día donde está Leo. ¡Que le dé el sol!'))},
+    load(){this.want=this.i%2===0?'noche':'dia';this.ok=false;later(300,()=>sayQ(this.want==='noche'?'Girá la Tierra para que sea de noche donde está Leo. ¡Que no le dé el sol!':'Ahora girá la Tierra para que sea de día donde está Leo. ¡Que le dé el sol!'))},
     // 'dia' si Leo mira hacia el sol (cos(a) < -0,35, lado izquierdo), 'noche' si
     // está en el lado derecho (cos(a) > 0,35) y 'medio' entre los dos.
     state(){return Math.cos(a)<-.35?'dia':Math.cos(a)>.35?'noche':'medio'},
@@ -421,7 +421,7 @@ function Semaforo(cfg,onDone){
     // Carga la primera ronda.
     enter(){this.load()},
     // Ronda: color del semáforo (this.g) y pregunta.
-    load(){this.g=seq[this.i];this.walk=0;this.errs=0;this.lock=false;later(300,()=>say(this.g?'Mirá el semáforo de las personas. ¿Cruzamos o esperamos?':'Mirá el semáforo. ¿Cruzamos o esperamos?'))},
+    load(){this.g=seq[this.i];this.walk=0;this.errs=0;this.lock=false;later(300,()=>sayQ(this.g?'Mirá el semáforo de las personas. ¿Cruzamos o esperamos?':'Mirá el semáforo. ¿Cruzamos o esperamos?'))},
     // Repite la pregunta.
     prompt(){say('¿Cruzamos o esperamos? Mirá el color del semáforo.')},
     // Ayuda: el botón correcto.
@@ -462,7 +462,7 @@ function Cruce(cfg,onDone){
     enter(){this.load()},
     // Ronda: lugar de la izquierda (L), de la derecha (Rr) y adónde ir (go: -1/1).
     load(){const ps=shuffle(places);this.L=ps[0];this.Rr=ps[1];this.go=Math.random()<.5?-1:1;this.car={t:0,dir:0};this.errs=0;this.lock=false;
-      later(300,()=>say('Vamos '+V(ala(this.go<0?this.L:this.Rr))+'. ¿Doblamos a la derecha o a la izquierda?'))},
+      later(300,()=>sayQ('Vamos '+V(ala(this.go<0?this.L:this.Rr))+'. ¿Doblamos a la derecha o a la izquierda?'))},
     // Repite adónde queremos ir.
     prompt(){say('Queremos ir '+V(ala(this.go<0?this.L:this.Rr))+'. ¿Derecha o izquierda?')},
     // Ayuda: la flecha correcta.
@@ -509,7 +509,7 @@ function Tracer(cfg,onDone){
     // distancias acumuladas (se calculan pero no se usan después).
     load(first){const P=cfg.paths[this.i];this.P=P;this.pts=P.pts;this.prog=0;this.on=false;this.ink=[];this.fin=0;
       const L=[0];for(let j=1;j<this.pts.length;j++)L.push(L[j-1]+dist(...this.pts[j-1],...this.pts[j]));this.len=L;
-      later(first?300:100,()=>say(V(P.say||cfg.ask)))},
+      later(first?300:100,()=>sayQ(V(P.say||cfg.ask)))},
     // Repite la consigna del trazo.
     prompt(){say(V(this.P.say||cfg.ask))},
     // Ayuda: la manita recorre el resto del camino desde donde se quedó (path).
@@ -578,7 +578,7 @@ function Song(cfg,onDone){
   const part2=cfg.part2!==false;
   return {total:part2?n:1,done:0,ph:'sing',li:-1,
     // Dice la introducción, toca la melodía y empieza a cantar.
-    enter(){later(300,()=>say(V(cfg.intro||'¡Vamos a cantar! Escuchá la canción.'),()=>{playTune(TUNES[cfg.tune]||TUNES.dias);later(1400,()=>this.next())}))},
+    enter(){later(300,()=>sayQ(V(cfg.intro||'¡Vamos a cantar! Escuchá la canción.'),()=>{playTune(TUNES[cfg.tune]||TUNES.dias);later(1400,()=>this.next())}))},
     // Canta la línea siguiente (nota + verso). Al acabar las líneas: melodía
     // final y, si hay segunda parte, pasa a 'play'; si no, onDone.
     next(){this.li++;if(this.li>=n){this.ph='fin1';playTune(TUNES.fin);later(700,()=>{if(!part2){this.done=1;scene.starPop=T;onDone();return}this.ph='play';this.order=cfg.mode==='pedido'?shuffle(L):L.slice();this.k=0;say(V(cfg.ask2||'¡Ahora te toca a vos! Tocá cada uno en orden, como en la canción.'),()=>this.askNext())});return}
@@ -623,12 +623,12 @@ function Story(data,cfg,onDone){
     // Muestra la página i y la lee (la primera con el título); 0,9 s después de
     // terminar pasa sola a la siguiente si sigue en esa página.
     page(i){this.pi=i;this.pT=T;this.said=false;const p=P[i];
-      later(i?250:400,()=>say((i===0?V(['Escuchá el cuento: ','Escucha el cuento: '])+V(data.title)+'. ':'')+V(p.say),()=>{this.said=T;later(900,()=>{if(this.ph==='read'&&this.pi===i)this.turn()})}))},
+      later(i?250:400,()=>sayQ((i===0?V(['Escuchá el cuento: ','Escucha el cuento: '])+V(data.title)+'. ':'')+V(p.say),()=>{this.said=T;later(900,()=>{if(this.ph==='read'&&this.pi===i)this.turn()})}))},
     // Pasa a la página siguiente o, tras la última, a las preguntas.
     turn(){if(this.pi<P.length-1){SFX.whoosh();this.page(this.pi+1)}else this.quiz(0)},
     // Pregunta i: coloca las opciones y la lee. Sin más preguntas → onDone.
     quiz(i){this.ph='quiz';this.qi=i;const q=Q[i];if(!q){this.ph='end';onDone();return}this.errs=0;this.busy=false;
-      this.items=layoutChoice(shuffle(q.opts),[q.ok],660,false);later(300,()=>say((i===0?'Ahora te pregunto. ':'')+V(q.q)))},
+      this.items=layoutChoice(shuffle(q.opts),[q.ok],660,false);later(300,()=>sayQ((i===0?'Ahora te pregunto. ':'')+V(q.q)))},
     // Repite la pregunta o la página actual.
     prompt(){if(this.ph==='quiz')say(V(Q[this.qi].q));else say(V(P[this.pi].say))},
     // Ayuda: la opción correcta o, tras leer la página, la flecha.
