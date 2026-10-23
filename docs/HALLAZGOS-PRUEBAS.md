@@ -31,6 +31,7 @@ Las pruebas de audio (`audio.js`, `audio-espera.js`) usan los MP3 de verdad de `
 - **Visto en:** `audio-espera.js`, en 17 páginas de cuentos de 21 juegos en el tercio de los juegos revisado en la primera pasada.
 - **Causa probable:** `idle` sube cada cuadro aunque Tito esté hablando (`adult.js`, `frame()`, `idle+=dt`). A los 11 s, `drawHelp()` (`core.js`) llama a `scene.prompt()`, que en `Story` (`comps2.js`) vuelve a leer la página. Esa nueva frase corta la anterior, cuyo `fin` ejecuta su callback (`later(900, turn)`), y el paso de página corta la relectura.
 - **Arreglo (v1.586):** `idle` no cuenta mientras `talking` y vuelve a 0 con cada `say()`; `drawHelp()` no llama a `prompt()` mientras Tito habla.
+- **Después (v1.586, `audio-espera.js` en los 253 juegos):** ninguna página de cuento ni explicación de un fallo cortada. Las 29 frases que la prueba aún marca son todas la ayuda de «Conocer» («Toca un dibujo que todavía no tenga estrella.») cortada por el toque de la propia prueba al fallar a propósito: es un toque, así que está bien que corte.
 
 ### A2. Tras el segundo fallo, la consigna corta la explicación del error (alta)
 - **Qué pasa:** al fallar dos veces seguidas, Tito empieza a explicar el error y la consigna repetida le corta casi enseguida.
@@ -98,7 +99,7 @@ Las pruebas de audio (`audio.js`, `audio-espera.js`) usan los MP3 de verdad de `
 
 ## Lo que funciona
 
-- **Los 253 juegos de todos los temas se terminan** siguiendo la ayuda (`juegos.js`). El de regar pide mantener la regadera sobre la maceta unos segundos; la prueba la suelta enseguida, pero sujetándola se termina.
+- **Los 253 juegos de todos los temas se terminan** siguiendo la ayuda (`juegos.js`), en la v1.585 y otra vez en la v1.586, sin errores de JavaScript. El de regar pide mantener la regadera sobre la maceta unos segundos; la prueba la suelta enseguida, pero sujetándola se termina.
 - **Partida nueva de punta a punta** con el ratón de verdad a los 3, 4 y 5 años (`camino.js`): portada, edad, nombre, cuento, mapa, asamblea, casitas, juegos, cofre; temas terminados, monedas, cofres, sin errores, y el progreso se conserva al recargar.
 - **Casos límite (`limites.js`):** partida guardada corrupta o vieja; temas o animal de Tito desconocidos; importar de Letrilandia; almacenamiento bloqueado o lleno; copia de seguridad ida y vuelta y mínima; nombres raros (largos, emojis, HTML); toques muy rápidos; salir a mitad de un juego; borrar todo el progreso; modo libre (todas las casitas y su primer juego); cambiar de edad; pantallas en vertical, diminutas, enormes y giradas; sin WebGL (sigue en 2D); sin voz del navegador; volumen de voz a 0; MP3 sin conexión; fechas especiales (noche, 3 de la mañana, Navidad, Año Nuevo, 29 de febrero, cambio de hora, domingo); pasar la medianoche; hemisferio sur; tienda sin monedas y con muchísimas; partida con todo terminado; opción «Solo voz del navegador».
 
