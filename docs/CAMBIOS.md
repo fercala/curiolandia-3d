@@ -2,6 +2,10 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.584 (2026-10-23)
+- Para el niño: nada cambia en los juegos de ahora.
+- Por dentro (`comps2.js`, `Llena`): si un juego se configura con `min` igual a `max`, ya no se queda colgado buscando un número distinto del anterior: repite ese número.
+
 ## v1.583 (2026-10-23)
 - Para el niño: nada cambia si todo va bien; si alguna parte del juego pide una escena que no existe, el juego se queda donde está en vez de romperse.
 - Por dentro (`core.js`): `go()` comprueba que `SCENES[nombre]` exista; si no, avisa en la consola y no hace nada.

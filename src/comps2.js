@@ -311,8 +311,8 @@ function Llena(cfg,onDone){
   return {total:R,done:0,i:0,
     // Carga la primera ronda.
     enter(){this.load()},
-    // Ronda: elige N (distinto del anterior) y pone al menos N+2 cosas a la derecha.
-    load(){let n;do{n=ri(cfg.min||2,mx)}while(n===last);last=n;this.n=n;this.c=0;this.busy=false;
+    // Ronda: elige N (distinto del anterior, salvo que min = max) y pone al menos N+2 cosas a la derecha.
+    load(){let n;do{n=ri(cfg.min||2,mx)}while(n===last&&mx>(cfg.min||2));/* si min = max solo hay un número posible: se repite en vez de buscar otro para siempre */last=n;this.n=n;this.c=0;this.busy=false;
       const P=Array.from({length:Math.max(n+2,7)},(_,j)=>j);this.its=P.map((j)=>({k:pick(cfg.pool),x:1080+(j%4)*120+(Math.floor(j/4)%2)*50,y:300+Math.floor(j/4)*170,s:130,in:T+j*.05}));this.its.forEach(o=>{o.hx=o.x;o.hy=o.y});
       later(300,()=>say(V(cfg.ask(n))))},
     // Repite cuántas hay que meter.
