@@ -468,7 +468,7 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 **Pruebas:** `reloj-10fps` y `reloj-normal-control`; se modifica únicamente la cadencia de animación del navegador de prueba, no la fórmula del reloj del juego.
 
-### B18. Salir pronto del mapa pierde las tres monedas del regalo diario
+### B18. Los regalos diario y de cumpleaños pueden marcarse cobrados sin entregarse
 
 **Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
 
@@ -485,3 +485,27 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 **Regresión:** salida inmediata, recarga, permanencia normal y reentrada repetida durante el mismo día. Una sola entrega de tres monedas.
 
 **Pruebas:** `diario-salida` y `diario-espera-control`; el fixture prepara el mapa sin avisos prioritarios para alcanzar explícitamente la rama del regalo.
+
+
+**Ampliación de B18 — cumpleaños, también reproducida:** al apagar la última vela en la Asamblea, `S.bdayDone=today()` se guarda antes de la celebración y de las diez monedas. Salir con la casa antes de esa entrega deja el día marcado, sin monedas ni pegatina de tarta; al volver a la Asamblea ya no aparece el paso del cumpleaños. El control que espera sí recibe diez monedas y la pegatina. Casos `cumple-salida` y `cumple-espera-control`. Ambos se agrupan con el regalo diario como un problema de entrega de estos premios en `src/zonas.js`, sin crear otro ID por el mismo patrón.
+
+### B19. Un vale desactivado por el adulto todavía se puede comprar si había una confirmación abierta
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+
+1. En la tienda, tocar un vale activo para abrir la confirmación de compra.
+2. Sin confirmar, abrir Zona de adultos.
+3. Desactivar ese mismo vale y volver al juego.
+4. Pulsar el botón verde de la confirmación que seguía abierta.
+
+**Resultado:** se descuentan las monedas y se registra un vale que ya está desactivado. La prueba del vale v1 observa `on=0`, saldo de 100 a 70 y un canje pendiente nuevo.
+
+**Control:** comprar el vale activo, marcarlo «Entregado» y recargar conserva un único registro entregado y el saldo 70.
+
+**Causa:** [src/tienda.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/tienda.js), `SCENES.tienda.conf`, conserva la compra mientras el panel cambia `S.vales`; `buy()` no vuelve a validar que el vale siga activo. Al cerrar el panel no se invalida la confirmación.
+
+**Posible arreglo:** al confirmar, resolver el vale por su identificador en la configuración actual y comprobar que sigue permitido. Si cambió su disponibilidad, texto o precio, cancelar o pedir una confirmación actualizada; no comprar silenciosamente con una autorización obsoleta.
+
+**Regresión:** desactivar un vale con confirmación abierta, modificar precio/texto, compra normal, canje y recarga. No debe producirse descuento ni registro si el vale fue desactivado.
+
+**Pruebas:** `vale-desactivado` y `vale-canje-control` en `tests/regresion/cobertura.js`.
