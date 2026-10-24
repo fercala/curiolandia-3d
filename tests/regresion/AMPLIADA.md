@@ -32,7 +32,8 @@ Se puede pasar un filtro de casos: `node tests/regresion/lanzar.js ampliada.js .
 - **B13:** vista previa de una copia con HTML en el saldo. La demostración inocua solo establece una variable en la página aislada.
 - **B14:** cinco estructuras internas defectuosas, con comprobación de aceptación y apertura de la pantalla afectada. Solo cuatro variantes fallaron en la referencia inicial.
 - Reinicio que limpia progreso y conserva preferencias.
-- 36 combinaciones de controles HTML: edades 3/4/5, Camino/Libre, voces principal/Fer/navegador y España/rioplatense. Se comprueban los valores aplicados y la persistencia de la combinación final tras recargar. Esto no significa haber completado cada actividad con cada combinación.
+- 36 combinaciones de controles HTML: edades 3/4/5, Camino/Libre, voces principal/Fer/navegador y España/rioplatense. Se activan los controles y sus eventos en un lote DOM, se comprueban los valores aplicados y la persistencia de la combinación final tras recargar. Esto no significa haber completado cada actividad con cada combinación ni comprobar la puntería del ratón en el panel.
+- Control de la actividad de regar con arrastre real sostenido hasta que crece cada flor. Soltar inmediatamente la regadera produce un falso atasco del guion antiguo, no un fallo del juego.
 
 ## Resultados y límites
 
