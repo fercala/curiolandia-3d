@@ -38,3 +38,7 @@ Las dice la voz del navegador hasta que se regraben. Para regrabarlas, borra su 
 - El universo. Empieza por el primero: ¡vamos a conocer! (9.8 s)
 - Mi familia. Empieza por el primero: ¡vamos a conocer! (9.1 s)
 - ¡La tienda! (1.5 s)
+
+## Lote 3 (24-10-2026)
+
+Todas estas frases van en el lote 3 (`frases-fer-lote3.txt` y `generar-fer-lote3.bat`), junto con las 311 que le faltan a la Voz de Fer según la auditoría y las 68 de la casa: se generan en una carpeta nueva, así que no hace falta borrar nada.

@@ -5,6 +5,7 @@ Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUME
 ## v1.591 (2026-10-24)
 - Para el niño: con la Voz de Fer, 1103 frases nuevas suenan grabadas (y 16 se regrabaron). Antes las decía la voz del navegador.
 - Por dentro: lote «Fercala 2» pasado a MP3 con `preparar_voz.py` y añadido a `voz-fer/manifest.json` (3303 frases). 11 audios que duraban muchísimo más de lo normal no se han puesto y 18 conviene escucharlos: lista en `dialogos/fer-revisar.md`. Faltan en la Voz de Fer las 68 frases de la casa de la v1.590. La voz principal (`voz/`) no cambia: esas frases siguen pendientes para ella.
+- Auditoría de voces del 24-10-2026 (`herramientas/voces/auditoria`): 302 frases que el juego dice y no estaban en ninguna lista pasan a `dialogos/pendientes.txt`. Para la Voz de Fer se preparó el lote 3 (`frases-fer-lote3.txt`, 392 frases: las 311 que le faltan, las 68 de la casa y las 29 de `fer-revisar.md`), que se genera en una carpeta nueva.
 
 ## v1.590 (2026-10-23)
 - Para el niño:

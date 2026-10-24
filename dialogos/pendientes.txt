@@ -1196,3 +1196,305 @@ la torre de las estrellas
 se abre cuando termines
 casitas más
 casitas
+La lluvia.
+¡El bebé! Buaaa.
+¡Con su abuela! Y con un gato.
+Vamos a contar manzanas. Toca cada una.
+¿Cuántas manzanas hay? Toca el número.
+¡Hay dos manzanas!
+¡Hay una manzana!
+La bañera va en el baño.
+La cama.
+La cama va en el dormitorio.
+El oso.
+El oso va en el dormitorio.
+El sofá va en el salón.
+La tele va en el salón.
+El autobús hace ¡Mooc, mooc!
+¡Hay dos helados!
+¡Hay tres helados!
+¡Es el niño!
+¿Dónde está la tienda?
+La tienda.
+El hospital.
+¡Sí! Ahí hay tres, es más.
+¡El viento! Fiuuu, y las hojas se cayeron.
+¡Las chucherías! Solo un poquito, de vez en cuando.
+La gallina nace de un huevo.
+El cocodrilo nace de un huevo.
+El perro crece en la tripa de su mamá.
+La vaca crece en la tripa de su mamá.
+El gato crece en la tripa de su mamá.
+El caballo crece en la tripa de su mamá.
+Doblamos a la izquierda y llegamos a la piscina.
+Doblamos a la derecha y llegamos al parque.
+Cuatro estrellas y dos estrellas. ¿Cuántas hay en total?
+¡Sí! Cuatro más dos son seis.
+¡Sí! Tres más tres son seis.
+¿Quién está entre la pelota y el perro?
+¡Hay cuatro regalos!
+¡Hay dos bolas de Navidad!
+Esa es la ballena.
+Esa es la manzana.
+¡Zumo de naranja! Mmm.
+¿Dónde está el cepillo de dientes?
+¿Dónde está la olla?
+Lleva el pato dentro del corral.
+Deja la vaca fuera del corral, en el pasto.
+Lleva el caballo dentro del corral.
+Deja la oveja fuera del corral, en el pasto.
+¿Va por la calle o por el agua?
+¿Por dónde va? Por la calle, por el cielo o por el agua.
+Pon el pato arriba de la mesa.
+Pon el gato abajo de la mesa.
+Los codos.
+¡La campana! Din, don.
+¡El gato! Suave y peludito.
+Alegría.
+La naranja es una fruta.
+¡Hay un pingüino!
+¡Hay tres focas!
+El elefante hace ¡Prrrr!
+¿Quién hace grrraaa?
+El tigre hace ¡Grrraaa!
+El cocodrilo hace ¡Clac, clac!
+El camión de bomberos.
+¡Sí! Después va la abeja.
+Vamos a pintar la calabaza de naranja.
+Ahora toca la calabaza.
+La calabaza es naranja.
+Vamos a pintar la castaña de marrón.
+Ahora toca la castaña.
+La castaña es marrón.
+Ahora toca la berenjena.
+La berenjena es morada.
+¡Sí! Después va rojo.
+El pterodáctilo.
+¡Por la tormenta! Con rayos y truenos.
+El zapato.
+El zapato no está vivo.
+El robot no está vivo.
+¡El grifo! Así cuidamos el agua.
+Teníamos siete globos y se volaron cuatro. ¿Cuántos quedan?
+¡Sí! Quedan tres.
+La mano.
+Vamos a pintar el pájaro de azul.
+Ahora toca el plátano.
+Ahora toca el pájaro.
+La gallina hace ¡Clo, clo, clo!
+¡La gallina! Clo, clo.
+¡Hay una mariquita!
+¡Hay tres mariquitas!
+¡Hay dos abejas!
+¿Dónde está el avión?
+¡Hay dos globos!
+Vamos a contar patos. Toca cada uno.
+¿Cuántos patos hay? Toca el número.
+¡Hay tres patos!
+Miércoles, jueves, viernes, mmm... ¿Qué día falta?
+¡Sí! Falta el sábado.
+El médico usa el fonendo.
+La policía.
+¡El silbato! Priiip.
+El tobogán va al parque.
+¡Sí! Es la sombra del tigre.
+Las hojas.
+La flor. ¡Qué bonita!
+¡Sí! Lejos.
+¡Una corona!
+¡Hay cinco lunas!
+¡Hay tres cohetes!
+¡Hay nueve estrellas!
+¡Hay cinco cohetes!
+El pez.
+La ballena vive en el mar.
+La morsa vive en el polo.
+La jirafa vive en la selva.
+El tigre.
+El tigre vive en la selva.
+El erizo vive en el bosque.
+El búho.
+El búho vive en el bosque.
+Rojo, naranja, amarillo, verde, celeste, azul y violeta.
+¡Sí! El caballo es el primero.
+¡Hay seis gorritos de fiesta!
+¡Hay cuatro globos!
+La casa de paja
+¡Hay seis!
+Ese es el miércoles. Ayer fue viernes. Hoy es el que viene después.
+Cosas para el jardín.
+¡Mi casa creció! Tiene una habitación nueva: el dormitorio. Arriba puedes elegir a qué habitación ir.
+Ese es el miércoles. Mañana es el que viene después de hoy.
+¡Mira! ¡Se abrió una casita nueva: mi cuerpo y los sentidos! Tócala para jugar.
+¡Mira! ¡Se abrió una casita nueva: mi cuerpo por dentro! Tócala para jugar.
+Ese es el sábado. Ayer fue domingo. Hoy es el que viene después.
+Ese es el jueves. Ayer fue lunes. Hoy es el que viene después.
+Ese es el lunes. Ayer fue lunes. Hoy es el que viene después.
+Ese es el sábado. Ayer fue martes. Hoy es el que viene después.
+Ese es el martes. Hoy es jueves, el que salta.
+El gorro no va con este tiempo.
+Mmm, después de primavera no viene otoño.
+Ese es el árbol del invierno. Prueba con otro.
+Ese es el martes. Ayer fue viernes. Hoy es el que viene después.
+Ese es el domingo. Ayer fue jueves. Hoy es el que viene después.
+Ese es el domingo. Hoy es miércoles, el que salta.
+Ese es el árbol del verano. Prueba con otro.
+Mmm, después de invierno no viene otoño.
+Ese es el viernes. Ayer fue sábado. Hoy es el que viene después.
+El sofá ya es tuyo. Está en la casa de Tito.
+¡Aquí está el sofá!
+¡Mira lo que había: el sofá!
+La tele ya es tuyo. Está en la casa de Tito.
+¡Aquí está la tele!
+¡Mira lo que había: la tele!
+La cama ya es tuyo. Está en la casa de Tito.
+¡Aquí está la cama!
+¡Mira lo que había: la cama!
+El baúl de los juguetes.
+El baúl de los juguetes ya es tuyo. Está en la casa de Tito.
+¡Aquí está el baúl de los juguetes!
+¡Mira lo que había: el baúl de los juguetes!
+El cuento ya es tuyo. Está en la casa de Tito.
+¡Aquí está el cuento!
+¡Mira lo que había: el cuento!
+Las estrellas que brillan.
+Las estrellas que brillan ya es tuyo. Está en la casa de Tito.
+¡Aquí está las estrellas que brillan!
+¡Mira lo que había: las estrellas que brillan!
+La mesa ya es tuyo. Está en la casa de Tito.
+¡Aquí está la mesa!
+¡Mira lo que había: la mesa!
+La silla ya es tuyo. Está en la casa de Tito.
+¡Aquí está la silla!
+¡Mira lo que había: la silla!
+La nevera ya es tuyo. Está en la casa de Tito.
+¡Aquí está la nevera!
+¡Mira lo que había: la nevera!
+La olla ya es tuyo. Está en la casa de Tito.
+¡Aquí está la olla!
+¡Mira lo que había: la olla!
+La tarta de cumpleaños ya es tuyo. Está en la casa de Tito.
+¡Aquí está la tarta de cumpleaños!
+¡Mira lo que había: la tarta de cumpleaños!
+La bañera ya es tuyo. Está en la casa de Tito.
+¡Aquí está la bañera!
+¡Mira lo que había: la bañera!
+La toalla.
+La toalla ya es tuyo. Está en la casa de Tito.
+¡Aquí está la toalla!
+¡Mira lo que había: la toalla!
+El jabón.
+El jabón ya es tuyo. Está en la casa de Tito.
+¡Aquí está el jabón!
+¡Mira lo que había: el jabón!
+El patito de goma.
+El patito de goma ya es tuyo. Está en la casa de Tito.
+¡Aquí está el patito de goma!
+¡Mira lo que había: el patito de goma!
+El tambor.
+El tambor ya es tuyo. Está en la casa de Tito.
+¡Aquí está el tambor!
+¡Mira lo que había: el tambor!
+La pizarra.
+La pizarra ya es tuyo. Está en la casa de Tito.
+¡Aquí está la pizarra!
+¡Mira lo que había: la pizarra!
+Las pinturas ya es tuyo. Está en la casa de Tito.
+¡Aquí está las pinturas!
+¡Mira lo que había: las pinturas!
+El globo.
+El globo ya es tuyo. Está en la casa de Tito.
+¡Aquí está el globo!
+¡Mira lo que había: el globo!
+El tobogán ya es tuyo. Está en la casa de Tito.
+¡Aquí está el tobogán!
+¡Mira lo que había: el tobogán!
+El árbol ya es tuyo. Está en la casa de Tito.
+¡Aquí está el árbol!
+¡Mira lo que había: el árbol!
+La flor.
+La flor ya es tuyo. Está en la casa de Tito.
+¡Aquí está la flor!
+¡Mira lo que había: la flor!
+La regadera.
+La regadera ya es tuyo. Está en la casa de Tito.
+¡Aquí está la regadera!
+¡Mira lo que había: la regadera!
+El columpio.
+El columpio ya es tuyo. Está en la casa de Tito.
+¡Aquí está el columpio!
+¡Mira lo que había: el columpio!
+El castillo de arena ya es tuyo. Está en la casa de Tito.
+¡Aquí está el castillo de arena!
+¡Mira lo que había: el castillo de arena!
+La piscina.
+La piscina ya es tuyo. Está en la casa de Tito.
+¡Aquí está la piscina!
+¡Mira lo que había: la piscina!
+El globo terráqueo.
+El globo terráqueo ya es tuyo. Está en la casa de Tito.
+¡Aquí está el globo terráqueo!
+¡Mira lo que había: el globo terráqueo!
+Saturno.
+Saturno ya es tuyo. Está en la casa de Tito.
+¡Aquí está Saturno!
+¡Mira lo que había: Saturno!
+El cohete.
+El cohete ya es tuyo. Está en la casa de Tito.
+¡Aquí está el cohete!
+¡Mira lo que había: el cohete!
+El gato ya es tuyo. Está en la casa de Tito.
+¡Aquí está el gato!
+¡Mira lo que había: el gato!
+El pájaro ya es tuyo. Está en la casa de Tito.
+¡Aquí está el pájaro!
+¡Mira lo que había: el pájaro!
+El conejo ya es tuyo. Está en la casa de Tito.
+¡Aquí está el conejo!
+¡Mira lo que había: el conejo!
+¿Quieres comprar el gato por 30 monedas?
+¿Quieres comprar el pájaro por 25 monedas?
+El conejo se abre cuando tengas 20 estrellas.
+¿Quieres comprar el sofá por 15 monedas?
+¿Quieres comprar la tele por 20 monedas?
+La tele se abre cuando tengas 8 estrellas.
+¿Quieres comprar la cama por 15 monedas?
+¿Quieres comprar el baúl de los juguetes por 12 monedas?
+¿Quieres comprar el cuento por 6 monedas?
+¿Quieres comprar las estrellas que brillan por 15 monedas?
+Las estrellas que brillan se abre cuando tengas 8 estrellas.
+¿Quieres comprar la mesa por 10 monedas?
+¿Quieres comprar la silla por 6 monedas?
+¿Quieres comprar la nevera por 18 monedas?
+¿Quieres comprar la olla por 8 monedas?
+¿Quieres comprar la tarta de cumpleaños por 12 monedas?
+La tarta de cumpleaños se abre cuando tengas 8 estrellas.
+¿Quieres comprar la bañera por 18 monedas?
+¿Quieres comprar la toalla por 6 monedas?
+¿Quieres comprar el jabón por 4 monedas?
+Cuesta 4 monedas.
+¿Quieres comprar el patito de goma por 6 monedas?
+¿Quieres comprar el tambor por 12 monedas?
+¿Quieres comprar la pizarra por 15 monedas?
+¿Quieres comprar las pinturas por 10 monedas?
+¿Quieres comprar el globo por 6 monedas?
+¿Quieres comprar el tobogán por 25 monedas?
+El tobogán se abre cuando tengas 8 estrellas.
+¿Quieres comprar el árbol por 15 monedas?
+¿Quieres comprar la flor por 8 monedas?
+¿Quieres comprar la regadera por 6 monedas?
+¿Quieres comprar el columpio por 25 monedas?
+El columpio se abre cuando tengas 8 estrellas.
+¿Quieres comprar el castillo de arena por 20 monedas?
+El castillo de arena se abre cuando tengas 8 estrellas.
+¿Quieres comprar la piscina por 30 monedas?
+La piscina se abre cuando tengas 20 estrellas.
+¿Quieres comprar el globo terráqueo por 20 monedas?
+El globo terráqueo se abre cuando tengas 8 estrellas.
+¿Quieres comprar Saturno por 25 monedas?
+Saturno se abre cuando tengas 8 estrellas.
+¿Quieres comprar el cohete por 40 monedas?
+El cohete se abre cuando tengas 20 estrellas.
+El gato se abre cuando tengas 8 estrellas.
+El pájaro se abre cuando tengas 8 estrellas.
+¿Quieres comprar el conejo por 35 monedas?
