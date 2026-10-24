@@ -115,14 +115,33 @@ function sanoS(d,def){
     else if(typeof dv==='number'){if(typeof v==='string'&&v.trim()!==''&&isFinite(+v))d[k]=+v;else if(typeof v!=='number'||!isFinite(v))delete d[k]}}
   if(d.temas&&typeof d.temas==='object')for(const t in d.temas)if(!d.temas[t]||typeof d.temas[t]!=='object')delete d.temas[t];
   return d}
+// sanoHondo(d): el segundo paso de sanoS, por dentro de los campos que son colecciones (una copia editada o rota puede
+// traer {"home":{"robot":null}} y romper la casa al dibujarla). Arregla en el sitio y devuelve d:
+//   - temas.X.g que no es un objeto → {} (el tema queda sin juegos hechos);
+//   - stats.X y gs.X que no son objetos → se borran; sus ok/err que no son números → 0;
+//   - home.X sin x/y numéricos → se borra (el objeto sigue comprado; placeHome le busca sitio);
+//   - kg.X que no es una lista → se borra; cofreP que no es un objeto → se borra;
+//   - vales y valesLog: se quitan las entradas que no son objetos con id; si vales queda vacía se borra (vuelven los de fábrica);
+//   - rep sin list (lista) o done (objeto) → se borra (se vuelve a armar el repaso de hoy).
+function sanoHondo(d){const ob=v=>!!v&&typeof v==='object'&&!Array.isArray(v),num=v=>typeof v==='number'&&isFinite(v);
+  if(ob(d.temas))for(const t in d.temas)if(ob(d.temas[t])&&!ob(d.temas[t].g))d.temas[t].g={};
+  for(const k of['stats','gs'])if(ob(d[k]))for(const i in d[k]){const e=d[k][i];if(!ob(e)){delete d[k][i];continue}for(const f of['ok','err'])if(!num(e[f]))e[f]=0}
+  if(ob(d.home))for(const i in d.home){const p=d.home[i];if(!ob(p)||!num(p.x)||!num(p.y))delete d.home[i]}
+  if(ob(d.kg))for(const i in d.kg)if(!Array.isArray(d.kg[i]))delete d.kg[i];
+  if('cofreP' in d&&!ob(d.cofreP))delete d.cofreP;
+  if(Array.isArray(d.vales)){d.vales=d.vales.filter(v=>ob(v)&&typeof v.id==='string');if(!d.vales.length)delete d.vales}
+  if(Array.isArray(d.valesLog))d.valesLog=d.valesLog.filter(v=>ob(v)&&typeof v.id==='string');
+  if(d.rep!=null&&!(ob(d.rep)&&Array.isArray(d.rep.list)&&ob(d.rep.done)))delete d.rep;
+  return d}
 // load(): se ejecuta una sola vez, al arrancar. Lee la partida guardada y la mezcla encima de DEF: lo que falte en una
 // partida vieja queda con su valor por defecto; vol se mezcla aparte para no perder volúmenes nuevos. Antes, sanoS() quita
-// los campos con un tipo imposible (null, un nombre que no es texto...), que también quedan con su valor por defecto.
+// los campos con un tipo imposible (null, un nombre que no es texto...), que también quedan con su valor por defecto, y
+// sanoHondo() arregla lo que hay dentro de las colecciones (temas, home, vales...).
 // Si no hay partida, intenta traer nombre, edad, acento y volumen de Letrilandia (otro juego que guarda en
 // 'letrilandia.v1' en el mismo dominio). Los try/catch evitan fallos si el navegador bloquea localStorage.
 (function load(){
   let d=null; try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  if(d&&typeof d==='object'&&!Array.isArray(d)){sanoS(d,DEF);if(d.vol)sanoS(d.vol,DEF.vol);S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
+  if(d&&typeof d==='object'&&!Array.isArray(d)){sanoS(d,DEF);sanoHondo(d);if(d.vol)sanoS(d.vol,DEF.vol);S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
   // primera vez: si Letrilandia ya se jugó en este dispositivo, traemos nombre, edad, acento y volúmenes
   try{const l=JSON.parse(localStorage.getItem('letrilandia.v1')||'null');
     if(l){if(l.name)S.name=l.name;if(l.age)S.age=l.age;if(l.accent)S.variant=l.accent==='es'?'es':'ar';if(l.vol)S.vol=Object.assign({},DEF.vol,l.vol);S.first.fromLetri=1}}catch(e){}
@@ -134,6 +153,11 @@ if(!S.variant)S.variant='es';
 // save(): guarda S entero en localStorage. Llámala después de cada cambio de S. Si falla (modo privado, sin espacio)
 // no pasa nada: el juego sigue, pero sin guardar.
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+// Dos pestañas con el juego: cuando la otra guarda, el navegador avisa aquí (evento storage) y esta pestaña adopta
+// esa partida (pasada por sanoS/sanoHondo, como al cargar). Así su próximo save() no pisa con datos viejos lo que se
+// jugó en la otra (por ejemplo, cambiar el volumen aquí borraba una actividad terminada allí).
+addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;let d;try{d=JSON.parse(e.newValue)}catch(er){return}
+  if(!d||typeof d!=='object'||Array.isArray(d))return;sanoS(d,DEF);sanoHondo(d);Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})})});
 // ymd(fecha): devuelve 'AAAA-MM-DD' (hora local). Es el formato de las claves de S.days, S.asam, S.gift...
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 // today(): la fecha de hoy como 'AAAA-MM-DD'.
@@ -734,8 +758,9 @@ let sessionT=(()=>{const s=S.ses,ago=s&&Date.now()-s.at;return s&&isFinite(+s.t)
 /* ---------- pegatinas ---------- */
 // toast: aviso de "¡Pegatina nueva!" que se ve unos segundos: {k: dibujo, t: momento T en que salió, x, y opcionales}.
 let toast=null;
-// giveSticker(dibujo): da una pegatina (suma 1 en S.stk y guarda), enseña el aviso y suena un brillo. Devuelve la clave.
-function giveSticker(k){S.stk[k]=(S.stk[k]||0)+1;save();toast={k,t:T};setTimeout(()=>SFX.sparkle(),300);return k}
+// giveSticker(dibujo, ya): da una pegatina (suma 1 en S.stk y guarda), enseña el aviso y suena un brillo. Devuelve la clave.
+// ya = true: la pegatina ya se sumó antes (premio guardado al momento); solo enseña el aviso.
+function giveSticker(k,ya){if(!ya){S.stk[k]=(S.stk[k]||0)+1;save()}toast={k,t:T};setTimeout(()=>SFX.sparkle(),300);return k}
 // drawSticker(dibujo,x,y,tamaño,giro,gris): pegatina redonda con sombra; gris = una que aún no se tiene.
 function drawSticker(k,x,y,s,rot=0,grey){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.shadowColor='rgba(74,52,40,.25)';ctx.shadowBlur=s*.08;ctx.shadowOffsetY=s*.04;
   circ(0,0,s*.55,'#fff',0);ctx.shadowColor='transparent';circ(0,0,s*.55,null,3,'#EADFCF');if(grey){ctx.globalAlpha=.25;picG(k,0,0,s*.86);ctx.globalAlpha=1}else pic(k,0,0,s*.86);ctx.restore()}

@@ -2,6 +2,20 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.592 (2026-10-24)
+Arreglos de los bugs B8–B19 de `bugs.md` (pruebas `tests/regresion/ampliada.js` y `cobertura.js`).
+- Para el niño:
+  - El armario de la casa de Tito enseña toda la ropa: con más de 10 prendas se ve de 9 en 9 con flechas a los lados (antes las últimas quedaban fuera de la pantalla) (B8).
+  - Los premios ya no se pierden al salir o recargar en mitad de la celebración: el cofre de un tema (B9), las 5 monedas del repaso (B10), las 3 monedas del regalo diario y las 10 monedas y la pegatina del cumpleaños (B18). Se guardan en el momento y la animación solo los enseña. Un cofre que se quedó sin abrir se entrega al volver a abrir el juego (sus cosas aparecen en la casa de Tito).
+  - En la casa de Tito, los muebles grandes ya no quedan cortados al arrastrarlos al borde derecho (B11) y un objeto soltado delante de Tito se puede volver a coger (B12).
+  - Salir de un juego del repaso por un atajo de la zona de adultos ya no hace que la siguiente casita salte al repaso (B16).
+- Para la familia:
+  - Recuperar una copia de seguridad: el resumen ya no puede ejecutar HTML que venga en la copia (B13), y una copia con datos rotos por dentro (estadísticas, casa, vales, juegos de un tema) ya no rompe pantallas: se arregla al cargar (B14).
+  - Con el juego abierto en dos pestañas, una ya no borra lo que se jugó en la otra (B15).
+  - El tiempo jugado y el límite de tiempo cuentan el tiempo real también en aparatos lentos (antes, a 10 cuadros por segundo, contaban la mitad) (B17).
+  - Un vale que se desactiva mientras el niño tiene abierta la pregunta de compra ya no se puede comprar (B19).
+- Por dentro: `tienda.js`, `wardrobe`/`wardArrows` (página `wpg`), el toque de un objeto va antes que el de Tito, `up` encaja con `HSIZE` como `homeSpot`, `buy` comprueba el vale, `creditCoins` y `coinPend` (monedas abonadas que esperan su animación) y `giveCoins(…, ya)`; `core.js`, `giveSticker(k, ya)`, `sanoHondo()` (en `load()` y al adoptar otra pestaña) y el evento `storage`; `zonas.js`, `S.cofreP` y `cofrePend()` (llamada desde `boot.js`), regalo diario y cumpleaños con `creditCoins`; `repaso.js`, premio con `creditCoins` y un envoltorio de `go` que olvida `REP_ON`; `adult.js`, `frame()` cuenta el tiempo de juego con `rdt` y el resumen de la copia pasa las monedas a número. Campo nuevo `S.cofreP` (opcional, compatible). Sin frases nuevas.
+
 ## v1.591 (2026-10-24)
 - Para el niño: con la Voz de Fer, 1103 frases nuevas suenan grabadas (y 16 se regrabaron). Antes las decía la voz del navegador.
 - Por dentro: lote «Fercala 2» pasado a MP3 con `preparar_voz.py` y añadido a `voz-fer/manifest.json` (3303 frases). 11 audios que duraban muchísimo más de lo normal no se han puesto y 18 conviene escucharlos: lista en `dialogos/fer-revisar.md`. Faltan en la Voz de Fer las 68 frases de la casa de la v1.590. La voz principal (`voz/`) no cambia: esas frases siguen pendientes para ella.

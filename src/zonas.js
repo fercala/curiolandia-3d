@@ -363,7 +363,8 @@ SCENES.map=Object.assign(SCENES.map,{
     if(!msg&&n>S.seenFl){S.seenFl=n;save();msg=`¡Mirá${kid()}! ¡Tito tiene ${n===1?'una flor':(n<=10?NUM[n]:n)+' flores'} en su caparazón!`;fx=()=>{SFX.sparkle();burst(130,740,40)}}
 // La animación (fx) y la frase se lanzan juntas a los 0,6 s, cuando ya se ve el mapa.
     if(msg){later(600,()=>{if(this.wake){SFX.tada();const z=mzOf(this.wake.z);burst(z.x,z.y,70);this.wake.t=T}if(fx)fx();say(msg)})}
-    else if(S.gift!==today()){S.gift=today();save();later(900,()=>sayQ(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40))}
+    // regalo diario: las monedas se abonan a la vez que se marca el día (si se sale antes de verlas, no se pierden)
+    else if(S.gift!==today()){S.gift=today();creditCoins(3);save();later(900,()=>sayQ(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40,undefined,true))}
     else if(o.hello)later(400,()=>this.prompt(true));
     if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>sayQ('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
   },
@@ -487,14 +488,16 @@ function drawChest(x,y,s,op,sh){ctx.save();ctx.translate(x+sh,y);ctx.scale(s,s);
 // EL COFRE DEL TESORO: premio por terminar un tema. Se llega con go('cofre', {t: id}) desde la casita con o.fin.
 // Hay que tocarlo 3 veces; al abrirse da el siguiente regalo de GIFTS (o 20 monedas si ya no quedan), la figurita del tema
 // y 10 monedas. Luego se puede ir a la casa de Tito a verlo o seguir el camino. (world3d.js lo envuelve para el 3D.)
+// Mientras el cofre está sin abrir, S.cofreP[id del tema] = 1 (premio pendiente): si se cierra o recarga la página antes
+// de abrirlo, cofrePend() lo entrega al arrancar, para que el premio del tema nunca se pierda.
 SCENES.cofre={music:'casita',
-// enter(o): prepara el cofre cerrado, elige el regalo, suma S.cofres y anuncia el premio.
+// enter(o): prepara el cofre cerrado, elige el regalo, suma S.cofres, apunta el premio pendiente (S.cofreP) y lo anuncia.
   enter(o){coinBanner=null;toast=null;this.t=TEMA[o.t];this.taps=0;this.op=0;this.openT=0;this.shakeT=-9;this.rewarded=false;this.gift=nextGift();this.busy=false;
-    S.cofres=(S.cofres||0)+1;save();
+    S.cofres=(S.cofres||0)+1;S.cofreP=Object.assign({},S.cofreP,{[this.t.id]:1});save();
     const n=lowName(this.t);later(400,()=>{SFX.tada();burst(800,300,70);say(('¡Terminaste todos los juegos de '+n).replace(/ de el /,' del ')+kid()+'! ¡Ganaste un cofre del tesoro! Tocalo tres veces para abrirlo.')})},
 // reward(): entrega el premio una sola vez (this.rewarded): regalo, figurita (S.stk) y monedas (S.coins). Se llama al
-// abrirse o al salir con la casa sin abrirlo, para que nunca se pierda.
-  reward(){if(this.rewarded)return;this.rewarded=true;const it=this.gift;if(it)grantGift(it);giveSticker(this.t.icon);giveCoins(it?10:20,800,560);
+// abrirse o al salir con la casa sin abrirlo, para que nunca se pierda. Quita el pendiente de S.cofreP (giveCoins guarda).
+  reward(){if(this.rewarded)return;this.rewarded=true;if(S.cofreP)delete S.cofreP[this.t.id];const it=this.gift;if(it)grantGift(it);giveSticker(this.t.icon);giveCoins(it?10:20,800,560);
     // los carteles de figurita y monedas van a la derecha: en el centro tapaban el regalo y su nombre
     if(toast){toast.x=1290;toast.y=300}if(coinBanner){coinBanner.x=1300;coinBanner.y=540}},
 // next(): vuelve a la zona del tema con {from: id} (la zona felicita si ya no queda camino).
@@ -536,6 +539,12 @@ SCENES.cofre={music:'casita',
     if(this.gift&&dist(x,y,800,300)<140){SFX.pop();sparkles(800,300,10);say(cap(itemName(this.gift))+'.');return}
     SFX.tap();sparkles(x,y,3)}
 };
+// cofrePend(): al arrancar (boot.js), entrega sin animación los cofres que quedaron sin abrir (S.cofreP), uno por tema:
+// el siguiente regalo (o 20 monedas si no quedan), la pegatina del tema y 10 monedas, como reward(). Se ven en la casa de Tito.
+function cofrePend(){const P=S.cofreP;if(!P||typeof P!=='object'){delete S.cofreP;return}
+  for(const id of Object.keys(P)){delete P[id];const t=TEMA[id];if(!t)continue;const it=nextGift();if(it)grantGift(it);
+    S.stk[t.icon]=(S.stk[t.icon]||0)+1;const n=it?10:20;S.coins=(S.coins||0)+n;S.coinsTot=(S.coinsTot||0)+n}
+  save()}
 /* ---------- cumpleaños en la asamblea ---------- */
 // isBday(d): true si d (hoy por defecto) es el cumpleaños guardado en S.bday ({m: mes 0-11, d: día}).
 // El bloque siguiente envuelve SCENES.asamblea: guarda los métodos originales (enter0, draw0...) y los llama desde los
@@ -557,8 +566,9 @@ const isBday=(d=new Date())=>!!(S.bday&&S.bday.m===d.getMonth()&&S.bday.d===d.ge
 // figurita de la tarta y 10 monedas y pasa al siguiente paso. En los demás pasos, la down original.
  A.down=function(x,y){if(this.s==='cumple'&&!atHome(x,y)&&!inTito(x,y)){if(this.busy)return;const v=this.vs.find(v=>v.on&&Math.abs(x-v.x)<55&&y<v.y+80&&y>v.y-110);if(!v){SFX.tap();return}
      v.on=0;this.vc++;SFX.whoosh();SFX.count(this.vc);say(cap(NUM[this.vc]||String(this.vc)));
-     if(this.vs.every(v=>!v.on)){this.busy=true;this.sel=true;S.bdayDone=today();save();later(700,()=>{SFX.tada();burst(800,400,90);burst(400,300,40);burst(1200,300,40);playTune(TUNES.cumple);giveSticker('tarta');
-       say('¡Que los cumplas feliz! Tito te regala diez monedas.',()=>{giveCoins(10,800,400,'cofre');later(1200,()=>this.next())})})}return}
+     // la pegatina y las monedas se guardan junto con S.bdayDone; la celebración solo las enseña (salir no las pierde)
+     if(this.vs.every(v=>!v.on)){this.busy=true;this.sel=true;S.bdayDone=today();S.stk.tarta=(S.stk.tarta||0)+1;creditCoins(10);save();later(700,()=>{SFX.tada();burst(800,400,90);burst(400,300,40);burst(1200,300,40);playTune(TUNES.cumple);giveSticker('tarta',true);
+       say('¡Que los cumplas feliz! Tito te regala diez monedas.',()=>{giveCoins(10,800,400,'cofre',true);later(1200,()=>this.next())})})}return}
    return down0.call(this,x,y)};
 // A.hint: en 'cumple' señala la siguiente vela encendida.
  A.hint=function(){if(this.s==='cumple'){const v=this.vs&&this.vs.find(v=>v.on);return v&&!this.busy?{x:v.x,y:v.y-30,r:60}:null}return hint0.call(this)};

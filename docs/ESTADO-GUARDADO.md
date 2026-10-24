@@ -9,6 +9,7 @@
 - **Clave** en `localStorage`: `'curiolandia.v1'` (constante `KEY` en core.js). No se cambia nunca.
 - **Guardar**: `save()` escribe todo `S` como JSON. **No hay guardado automático**: llama a `save()` justo después de cambiar algo que deba recordarse.
 - **Cargar**: `load()` se ejecuta una vez al arrancar. Hace `S = Object.assign(copia de DEF, lo guardado)`. Es decir: parte de los valores por defecto `DEF` y encima pone lo guardado. Solo mezcla el **primer nivel** (los objetos de dentro, como `S.tito`, se toman tal cual de lo guardado). Antes de mezclar, `sanoS(lo guardado, DEF)` quita los campos con un tipo imposible (desde v1.586): un `null` donde `DEF` tiene un valor, un objeto que no es objeto, un número donde va texto (se pasa a texto) o un texto con número donde va número (se pasa a número), y las entradas de `temas` que no son objetos. Esos campos quedan con su valor por defecto, así una partida o copia rota no rompe el juego.
+- Después de `sanoS`, `sanoHondo()` (core.js, v1.592) arregla lo de dentro de las colecciones: `temas.X.g`, `stats`, `gs`, `home`, `kg`, `vales`, `valesLog`, `rep` y `cofreP` (ver su comentario). Se usa también cuando otra pestaña guarda (evento `storage`): esta pestaña adopta esa partida para no pisarla con datos viejos.
 - Los campos de `tienda.js` (`DEF2`) se rellenan después: `sanoS(S, DEF2)` y luego `for (k in DEF2) if (S[k] === undefined) S[k] = copia de DEF2[k]`. `repaso.js` hace lo mismo con los suyos.
 - Si no hay partida pero sí una de **Letrilandia** (otro juego de la familia, clave `letrilandia.v1`), se copian de ahí el nombre, la edad, el acento y el volumen.
 - **Copia de seguridad** (zona de adultos): `bkEncode()` genera un texto `CURIO1.` + JSON comprimido en base64; "Recuperar" lo vuelve a escribir en `localStorage` y recarga la página. `bkDecode()` solo acepta un objeto con `temas` que sea un objeto (no `null` ni una lista).
@@ -52,6 +53,7 @@
 | `seenOpen` | `{clave: [ids]}` | Qué estaba abierto la última vez, para animar lo que se abre nuevo. |
 | `houseSeen`, `petSeen` | números | Último nivel de la casa / etapa de Pipo celebrados. |
 | `cofres` | número | Cofres abiertos. |
+| `cofreP` | objeto `{idTema: 1}` o ausente | Cofres con el premio aún sin entregar (v1.592): se apunta al entrar en el cofre y se quita al dar el premio. Si la página se cerró antes, `cofrePend()` (zonas.js, llamada desde boot.js) lo entrega al arrancar. |
 
 ### En `repaso.js`
 

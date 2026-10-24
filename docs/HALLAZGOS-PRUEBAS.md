@@ -27,6 +27,7 @@ Gravedad: **alta** = el niño lo nota a menudo o el juego se rompe; **media** = 
 | B5 | El centro del botón de saltar el cuento activa el candado | media | **arreglado (v1.587)** |
 | B6 | Las estrellas de rondas tapan el cartel DÍA/NOCHE | media | **arreglado (v1.587)** |
 | B7 | La copia `{"temas":null}` se acepta | alta | ya **arreglado (v1.586)**; es G1 |
+| B8–B19 | Fallos de la campaña automática del 24-10-2026 (armario, premios que se pierden al salir, arrastres en la casa, copias, dos pestañas, reloj lento, vales) | media/alta | **arreglados (v1.592)**; detalle en `bugs.md` |
 
 ## Audio
 
@@ -133,6 +134,10 @@ Informe externo del 23-10-2026 (pruebas con clics y arrastres en la web publicad
 
 ### B7. La copia `{"temas":null}` se acepta (alta)
 - Ya arreglado en la v1.586 (G1): `bkDecode()` la rechaza, y también `{"temas":[]}`, `[]` y `null`.
+
+### B8–B19. Campaña automática del 24-10-2026 (v1.591)
+- Reproducidos con `tests/regresion/ampliada.js` y `cobertura.js` (17 + 15 casos); todos pasan en la v1.592. Cada bug, su causa y su arreglo están en `bugs.md` y en [CAMBIOS.md](CAMBIOS.md) (v1.592).
+- Lección general: un premio que se marca como cobrado se abona en el mismo momento (`creditCoins`), no dentro de un `later()` que se anula al cambiar de escena. Ver la regla 8 de [COMO-AGREGAR.md](COMO-AGREGAR.md).
 
 ## Lo que funciona
 

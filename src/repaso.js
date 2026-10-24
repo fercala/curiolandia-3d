@@ -66,7 +66,8 @@ SCENES.repaso={music:'casita',
   // Al entrar. o.seguir: viene del botón verde (se apunta seen); o.back: vuelve de un juego del repaso
   // (anima la apertura del siguiente). Si está todo hecho y sin cobrar, da el premio.
   enter(o){const R=repToday();this.L=R.list;this.unl=null;REP_ON=false;if(o.seguir){R.seen=1;save()}
-    if(repAllDone()&&!R.paid){R.paid=1;save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa');say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420);later(900,()=>sayQ('Tocá la flecha verde para seguir el camino.'))})});return}
+    // el premio (pegatina y 5 monedas) se guarda a la vez que R.paid; la celebración solo lo enseña (salir no lo pierde)
+    if(repAllDone()&&!R.paid){R.paid=1;S.stk.lupa=(S.stk.lupa||0)+1;creditCoins(5);save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa',true);say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420,undefined,true);later(900,()=>sayQ('Tocá la flecha verde para seguir el camino.'))})});return}
     const nx=this.next();
     if(o.back&&nx>=0&&nx!==this.prevNx){this.unl={j:nx,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=this.pos(nx);burst(x,y,30)});later(300,()=>sayQ('¡Muy bien! Ahora el número '+(nx+1)+'.'));return}
     later(300,()=>this.prompt(!o.back))},
@@ -109,6 +110,9 @@ SCENES.repaso={music:'casita',
 };
 // al volver de un juego del repaso (o al tocar la casita desde el juego) se vuelve al repaso
 {const e0=SCENES.casita.enter;SCENES.casita.enter=function(o){if(REP_ON&&!o.fin){REP_ON=false;go('repaso',{back:1});return}REP_ON=false;return e0.call(this,o)}}
+// Si desde un juego del repaso se va a otro sitio que no sea la vuelta normal (un atajo de la zona de adultos al mapa,
+// a una zona o a otro tema con hello), se olvida el repaso: si no, la siguiente casita que se abriera saltaría al repaso.
+{const g0=go;go=function(n,o={}){if(REP_ON&&(n!=='juego'&&n!=='casita'||o.hello))REP_ON=false;return g0(n,o)}}
 // el botón verde pasa una vez por día por el repaso, si hay algo que cuesta
 {const g0=goSeguir;goSeguir=function(){if(asamHoy()&&repDue()&&!(S.rep&&S.rep.d===today()&&S.rep.seen)){go('repaso',{seguir:1});return}g0()}}
 // botón del repaso en el mapa, arriba

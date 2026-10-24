@@ -1145,14 +1145,33 @@ function sanoS(d,def){
     else if(typeof dv==='number'){if(typeof v==='string'&&v.trim()!==''&&isFinite(+v))d[k]=+v;else if(typeof v!=='number'||!isFinite(v))delete d[k]}}
   if(d.temas&&typeof d.temas==='object')for(const t in d.temas)if(!d.temas[t]||typeof d.temas[t]!=='object')delete d.temas[t];
   return d}
+// sanoHondo(d): el segundo paso de sanoS, por dentro de los campos que son colecciones (una copia editada o rota puede
+// traer {"home":{"robot":null}} y romper la casa al dibujarla). Arregla en el sitio y devuelve d:
+//   - temas.X.g que no es un objeto → {} (el tema queda sin juegos hechos);
+//   - stats.X y gs.X que no son objetos → se borran; sus ok/err que no son números → 0;
+//   - home.X sin x/y numéricos → se borra (el objeto sigue comprado; placeHome le busca sitio);
+//   - kg.X que no es una lista → se borra; cofreP que no es un objeto → se borra;
+//   - vales y valesLog: se quitan las entradas que no son objetos con id; si vales queda vacía se borra (vuelven los de fábrica);
+//   - rep sin list (lista) o done (objeto) → se borra (se vuelve a armar el repaso de hoy).
+function sanoHondo(d){const ob=v=>!!v&&typeof v==='object'&&!Array.isArray(v),num=v=>typeof v==='number'&&isFinite(v);
+  if(ob(d.temas))for(const t in d.temas)if(ob(d.temas[t])&&!ob(d.temas[t].g))d.temas[t].g={};
+  for(const k of['stats','gs'])if(ob(d[k]))for(const i in d[k]){const e=d[k][i];if(!ob(e)){delete d[k][i];continue}for(const f of['ok','err'])if(!num(e[f]))e[f]=0}
+  if(ob(d.home))for(const i in d.home){const p=d.home[i];if(!ob(p)||!num(p.x)||!num(p.y))delete d.home[i]}
+  if(ob(d.kg))for(const i in d.kg)if(!Array.isArray(d.kg[i]))delete d.kg[i];
+  if('cofreP' in d&&!ob(d.cofreP))delete d.cofreP;
+  if(Array.isArray(d.vales)){d.vales=d.vales.filter(v=>ob(v)&&typeof v.id==='string');if(!d.vales.length)delete d.vales}
+  if(Array.isArray(d.valesLog))d.valesLog=d.valesLog.filter(v=>ob(v)&&typeof v.id==='string');
+  if(d.rep!=null&&!(ob(d.rep)&&Array.isArray(d.rep.list)&&ob(d.rep.done)))delete d.rep;
+  return d}
 // load(): se ejecuta una sola vez, al arrancar. Lee la partida guardada y la mezcla encima de DEF: lo que falte en una
 // partida vieja queda con su valor por defecto; vol se mezcla aparte para no perder volúmenes nuevos. Antes, sanoS() quita
-// los campos con un tipo imposible (null, un nombre que no es texto...), que también quedan con su valor por defecto.
+// los campos con un tipo imposible (null, un nombre que no es texto...), que también quedan con su valor por defecto, y
+// sanoHondo() arregla lo que hay dentro de las colecciones (temas, home, vales...).
 // Si no hay partida, intenta traer nombre, edad, acento y volumen de Letrilandia (otro juego que guarda en
 // 'letrilandia.v1' en el mismo dominio). Los try/catch evitan fallos si el navegador bloquea localStorage.
 (function load(){
   let d=null; try{d=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-  if(d&&typeof d==='object'&&!Array.isArray(d)){sanoS(d,DEF);if(d.vol)sanoS(d.vol,DEF.vol);S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
+  if(d&&typeof d==='object'&&!Array.isArray(d)){sanoS(d,DEF);sanoHondo(d);if(d.vol)sanoS(d.vol,DEF.vol);S=Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})});return}
   // primera vez: si Letrilandia ya se jugó en este dispositivo, traemos nombre, edad, acento y volúmenes
   try{const l=JSON.parse(localStorage.getItem('letrilandia.v1')||'null');
     if(l){if(l.name)S.name=l.name;if(l.age)S.age=l.age;if(l.accent)S.variant=l.accent==='es'?'es':'ar';if(l.vol)S.vol=Object.assign({},DEF.vol,l.vol);S.first.fromLetri=1}}catch(e){}
@@ -1164,6 +1183,11 @@ if(!S.variant)S.variant='es';
 // save(): guarda S entero en localStorage. Llámala después de cada cambio de S. Si falla (modo privado, sin espacio)
 // no pasa nada: el juego sigue, pero sin guardar.
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+// Dos pestañas con el juego: cuando la otra guarda, el navegador avisa aquí (evento storage) y esta pestaña adopta
+// esa partida (pasada por sanoS/sanoHondo, como al cargar). Así su próximo save() no pisa con datos viejos lo que se
+// jugó en la otra (por ejemplo, cambiar el volumen aquí borraba una actividad terminada allí).
+addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;let d;try{d=JSON.parse(e.newValue)}catch(er){return}
+  if(!d||typeof d!=='object'||Array.isArray(d))return;sanoS(d,DEF);sanoHondo(d);Object.assign(S,d,{vol:Object.assign({},DEF.vol,d.vol||{})})});
 // ymd(fecha): devuelve 'AAAA-MM-DD' (hora local). Es el formato de las claves de S.days, S.asam, S.gift...
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 // today(): la fecha de hoy como 'AAAA-MM-DD'.
@@ -1764,8 +1788,9 @@ let sessionT=(()=>{const s=S.ses,ago=s&&Date.now()-s.at;return s&&isFinite(+s.t)
 /* ---------- pegatinas ---------- */
 // toast: aviso de "¡Pegatina nueva!" que se ve unos segundos: {k: dibujo, t: momento T en que salió, x, y opcionales}.
 let toast=null;
-// giveSticker(dibujo): da una pegatina (suma 1 en S.stk y guarda), enseña el aviso y suena un brillo. Devuelve la clave.
-function giveSticker(k){S.stk[k]=(S.stk[k]||0)+1;save();toast={k,t:T};setTimeout(()=>SFX.sparkle(),300);return k}
+// giveSticker(dibujo, ya): da una pegatina (suma 1 en S.stk y guarda), enseña el aviso y suena un brillo. Devuelve la clave.
+// ya = true: la pegatina ya se sumó antes (premio guardado al momento); solo enseña el aviso.
+function giveSticker(k,ya){if(!ya){S.stk[k]=(S.stk[k]||0)+1;save()}toast={k,t:T};setTimeout(()=>SFX.sparkle(),300);return k}
 // drawSticker(dibujo,x,y,tamaño,giro,gris): pegatina redonda con sombra; gris = una que aún no se tiene.
 function drawSticker(k,x,y,s,rot=0,grey){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.shadowColor='rgba(74,52,40,.25)';ctx.shadowBlur=s*.08;ctx.shadowOffsetY=s*.04;
   circ(0,0,s*.55,'#fff',0);ctx.shadowColor='transparent';circ(0,0,s*.55,null,3,'#EADFCF');if(grey){ctx.globalAlpha=.25;picG(k,0,0,s*.86);ctx.globalAlpha=1}else pic(k,0,0,s*.86);ctx.restore()}
@@ -6437,7 +6462,8 @@ SCENES.map=Object.assign(SCENES.map,{
     if(!msg&&n>S.seenFl){S.seenFl=n;save();msg=`¡Mirá${kid()}! ¡Tito tiene ${n===1?'una flor':(n<=10?NUM[n]:n)+' flores'} en su caparazón!`;fx=()=>{SFX.sparkle();burst(130,740,40)}}
 // La animación (fx) y la frase se lanzan juntas a los 0,6 s, cuando ya se ve el mapa.
     if(msg){later(600,()=>{if(this.wake){SFX.tada();const z=mzOf(this.wake.z);burst(z.x,z.y,70);this.wake.t=T}if(fx)fx();say(msg)})}
-    else if(S.gift!==today()){S.gift=today();save();later(900,()=>sayQ(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40))}
+    // regalo diario: las monedas se abonan a la vez que se marca el día (si se sale antes de verlas, no se pierden)
+    else if(S.gift!==today()){S.gift=today();creditCoins(3);save();later(900,()=>sayQ(V(['¡Hola'+kid()+'! Te guardé un regalito: ¡tres monedas!','¡Hola'+kid()+'! Te he guardado un regalito: ¡tres monedas!'])));later(1400,()=>giveCoins(3,TITO.x+150,TITO.y+40,undefined,true))}
     else if(o.hello)later(400,()=>this.prompt(true));
     if(sessionT>15*60&&!restAsked&&!S.limit){restAsked=true;later(3000,()=>sayQ('Jugamos un montón. ¿Descansamos un ratito? Tito te espera cuando quieras.'))}
   },
@@ -6561,14 +6587,16 @@ function drawChest(x,y,s,op,sh){ctx.save();ctx.translate(x+sh,y);ctx.scale(s,s);
 // EL COFRE DEL TESORO: premio por terminar un tema. Se llega con go('cofre', {t: id}) desde la casita con o.fin.
 // Hay que tocarlo 3 veces; al abrirse da el siguiente regalo de GIFTS (o 20 monedas si ya no quedan), la figurita del tema
 // y 10 monedas. Luego se puede ir a la casa de Tito a verlo o seguir el camino. (world3d.js lo envuelve para el 3D.)
+// Mientras el cofre está sin abrir, S.cofreP[id del tema] = 1 (premio pendiente): si se cierra o recarga la página antes
+// de abrirlo, cofrePend() lo entrega al arrancar, para que el premio del tema nunca se pierda.
 SCENES.cofre={music:'casita',
-// enter(o): prepara el cofre cerrado, elige el regalo, suma S.cofres y anuncia el premio.
+// enter(o): prepara el cofre cerrado, elige el regalo, suma S.cofres, apunta el premio pendiente (S.cofreP) y lo anuncia.
   enter(o){coinBanner=null;toast=null;this.t=TEMA[o.t];this.taps=0;this.op=0;this.openT=0;this.shakeT=-9;this.rewarded=false;this.gift=nextGift();this.busy=false;
-    S.cofres=(S.cofres||0)+1;save();
+    S.cofres=(S.cofres||0)+1;S.cofreP=Object.assign({},S.cofreP,{[this.t.id]:1});save();
     const n=lowName(this.t);later(400,()=>{SFX.tada();burst(800,300,70);say(('¡Terminaste todos los juegos de '+n).replace(/ de el /,' del ')+kid()+'! ¡Ganaste un cofre del tesoro! Tocalo tres veces para abrirlo.')})},
 // reward(): entrega el premio una sola vez (this.rewarded): regalo, figurita (S.stk) y monedas (S.coins). Se llama al
-// abrirse o al salir con la casa sin abrirlo, para que nunca se pierda.
-  reward(){if(this.rewarded)return;this.rewarded=true;const it=this.gift;if(it)grantGift(it);giveSticker(this.t.icon);giveCoins(it?10:20,800,560);
+// abrirse o al salir con la casa sin abrirlo, para que nunca se pierda. Quita el pendiente de S.cofreP (giveCoins guarda).
+  reward(){if(this.rewarded)return;this.rewarded=true;if(S.cofreP)delete S.cofreP[this.t.id];const it=this.gift;if(it)grantGift(it);giveSticker(this.t.icon);giveCoins(it?10:20,800,560);
     // los carteles de figurita y monedas van a la derecha: en el centro tapaban el regalo y su nombre
     if(toast){toast.x=1290;toast.y=300}if(coinBanner){coinBanner.x=1300;coinBanner.y=540}},
 // next(): vuelve a la zona del tema con {from: id} (la zona felicita si ya no queda camino).
@@ -6610,6 +6638,12 @@ SCENES.cofre={music:'casita',
     if(this.gift&&dist(x,y,800,300)<140){SFX.pop();sparkles(800,300,10);say(cap(itemName(this.gift))+'.');return}
     SFX.tap();sparkles(x,y,3)}
 };
+// cofrePend(): al arrancar (boot.js), entrega sin animación los cofres que quedaron sin abrir (S.cofreP), uno por tema:
+// el siguiente regalo (o 20 monedas si no quedan), la pegatina del tema y 10 monedas, como reward(). Se ven en la casa de Tito.
+function cofrePend(){const P=S.cofreP;if(!P||typeof P!=='object'){delete S.cofreP;return}
+  for(const id of Object.keys(P)){delete P[id];const t=TEMA[id];if(!t)continue;const it=nextGift();if(it)grantGift(it);
+    S.stk[t.icon]=(S.stk[t.icon]||0)+1;const n=it?10:20;S.coins=(S.coins||0)+n;S.coinsTot=(S.coinsTot||0)+n}
+  save()}
 /* ---------- cumpleaños en la asamblea ---------- */
 // isBday(d): true si d (hoy por defecto) es el cumpleaños guardado en S.bday ({m: mes 0-11, d: día}).
 // El bloque siguiente envuelve SCENES.asamblea: guarda los métodos originales (enter0, draw0...) y los llama desde los
@@ -6631,8 +6665,9 @@ const isBday=(d=new Date())=>!!(S.bday&&S.bday.m===d.getMonth()&&S.bday.d===d.ge
 // figurita de la tarta y 10 monedas y pasa al siguiente paso. En los demás pasos, la down original.
  A.down=function(x,y){if(this.s==='cumple'&&!atHome(x,y)&&!inTito(x,y)){if(this.busy)return;const v=this.vs.find(v=>v.on&&Math.abs(x-v.x)<55&&y<v.y+80&&y>v.y-110);if(!v){SFX.tap();return}
      v.on=0;this.vc++;SFX.whoosh();SFX.count(this.vc);say(cap(NUM[this.vc]||String(this.vc)));
-     if(this.vs.every(v=>!v.on)){this.busy=true;this.sel=true;S.bdayDone=today();save();later(700,()=>{SFX.tada();burst(800,400,90);burst(400,300,40);burst(1200,300,40);playTune(TUNES.cumple);giveSticker('tarta');
-       say('¡Que los cumplas feliz! Tito te regala diez monedas.',()=>{giveCoins(10,800,400,'cofre');later(1200,()=>this.next())})})}return}
+     // la pegatina y las monedas se guardan junto con S.bdayDone; la celebración solo las enseña (salir no las pierde)
+     if(this.vs.every(v=>!v.on)){this.busy=true;this.sel=true;S.bdayDone=today();S.stk.tarta=(S.stk.tarta||0)+1;creditCoins(10);save();later(700,()=>{SFX.tada();burst(800,400,90);burst(400,300,40);burst(1200,300,40);playTune(TUNES.cumple);giveSticker('tarta',true);
+       say('¡Que los cumplas feliz! Tito te regala diez monedas.',()=>{giveCoins(10,800,400,'cofre',true);later(1200,()=>this.next())})})}return}
    return down0.call(this,x,y)};
 // A.hint: en 'cumple' señala la siguiente vela encendida.
  A.hint=function(){if(this.s==='cumple'){const v=this.vs&&this.vs.find(v=>v.on);return v&&!this.busy?{x:v.x,y:v.y-30,r:60}:null}return hint0.call(this)};
@@ -6684,6 +6719,13 @@ if(!S.vales)S.vales=JSON.parse(JSON.stringify(VALES_DEF));
 // coinFx las monedas que vuelan, coinBanner el cartel "+N", coinBumpT cuándo saltó el marcador por última vez,
 // gameCoins cuántas monedas de acierto se han dado en el juego actual (máximo 5 por juego).
 let shownCoins=S.coins,coinFx=[],coinBanner=null,coinBumpT=-9,gameCoins=0;
+// coinPend: monedas ya sumadas a S.coins (creditCoins) cuya animación aún no ha salido; el marcador no las enseña hasta
+// que llegan volando. coinPendTok: escena en la que se abonaron (si se sale antes, el marcador ya las cuenta).
+let coinPend=0,coinPendTok=-1;
+// creditCoins(n): suma n monedas a S.coins y S.coinsTot YA (sin guardar ni animar: guarda quien llama, junto con la
+// marca de "premio dado", para que salir o recargar durante la celebración no las pierda). Luego la animación se hace con
+// giveCoins(n, x, y, icono, true), que ya no las vuelve a sumar.
+function creditCoins(n){if(!(n>0))return;S.coins=(S.coins||0)+n;S.coinsTot=(S.coinsTot||0)+n;coinPend+=n;coinPendTok=sceneTok}
 // Posición del marcador de monedas (cambia en los juegos para no tapar otros botones).
 let HUDX=1450,HUDY=64;
 // Coloca el marcador de monedas: a la izquierda en los juegos, arriba a la derecha en el resto.
@@ -6697,7 +6739,8 @@ function drawCoinHUD(){hudAt();const b=1+.3*Math.max(0,1-(T-coinBumpT)*4),s=hv('
 const inCoinHUD=(x,y)=>{hudAt();return inR(x,y,HUDX+10,HUDY,220,84)};
 // Da n monedas: las suma a S.coins y S.coinsTot y guarda. Lanza hasta 10 monedas animadas desde (x,y)
 // hacia el marcador (la última lleva el resto) y, si son 3 o más o se pasa icon, muestra el cartel "+n" con ese dibujo.
-function giveCoins(n,x,y,icon){if(!(n>0))return;S.coins=(S.coins||0)+n;S.coinsTot=(S.coinsTot||0)+n;save();const m=Math.min(n,10);
+// ya = true: las monedas ya se sumaron antes con creditCoins; solo se anima (y se descuentan de coinPend).
+function giveCoins(n,x,y,icon,ya){if(!(n>0))return;if(ya)coinPend=Math.max(0,coinPend-n);else{S.coins=(S.coins||0)+n;S.coinsTot=(S.coinsTot||0)+n;save()}const m=Math.min(n,10);
   for(let i=0;i<m;i++)coinFx.push({x:x+rnd(-36,36),y:y+rnd(-36,36),t:T+i*.09,v:i<m-1?1:n-(m-1)});if(n>=3||icon)coinBanner={n,t:T,icon}}
 // Gasta n monedas (sin comprobar si hay suficientes) y anima monedas que salen del marcador hacia (x,y).
 function spendCoins(n,x,y){S.coins-=n;save();shownCoins-=n;coinBumpT=T;for(let i=0;i<Math.min(n,8);i++)coinFx.push({x,y,t:T+i*.06,spend:1})}
@@ -6709,7 +6752,8 @@ function drawCoinFx(){hudAt();
     // e = curva suave (smoothstep) de 0 a 1; la moneda sube en arco (seno) mientras va de a hacia b.
     const e=k*k*(3-2*k),a=c.spend?[HUDX-50,HUDY]:[c.x,c.y],b=c.spend?[c.x,c.y]:[HUDX-50,HUDY];
     pic('moneda',lerp(a[0],b[0],e),lerp(a[1],b[1],e)-Math.sin(k*PI)*130,62*(1-k*.25))}
-  coinFx=coinFx.filter(c=>!c.done);if(!coinFx.length)shownCoins=S.coins;
+  // sin monedas volando, el marcador enseña S.coins menos las abonadas que aún esperan su animación en esta escena
+  coinFx=coinFx.filter(c=>!c.done);if(coinPend&&coinPendTok!==sceneTok)coinPend=0;if(!coinFx.length)shownCoins=S.coins-coinPend;
   // Cartel "+N": entra con rebote (0-0,3 s), se queda y se desvanece entre 2,2 y 2,6 s.
   if(coinBanner){const k=T-coinBanner.t;if(k>2.6){coinBanner=null;return}const a=k<.3?back(k/.3):k>2.2?1-(k-2.2)/.4:1;ctx.save();ctx.globalAlpha=clamp(a,0,1);ctx.translate(coinBanner.x||800,coinBanner.y||470);ctx.scale(clamp(a,0,1.2),clamp(a,0,1.2));
     card(-250,-90,500,180,'#FFF6D6',7,50);pic(coinBanner.icon||'monedas',-140,0,150);text('+'+coinBanner.n,60,26,92,'#D9962A',{f:LF,st:8,sc:'#fff'});ctx.restore()}}
@@ -6893,8 +6937,12 @@ SCENES.tienda={music:'casita',
     if(S.coins<it.p){SFX.boing();const f=it.p-S.coins;say(cap(itemName(it))+' cuesta '+it.p+' monedas. Te '+(f===1?'falta una':'faltan '+f)+'. ¡Jugando ganás más!');return}
     SFX.pop();this.conf=it;this.confT=T;say('¿Querés comprar '+itemName(it)+' por '+it.p+' monedas? Tocá el verde para comprar.')},
   // Compra el artículo: gasta las monedas, celebra y lo da. Un vale se apunta en S.valesLog (para que el adulto lo
-  // canjee); la ropa se pone a Tito; lo demás se coloca en la casa y hace saltar el botón de la casa.
-  buy(it){this.conf=null;spendCoins(it.p,800,400);SFX.tada();burst(800,420,60);
+  // canjee); la ropa se pone a Tito; lo demás se coloca en la casa y hace saltar el botón de la casa. Si es un vale que
+  // el adulto desactivó mientras la confirmación estaba abierta, no se compra (suena boing y no se cobra).
+  buy(it){this.conf=null;
+    // un vale que un adulto desactivó (o borró) mientras se preguntaba si comprarlo ya no se vende
+    if(it.vale&&!(S.vales||[]).some(v=>v&&v.id===it.vale.id&&v.on)){SFX.boing();return}
+    spendCoins(it.p,800,400);SFX.tada();burst(800,420,60);
     if(it.vale){S.valesLog.push({id:it.vale.id,txt:it.vale.txt,d:today(),given:0});save();say('¡Compraste el vale! '+it.vale.txt+'. Mostráselo a un adulto de tu familia para canjearlo.');return}
     S.owned[it.id]=1;if(it.slot)wear(it,true);else placeHome(it.id);save();
     if(!it.slot){this.newHome=T;this.newId=it.id}
@@ -6954,13 +7002,17 @@ SCENES.casaTito={music:'casita',room:'salon',
   // Al entrar. o.nuevo: id de lo recién comprado (se va a su habitación y se resalta con brillo y flecha durante 12 s;
   // si es ropa, Tito salta). Si no, si se abrió una habitación desde la última visita (S.rooms cuenta las que ya se
   // vieron), se va a ella y Tito lo anuncia. Si no, Tito saluda según haya cosas o la casa esté vacía.
-  enter(o){this.drag=null;this.jump=-9;this.petJump=-9;this.newRoom=-9;const nv=o.nuevo&&SHOP.find(i=>i.id===o.nuevo);this.nuevo=nv&&S.owned[nv.id]?nv:null;this.t0=T;
+  enter(o){this.drag=null;this.wpg=0;this.jump=-9;this.petJump=-9;this.newRoom=-9;const nv=o.nuevo&&SHOP.find(i=>i.id===o.nuevo);this.nuevo=nv&&S.owned[nv.id]?nv:null;this.t0=T;
     if(!roomOpen(this.room))this.room='salon';const n=homeItems().length,op=roomsOpen();
     if(this.nuevo){const it=this.nuevo;if(it.slot)this.jump=T+.3;else this.room=homeRoom(it.id);later(300,()=>{SFX.sparkle();say('¡Acá está '+itemName(it)+'! '+(it.slot?'¡Mirá qué lindo me queda!':V(['Podés cambiar las cosas de lugar arrastrándolas.','Puedes cambiar las cosas de lugar arrastrándolas.'])))});return}
     if(op.length>(S.rooms||1)){const R=op[op.length-1];S.rooms=op.length;save();this.room=R.id;this.newRoom=T;later(300,()=>{SFX.tada();burst(800,400,50);sayQ('¡Mi casa creció! Tiene una habitación nueva: '+R.n+'. Arriba podés elegir a qué habitación ir.')});return}
     later(300,()=>sayQ(n?V(['¡Esta es mi casa! Podés mover las cosas arrastrándolas, y tocarlas para jugar.','¡Esta es mi casa! Puedes mover las cosas arrastrándolas, y tocarlas para jugar.']):V(['¡Esta es mi casa! Está vacía. En la tienda podés comprar cosas con tus monedas.','¡Esta es mi casa! Está vacía. En la tienda puedes comprar cosas con tus monedas.'])))},
-  // Armario: la ropa y colores que tiene el niño, con su posición en la fila de abajo.
-  wardrobe(){const L=SHOP.filter(i=>i.slot&&S.owned[i.id]);return L.map((it,i)=>({it,x:470+i*100,y:845}))},
+  // Armario: la ropa y colores que tiene el niño, con su posición en la fila de abajo. Caben 10; si hay más, se ven
+  // de 9 en 9 (página this.wpg) y aparecen flechas a los lados (wardArrows) para pasar de página, que dan la vuelta.
+  wardrobe(){const L=SHOP.filter(i=>i.slot&&S.owned[i.id]);if(L.length<=10)return L.map((it,i)=>({it,x:470+i*100,y:845}));
+    const n=Math.ceil(L.length/9),pg=((this.wpg||0)%n+n)%n;return L.slice(pg*9,pg*9+9).map((it,i)=>({it,x:530+i*100,y:845}))},
+  // Flechas del armario [x, y, dirección]: solo si la ropa no cabe en una fila (más de 10 prendas).
+  wardArrows(){return SHOP.filter(i=>i.slot&&S.owned[i.id]).length>10?[[445,845,-1],[1415,845,1]]:[]},
   // Tito explica qué hacer en la casa.
   prompt(){say(homeItems().length?'Arrastrá las cosas para acomodar la casa. Abajo está mi ropa: tocala para ponérmela.':'Tocá el carrito para ir a la tienda.')},
   // Pista: si la casa está vacía señala el botón de la tienda.
@@ -6986,13 +7038,15 @@ SCENES.casaTito={music:'casita',room:'salon',
     const tb=this.jump>0&&T>this.jump?Math.max(0,1-(T-this.jump)*2)*Math.abs(Math.sin((T-this.jump)*10))*-60:0;drawTito(250,330+tb,380);
     if(nv&&nv.slot&&(T-this.t0)<6&&Math.random()<.15)sparkles(440+rnd(-120,120),420+rnd(-80,80),2);
     drawPet(190,872,150,{jump:this.petJump});
-    const wd=this.wardrobe();if(wd.length){card(400,795,Math.min(1080,wd.length*100+40),100,'rgba(255,255,255,.8)',5,50);for(const w of wd){const on=isWorn(w.it),s=hv('w:'+w.it.id,hC(w.x,w.y,44));ctx.save();ctx.translate(w.x,w.y);ctx.scale(s,s);circ(0,0,42,on?'#FFF3B0':'#fff',on?7:4,on?'#FFC93C':K);drawItemPic(w.it,0,0,72);ctx.restore()}}
+    const wd=this.wardrobe(),wa=this.wardArrows();if(wd.length){card(400,795,wa.length?1060:Math.min(1080,wd.length*100+40),100,'rgba(255,255,255,.8)',5,50);
+      for(const [ax,ay,d] of wa){const s=hv('wpg'+d,hC(ax,ay,34));ctx.save();ctx.translate(ax,ay);ctx.scale(s*d,s);circ(0,0,32,'#fff',5);ctx.beginPath();ctx.moveTo(-8,-15);ctx.lineTo(10,0);ctx.lineTo(-8,15);ctx.lineWidth=8;ctx.strokeStyle=K;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.restore()}for(const w of wd){const on=isWorn(w.it),s=hv('w:'+w.it.id,hC(w.x,w.y,44));ctx.save();ctx.translate(w.x,w.y);ctx.scale(s,s);circ(0,0,42,on?'#FFF3B0':'#fff',on?7:4,on?'#FFC93C':K);drawItemPic(w.it,0,0,72);ctx.restore()}}
     drawHome();drawCoinHUD()},
   // Objeto de la habitación que hay bajo el toque (x,y), mirando primero los de delante; el hámster se mueve solo.
   itemAt(x,y){return homeItems(this.room).sort((a,b)=>b.y-a.y).find(o=>{const ox=o.id==='hamster'?Math.sin(T*.9)*110:0;return Math.abs(x-o.x-ox)<o.s*.45&&y<o.y+10&&y>o.y-o.s*.85})},
   // Toques: casa (mapa), tienda, monedas, mascota (dice cuánto le falta para crecer), botón de una habitación (abierta:
-  // va a ella; cerrada: dice cuántas casitas faltan), el título (cuánto falta para que la casa crezca), Tito (salta y
-  // dice algo), una prenda del armario (se la pone o quita) o un objeto (empieza a arrastrarlo).
+  // va a ella; cerrada: dice cuántas casitas faltan), el título (cuánto falta para que la casa crezca), las flechas
+  // del armario (otra página de ropa), un objeto (empieza a arrastrarlo; va antes que Tito para que uno soltado delante
+  // de él se pueda volver a coger), Tito (salta y dice algo) o una prenda del armario (se la pone o quita).
   down(x,y){if(atHome(x,y)){SFX.tap();go('map');return}
     if(dist(x,y,1240,70)<56){SFX.pop();go('tienda');return}
     if(inCoinHUD(x,y)){say('Tenés '+S.coins+' monedas.');return}
@@ -7001,9 +7055,11 @@ SCENES.casaTito={music:'casita',room:'salon',
     if(rb){const R=rb.R;if(!roomOpen(R.id)){SFX.boing();const f=R.need-temasDone();say(cap(R.n)+' todavía está '+R.cer+'. Se abre cuando termines '+(f===1?'una casita más.':f+' casitas más.'));return}
       if(R.id!==this.room){SFX.pop();this.room=R.id;this.newRoom=-9}say(cap(R.n)+'.');return}
     if(inR(x,y,395,94,450,100)){SFX.pop();const hl=houseLevel(),f=hl<4?HOUSE_NEXT[hl]-temasDone():0;say(hl<4?'La casa de Tito crece cuando terminás casitas. '+(f===1?'Falta una':'Faltan '+f)+' para que crezca.':'¡La casa de Tito ya es un castillo!');return}
+    const wa=this.wardArrows().find(([ax,ay])=>dist(x,y,ax,ay)<40);if(wa){SFX.whoosh();this.wpg=(this.wpg||0)+wa[2];return}
+    // los objetos se miran antes que Tito: uno soltado delante de él tiene que poder volver a moverse
+    const o=this.itemAt(x,y);if(o){const p=S.home[o.id];this.drag={id:o.id,dx:x-o.x,dy:y-o.y,sx:x,sy:y,ox:p.x,oy:p.y,moved:false};drag={it:o,home:1};setCursor('grab');return}
     if(inR(x,y,440,500,380,330)){this.jump=T;SFX.boing();say(pick(['¡Me encanta mi casa!','¡Gracias por jugar conmigo!','¡Qué lindo día!',V(['¿Viste mi ropa nueva?','¿Has visto mi ropa nueva?'])]));return}
     const w=this.wardrobe().find(w=>dist(x,y,w.x,w.y)<46);if(w){const it=w.it,on=it.slot==='shell'||it.slot==='scarf'?true:!isWorn(it);wear(it,on);SFX.pop();this.jump=T;say(on?'¡Me puse '+itemName(it)+'!':V(['Me saqué ','Me quité '])+itemName(it)+'.');return}
-    const o=this.itemAt(x,y);if(o){const p=S.home[o.id];this.drag={id:o.id,dx:x-o.x,dy:y-o.y,sx:x,sy:y,ox:p.x,oy:p.y,moved:false};drag={it:o,home:1};setCursor('grab');return}
     SFX.tap();sparkles(x,y,3)},
   // Arrastrar: a partir de 12 px se considera que se mueve y el objeto sigue al dedo. Mientras se arrastra puede subir
   // hasta los botones de las habitaciones (para llevarlo a otra); al soltar se vuelve a encajar en el suelo o la pared.
@@ -7016,7 +7072,7 @@ SCENES.casaTito={music:'casita',room:'salon',
     const rb=roomBtns().find(b=>dist(x,y,b.x,b.y)<44&&b.R.id!==this.room);
     if(rb){if(roomOpen(rb.R.id)){const sp=homeSpot(d.id,rb.R.id);Object.assign(p,{x:sp[0],y:sp[1],r:rb.R.id});save();SFX.whoosh();sparkles(rb.x,rb.y,10);say('¡Listo! Ya está en '+rb.R.n+'.');return}
       SFX.boing();p.x=d.ox;p.y=d.oy;save();return}
-    p.x=clamp(p.x,300,1500);p.y=clamp(p.y,WALLITEMS.includes(d.id)?300:420,780);save();SFX.snap()}
+    const hs=HSIZE[d.id]||160;p.x=clamp(p.x,300+hs*.3,W-hs/2-10);p.y=clamp(p.y,WALLITEMS.includes(d.id)?300:420,780);save();SFX.snap()}// como homeSpot: lo grande no se sale por la derecha
 };
 // Envuelve el dibujo de los juegos para pintar también el marcador de monedas.
 {const d0=SCENES.juego.draw;SCENES.juego.draw=function(){d0.call(this);drawCoinHUD()}}
@@ -7088,7 +7144,8 @@ SCENES.repaso={music:'casita',
   // Al entrar. o.seguir: viene del botón verde (se apunta seen); o.back: vuelve de un juego del repaso
   // (anima la apertura del siguiente). Si está todo hecho y sin cobrar, da el premio.
   enter(o){const R=repToday();this.L=R.list;this.unl=null;REP_ON=false;if(o.seguir){R.seen=1;save()}
-    if(repAllDone()&&!R.paid){R.paid=1;save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa');say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420);later(900,()=>sayQ('Tocá la flecha verde para seguir el camino.'))})});return}
+    // el premio (pegatina y 5 monedas) se guarda a la vez que R.paid; la celebración solo lo enseña (salir no lo pierde)
+    if(repAllDone()&&!R.paid){R.paid=1;S.stk.lupa=(S.stk.lupa||0)+1;creditCoins(5);save();later(500,()=>{SFX.tada();burst(800,350,90);giveSticker('lupa',true);say('¡Terminaste el repaso de hoy'+kid()+'! Tito te regala cinco monedas.',()=>{giveCoins(5,800,420,undefined,true);later(900,()=>sayQ('Tocá la flecha verde para seguir el camino.'))})});return}
     const nx=this.next();
     if(o.back&&nx>=0&&nx!==this.prevNx){this.unl={j:nx,t:T+.8};later(800,()=>{SFX.sparkle();const [x,y]=this.pos(nx);burst(x,y,30)});later(300,()=>sayQ('¡Muy bien! Ahora el número '+(nx+1)+'.'));return}
     later(300,()=>this.prompt(!o.back))},
@@ -7131,6 +7188,9 @@ SCENES.repaso={music:'casita',
 };
 // al volver de un juego del repaso (o al tocar la casita desde el juego) se vuelve al repaso
 {const e0=SCENES.casita.enter;SCENES.casita.enter=function(o){if(REP_ON&&!o.fin){REP_ON=false;go('repaso',{back:1});return}REP_ON=false;return e0.call(this,o)}}
+// Si desde un juego del repaso se va a otro sitio que no sea la vuelta normal (un atajo de la zona de adultos al mapa,
+// a una zona o a otro tema con hello), se olvida el repaso: si no, la siguiente casita que se abriera saltaría al repaso.
+{const g0=go;go=function(n,o={}){if(REP_ON&&(n!=='juego'&&n!=='casita'||o.hello))REP_ON=false;return g0(n,o)}}
 // el botón verde pasa una vez por día por el repaso, si hay algo que cuesta
 {const g0=goSeguir;goSeguir=function(){if(asamHoy()&&repDue()&&!(S.rep&&S.rep.d===today()&&S.rep.seen)){go('repaso',{seguir:1});return}g0()}}
 // botón del repaso en el mapa, arriba
@@ -7391,7 +7451,7 @@ function hoverTick(dt){
   if(hovNow!=null){hovT+=dt;if(hovT>1.1&&!dwellDone&&!talking&&scene.dwell&&typeof hovNow==='string'){dwellDone=true;try{scene.dwell(hovNow)}catch(e){console.error(e)}}}
 }
 /* frame(now): EL BUCLE DEL JUEGO. Se ejecuta en cada cuadro de pantalla (requestAnimationFrame; lo arranca boot.js).
-   Pasos: 1) calcula dt (máx. 0,05 s para que una pausa no dé un salto) y avanza T, idle (solo mientras Tito calla) y el velo fade;
+   Pasos: 1) calcula rdt (tiempo real, máx. 1 s) y dt (máx. 0,05 s para que una pausa no dé un salto) y avanza T, idle (solo mientras Tito calla) y el velo fade;
    2) ejecuta los temporizadores de later() que vencen (solo si siguen en su escena); 3) candado: 3 s reales pulsado abre la
    zona de adultos; 4) cuenta el tiempo jugado (S.days cada 15 s, límite S.limit -> escena 'dormir');
    5) música y scene.update(dt); 6) fondo: si la escena es 3D (scene.three), world3d.js la pinta con R3frame(dt);
@@ -7399,13 +7459,14 @@ function hoverTick(dt){
    8) velo de transición; 9) rellena las bandas laterales en pantallas alargadas; 10) aviso de girar el móvil.
    Cada paso va en try/catch: un fallo de una escena se ve en la consola pero no para el juego. */
 function frame(now){
-  const dt=Math.min(.05,(now-lastF)/1000);lastF=now;T+=dt;if(!talking)idle+=dt;fade=Math.max(0,fade-dt*3);
+  const rdt=Math.min(1,Math.max(0,(now-lastF)/1000)),dt=Math.min(.05,rdt);lastF=now;T+=dt;if(!talking)idle+=dt;fade=Math.max(0,fade-dt*3);
 // Temporizadores de later(): solo se ejecutan si siguen en la escena en la que se crearon (t.tok===sceneTok).
   for(const t of timers){t.t-=dt;if(t.t<=0&&!t.done){t.done=1;if(t.tok===sceneTok)try{t.fn()}catch(e){console.error(e)}}}timers=timers.filter(t=>!t.done);
   if(lockDown){lockHold+=Math.min(.25,(now-lockPrev)/1000);if(lockHold>=3)openAdult()}lockPrev=now;// en tiempo real, no de juego (dt tiene tope)
 // Tiempo de juego (no cuenta con el panel abierto, en la portada ni durmiendo). Cada 15 s se apunta en S.days (en
-// minutos) y se guardan solo los últimos 30 días.
-  if(document.getElementById('adult').hidden&&sceneName!=='title'&&sceneName!=='dormir'){sessionT+=dt;minuteAcc+=dt;
+// minutos) y se guardan solo los últimos 30 días. Cuenta con rdt, el tiempo real (tope 1 s, para que volver de otra app
+// no sume la pausa), no con dt: en un móvil lento (10 cuadros por segundo) dt con tope contaba la mitad del tiempo.
+  if(document.getElementById('adult').hidden&&sceneName!=='title'&&sceneName!=='dormir'){sessionT+=rdt;minuteAcc+=rdt;
     if(minuteAcc>=15){const d=today();S.days[d]=(S.days[d]||0)+minuteAcc/60;minuteAcc=0;
       const ks=Object.keys(S.days).sort();while(ks.length>30)delete S.days[ks.shift()];S.ses={t:Math.round(sessionT),at:Date.now()};save()}
     if(S.limit&&sessionT>=S.limit*60)go('dormir')}
@@ -7464,10 +7525,11 @@ function bkWire(q){const msg=(h)=>{q('#a-bk-msg').innerHTML=h},ta=q('#a-bk-txt')
     msg(ok?'✅ Código copiado.':'Seleccioná el código de arriba y copialo a mano.')};
   q('#a-bk-dl').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='curiolandia-copia-'+today()+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
     msg('Si no se descargó nada, usá el código de copia.')};
-// ask(texto): intenta leer una copia y pide confirmación antes de reemplazar el progreso.
+// ask(texto): intenta leer una copia y pide confirmación antes de reemplazar el progreso. Todo lo que viene de la copia
+// y se enseña va escapado (esc) o pasado a número: una copia editada no puede meter HTML en el panel.
   const ask=async(src)=>{let d;try{d=await bkDecode(src)}catch(e){msg(e.message==='navegador'?'Este navegador no puede abrir ese código. Probá con el archivo de copia.':'❌ Eso no parece una copia de Curiolandia. Revisá que el código esté completo.');return}
     const nT=Object.values(d.temas||{}).filter(t=>t&&t.done).length,nG=Object.values(d.temas||{}).reduce((a,t)=>a+Object.keys((t&&t.g)||{}).length,0);
-    msg(`Copia encontrada${d.name?' de <b>'+esc(d.name)+'</b>':''}: ${nT} temas terminados, ${nG} juegos jugados y ${d.coins||0} monedas. <b>Reemplaza el progreso actual de este dispositivo.</b> <button id="a-bk-ok" class="danger">Sí, recuperar esta copia</button>`);
+    msg(`Copia encontrada${d.name?' de <b>'+esc(d.name)+'</b>':''}: ${nT} temas terminados, ${nG} juegos jugados y ${Math.max(0,Math.floor(+d.coins)||0)} monedas. <b>Reemplaza el progreso actual de este dispositivo.</b> <button id="a-bk-ok" class="danger">Sí, recuperar esta copia</button>`);
     q('#a-bk-ok').onclick=()=>{try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){msg('❌ No se pudo guardar en este navegador.');return}location.reload()}};
   q('#a-bk-load').onclick=()=>ask(ta.value);
   q('#a-bk-file').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;f.text().then(t=>ask(t))}}
@@ -9430,6 +9492,7 @@ window.__w3.ok=true;
  * pero como mucho 2,5 s (sin internet pueden no llegar nunca). Después va a la portada (go('title'))
  * y arranca el bucle de dibujo frame() de adult.js, que ya se repite solo con requestAnimationFrame.
  */
+cofrePend();// premio de un cofre que se quedó sin abrir (se cerró o recargó la página): se entrega ya (zonas.js)
 Promise.race([Promise.all([document.fonts.load(`700 100px Andika`),document.fonts.load(`700 100px Fredoka`)]),new Promise(r=>setTimeout(r,2500))]).catch(()=>{}).then(()=>{go('title');requestAnimationFrame(frame)});
 </script>
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script></html>

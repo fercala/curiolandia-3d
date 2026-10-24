@@ -4,4 +4,5 @@
  * pero como mucho 2,5 s (sin internet pueden no llegar nunca). Después va a la portada (go('title'))
  * y arranca el bucle de dibujo frame() de adult.js, que ya se repite solo con requestAnimationFrame.
  */
+cofrePend();// premio de un cofre que se quedó sin abrir (se cerró o recargó la página): se entrega ya (zonas.js)
 Promise.race([Promise.all([document.fonts.load(`700 100px Andika`),document.fonts.load(`700 100px Fredoka`)]),new Promise(r=>setTimeout(r,2500))]).catch(()=>{}).then(()=>{go('title');requestAnimationFrame(frame)});
