@@ -1,0 +1,301 @@
+{
+  "date": "2026-10-24T07:47:40.589Z",
+  "gameVersion": "1.591",
+  "repositoryCommit": "e1a8af377ce85cd41f8fe97adcb8d27a005aed6d",
+  "webSha256": "c99225a3f14fd84979d71d681d4585ba329104cd7fbe6bdeca187d26a200589c",
+  "results": [
+    {
+      "id": "dos-pestanas",
+      "title": "Guardar ajustes en una segunda pestaña no debe borrar una actividad terminada en la primera",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "before": {
+          "played": 1,
+          "coins": 108,
+          "stats": {
+            "3A-T1": {
+              "ok": 5,
+              "err": 0
+            }
+          }
+        },
+        "after": {
+          "played": 0,
+          "coins": 100,
+          "volume": 0.2
+        },
+        "persistedGame": 0
+      },
+      "errors": [],
+      "ms": 29000
+    },
+    {
+      "id": "una-pestana-control",
+      "title": "Control: completar, cambiar volumen y recargar en una sola pestaña conserva la actividad",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "before": {
+          "played": 1,
+          "coins": 108
+        },
+        "after": {
+          "played": 1,
+          "coins": 108
+        }
+      },
+      "errors": [],
+      "ms": 13733
+    },
+    {
+      "id": "repaso-atajo",
+      "title": "Salir del juego de repaso al mapa debe limpiar su contexto",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "requested": "3A-T2",
+        "result": {
+          "scene": "repaso",
+          "theme": null,
+          "reviewFlag": false
+        }
+      },
+      "errors": [],
+      "ms": 17195
+    },
+    {
+      "id": "repaso-casa-control",
+      "title": "Control: la casa del juego de repaso vuelve al repaso y limpia el contexto",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "scene": "repaso",
+        "reviewFlag": false
+      },
+      "errors": [],
+      "ms": 4881
+    },
+    {
+      "id": "diario-salida",
+      "title": "El regalo diario debe entregarse aunque se salga pronto del mapa",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "claimed": "2026-10-24",
+        "coins": 0,
+        "date": "2026-10-24"
+      },
+      "errors": [],
+      "ms": 11689
+    },
+    {
+      "id": "diario-espera-control",
+      "title": "Control: permanecer en el mapa entrega una sola vez las tres monedas",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "coins": 3,
+        "claimed": "2026-10-24"
+      },
+      "errors": [],
+      "ms": 23042
+    },
+    {
+      "id": "reloj-10fps",
+      "title": "El reloj de sesión no debe contar la mitad del tiempo a 10 FPS",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "elapsed": 3.015,
+        "counted": 1.4500000000000006,
+        "frames": 29,
+        "ratio": 0.48092868988391396
+      },
+      "errors": [],
+      "ms": 6708
+    },
+    {
+      "id": "reloj-normal-control",
+      "title": "Control: el reloj cuenta el tiempo de la pestaña sin ralentización artificial",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "elapsed": 3.0146999999880792,
+        "counted": 3.0663999999999962,
+        "ratio": 1.0171493017587558
+      },
+      "errors": [],
+      "ms": 6731
+    },
+    {
+      "id": "teclado-cofre-control",
+      "title": "Escape desde el cofre entrega una sola vez el premio como el botón de casa",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "coins": 10,
+        "gift": 1
+      },
+      "errors": [],
+      "ms": 7017
+    },
+    {
+      "id": "pwa-sin-conexion",
+      "title": "La PWA cargada y cacheada debe arrancar de nuevo sin conexión",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "scene": "title",
+        "worker": true,
+        "three": true
+      },
+      "errors": [],
+      "ms": 27443
+    },
+    {
+      "id": "vale-desactivado",
+      "title": "Desactivar un vale debe impedir confirmar una compra pendiente de ese vale",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "enabled": 0,
+        "coins": 70,
+        "purchases": [
+          {
+            "id": "v1",
+            "txt": "Un cuento extra antes de dormir",
+            "d": "2026-10-24",
+            "given": 0
+          }
+        ]
+      },
+      "errors": [],
+      "ms": 8856
+    },
+    {
+      "id": "vale-canje-control",
+      "title": "Control: comprar y marcar un vale entregado persiste sin cobro doble",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "coins": 70,
+        "purchases": [
+          {
+            "id": "v1",
+            "txt": "Un cuento extra antes de dormir",
+            "d": "2026-10-24",
+            "given": 1
+          }
+        ]
+      },
+      "errors": [],
+      "ms": 31459
+    },
+    {
+      "id": "cumple-salida",
+      "title": "No perder las diez monedas del cumpleaños al salir tras apagar la última vela",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "claimed": "2026-10-24",
+        "coins": 0,
+        "birthdayStep": false,
+        "sticker": false
+      },
+      "errors": [],
+      "ms": 15440
+    },
+    {
+      "id": "cumple-espera-control",
+      "title": "Control: apagar las velas y esperar entrega diez monedas y la pegatina",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "claimed": "2026-10-24",
+        "coins": 10,
+        "sticker": true
+      },
+      "errors": [],
+      "ms": 7801
+    },
+    {
+      "id": "cumple-bisiesto-control",
+      "title": "El cumpleaños del 29 de febrero se activa con el formato de fecha correcto",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "date": "2028-02-29",
+        "birthday": true,
+        "steps": [
+          "hola",
+          "cumple",
+          "dia",
+          "tiempo",
+          "ropa",
+          "estacion",
+          "emocion",
+          "fin"
+        ]
+      },
+      "errors": [],
+      "ms": 4787
+    }
+  ],
+  "summary": {
+    "cases": 15,
+    "pass": 9,
+    "fail": 6,
+    "harnessErrors": 0,
+    "newBugs": [
+      "B15",
+      "B16",
+      "B17",
+      "B18",
+      "B19"
+    ]
+  },
+  "runs": [
+    {
+      "date": "2026-10-24T07:35:39.336Z",
+      "cases": [
+        "dos-pestanas",
+        "una-pestana-control",
+        "repaso-atajo",
+        "repaso-casa-control",
+        "diario-salida",
+        "diario-espera-control",
+        "reloj-10fps",
+        "reloj-normal-control",
+        "teclado-cofre-control"
+      ],
+      "completed": false,
+      "note": "Guardados por caso. Se interrumpió al detectar un problema del servidor de pruebas en Windows."
+    },
+    {
+      "date": "2026-10-24T07:41:35.412Z",
+      "cases": [
+        "pwa-sin-conexion",
+        "vale-desactivado",
+        "vale-canje-control",
+        "cumple-salida",
+        "cumple-espera-control",
+        "cumple-bisiesto-control"
+      ],
+      "completed": true
+    },
+    {
+      "date": "2026-10-24T07:45:59.264Z",
+      "cases": [
+        "reloj-normal-control"
+      ],
+      "completed": true,
+      "note": "Validación adicional de metadatos dinámicos; no se cuenta dos veces el control normal."
+    }
+  ],
+  "harnessCorrections": [
+    "Normalización de URL raíz antes de path.join en Windows. El 404 local impedía instalar el service worker; no era un bug del juego.",
+    "Espera acotada del worker para no bloquear la batería."
+  ],
+  "note": "Fixtures sintéticos; __fast omite audio. No equivale a cobertura instrumentada de líneas ni a todos los juegos, dispositivos o voces."
+}

@@ -14,6 +14,8 @@ Todas reciben como primer argumento la carpeta de la web montada (la raíz del r
 | `voces.js <web>` | Elección de la voz del navegador (v1.589) con voces de mentira: la automática es la más natural del país, la lista de la zona de adultos (orden y ★), la guía de voces, y que la elegida se guarde, siga tras recargar y vuelva la automática si desaparece. | 20 s |
 | `casa.js <web>` | Habitaciones de la casa de Tito y premios nuevos (v1.590): se abren con las casitas, Tito anuncia la nueva, partidas antiguas con todo en el salón, cada compra a su habitación, llevar cosas arrastrándolas al botón de otra habitación, candado por habitación y páginas en la tienda, y que todo se dibuje dentro de la pantalla. | 40 s |
 | `audio-espera.js <web> [trabajador] [nº] [filtro]` | Entra en cada juego y no toca nada 14 s, luego falla dos veces: busca frases que se cortan solas (por ejemplo, la ayuda automática que repite la consigna mientras Tito aún habla). | 20 s por juego |
+| `ampliada.js <web> [filtro]` | B8–B14, recompensas interrumpidas, armario, arrastres reales, validación de copias, reinicio, 36 combinaciones de ajustes y control de regar manteniendo el arrastre. | unos minutos |
+| `cobertura.js <web> [filtro]` | Dos pestañas, salidas alternativas del repaso, reloj a 10 FPS, premios diario/cumpleaños, vales desactivados, canje, Escape y arranque cacheado sin conexión. Guarda resultados después de cada caso. | unos minutos |
 
 `lib.js` tiene lo común (servidor, abrir el juego con una fecha y hora fijas, tocar siguiendo la ayuda, registro de hallazgos) y `espia.js` el espía del audio.
 
@@ -28,3 +30,10 @@ node tests/regresion/audio-espera.js . 0 1
 ```
 
 Necesitan Playwright con Chromium (`npm install -g playwright && npx playwright install chromium`). En un ordenador lento o con varias pruebas a la vez, el juego va a pocos fotogramas por segundo y algunos juegos pueden no terminar en el tiempo dado: repite esos con más segundos y un solo trabajador antes de darlos por fallidos.
+
+Para Chrome o Edge instalados, ver [AMPLIADA.md](AMPLIADA.md) y usar `lanzar.js`. Ejemplo: `node tests/regresion/lanzar.js cobertura.js .` con `PLAYWRIGHT_CHANNEL=chrome`.
+
+`cobertura.js` admite filtros separados por coma, por ejemplo `pwa,vale,cumple`. Devuelve 0 si todo pasa, 1 si detecta fallos y 2 si algún caso no pudo ejecutarse. Los fallos de un guion no se registran automáticamente como bugs del juego.
+
+La existencia de una prueba no demuestra cobertura completa. Consultar el [mapa de cobertura funcional](../../docs/COBERTURA-PRUEBAS.md), que distingue pruebas ejecutadas, cobertura parcial y huecos pendientes.
+
