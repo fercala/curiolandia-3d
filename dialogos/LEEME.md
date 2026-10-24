@@ -6,6 +6,7 @@ Aquí están **todas las frases que dice Tito**, para saber qué falta grabar y 
 |---|---|
 | `pendientes.txt` | **Diálogos pendientes de grabar**: una frase por línea, con el texto exacto que dice Tito (castellano de España, ya pasado por `tx()`, sin el nombre del niño). Es la lista que lee `herramientas/voces/generar-curiolandia-nuevas.bat`. |
 | `todos.csv` | **Catálogo de todos los diálogos**, grabados y pendientes. Se rehace con `python3 herramientas/voces/dialogos.py`. |
+| `fer-revisar.md` | Audios de la Voz de Fer que no se pusieron (salieron mal) o que conviene escuchar, por lote. |
 | `informe-sin-voz.md` | Informe de la revisión del 22 de octubre de 2026 (v1.580): qué frases se oían sin voz grabada, cuáles llevan el nombre del niño y cómo se arman fechas, monedas y números con piezas. |
 
 ## Columnas de `todos.csv`

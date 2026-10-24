@@ -2,6 +2,10 @@
 
 Cada versión publicada añade una entrada arriba del todo (ver [POLITICA-DOCUMENTACION.md](POLITICA-DOCUMENTACION.md), apartado 1.3). Las versiones anteriores a la v1.579 están en el historial de git (`git log`).
 
+## v1.591 (2026-10-24)
+- Para el niño: con la Voz de Fer, 1103 frases nuevas suenan grabadas (y 16 se regrabaron). Antes las decía la voz del navegador.
+- Por dentro: lote «Fercala 2» pasado a MP3 con `preparar_voz.py` y añadido a `voz-fer/manifest.json` (3303 frases). 11 audios que duraban muchísimo más de lo normal no se han puesto y 18 conviene escucharlos: lista en `dialogos/fer-revisar.md`. Faltan en la Voz de Fer las 68 frases de la casa de la v1.590. La voz principal (`voz/`) no cambia: esas frases siguen pendientes para ella.
+
 ## v1.590 (2026-10-23)
 - Para el niño:
   - La casa de Tito tiene siete habitaciones: el salón, el dormitorio, la cocina, el baño, el cuarto de juegos, el jardín y la torre de las estrellas. Se abren al terminar 1, 3, 5, 8, 11 y 14 casitas. Cuando se abre una, Tito lo anuncia y la enseña. Arriba hay un botón por habitación; las cerradas llevan candado y dicen cuántas casitas faltan.
