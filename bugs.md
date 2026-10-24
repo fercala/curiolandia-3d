@@ -227,3 +227,55 @@ Para una siguiente campaña de audio: escuchar y medir MP3/TTS reales; comparar 
 - [Actividad Gira](https://github.com/fercala/curiolandia-3d/blob/80d2a5efcf7fc830172a6cd40c8870f80524060b/src/comps2.js).
 
 Este archivo registra hallazgos y propuestas. Su incorporación no modifica el código del juego. Las correcciones previas declaradas por v1.586 deben verificarse como se indica arriba.
+
+
+## Ampliación automatizada — 24-10-2026 (v1.591)
+
+Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con Chrome sin ventana en Windows, sirviendo una copia local exacta del repositorio. Se usan partidas sintéticas para preparar casos concretos y eventos reales de ratón donde se indica. No se modificó el código del juego. `__fast` omite la espera de audio: estos resultados no certifican el sonido audible. Esta ampliación es independiente del recorrido manual original.
+
+| ID | Estado | Hallazgo | Gravedad |
+|---|---|---|---|
+| B8 | PENDIENTE | El armario pierde acceso a ropa cuando aumenta la colección | Media |
+| B9 | PENDIENTE | Recargar antes de abrir el cofre pierde su recompensa | Alta |
+
+### B8. El armario deja prendas fuera de la pantalla
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591**, además de observado manualmente en v1.586 con una copia de prueba.
+
+1. Reunir ropa y colores suficientes (la prueba prepara las 19 prendas existentes en `SHOP` como propias; no afirma haberlas comprado jugando).
+2. Entrar en Casa de Tito.
+3. Observar la fila inferior: el caparazón rosa aparece parcialmente cortado y las prendas posteriores no son visibles ni tienen un control para alcanzarlas.
+4. Con la colección completa, quedan fuera los caparazones verde, violeta y dorado y las cuatro bufandas.
+
+**Resultado medido:** los centros de las siete prendas inaccesibles están entre x=1670 y x=2270, fuera del lienzo lógico de 1600 px. La ventana más ancha no lo soluciona: las coordenadas del juego son fijas.
+
+**Causa:** `SCENES.casaTito.wardrobe()` en [src/tienda.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/tienda.js) coloca todas las prendas en `x:470+i*100`, sin paginación ni desplazamiento. Solo limita el fondo del armario, no la lista de prendas.
+
+**Posible arreglo:** paginar el armario o abrir un selector por categorías, garantizando que cada prenda propia tenga un control visible. Mantener los identificadores y la partida guardada.
+
+**Solución temporal:** equipar las prendas desde las categorías de la tienda.
+
+**Prueba automatizada:** caso `armario` de `tests/regresion/ampliada.js`; comprueba los límites de todas las prendas.
+
+### B9. El premio del cofre se pierde si se recarga antes de abrirlo
+
+**Estado: PENDIENTE. Gravedad: alta. Reproducido en v1.591.**
+
+1. Completar el último juego pendiente de un tema que todavía no se había terminado.
+2. Esperar hasta que aparezca el cofre cerrado.
+3. Recargar la página o cerrar y volver a abrir el juego **antes de tocar tres veces el cofre**.
+4. Volver al tema.
+
+**Esperado:** recuperar el cofre pendiente o recibir la recompensa una sola vez.
+
+**Resultado:** el tema está terminado, todos sus juegos están hechos y el contador de cofres ha subido, pero el regalo y las diez monedas no se han entregado. Volver al tema no ofrece un cofre pendiente; repetir un juego no vuelve a activar la primera finalización.
+
+**Evidencia automatizada:** se prepara «Mi cole» con todos sus juegos hechos salvo «Conocer», y se completa ese juego con eventos reales de ratón siguiendo sus ayudas. Al llegar al cofre: `done=1`, `cofres=1`, regalo previsto `gorroFiesta`, `coins=3`, sin ropa propia. Tras recargar y abrir la casita: `done=1`, `cofres=1`, `coins=3`, sin gorro, `nextGameOf=-1`. Los tres créditos son los de finalizar el juego; faltan los diez del cofre. Es una preparación sintética del progreso anterior, seguida de la finalización real de una actividad, no una partida completa desde cero.
+
+**Causa:** `finishGame()` en [src/scenes.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/scenes.js) guarda `st.done=1` antes de ir al cofre. En [src/zonas.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/zonas.js), `cofre.enter()` guarda el contador, pero el regalo seleccionado y `rewarded` solo existen en memoria. No hay una recompensa pendiente persistente que se recupere al arrancar. La protección al salir con el botón de casa no cubre una recarga.
+
+**Posible arreglo:** guardar una transacción de recompensa pendiente por tema y recuperarla al arrancar; entregar y marcar como cobrada de forma idempotente. Conservar el regalo elegido. Cubrir también salir durante la felicitación anterior al cofre y el cambio de escena por límite de sesión, sin duplicar regalos ni monedas.
+
+**Regresión:** recargar con cero, uno y dos toques; recargar durante la felicitación; salir normalmente; completar y repetir el tema; comprobar que cada premio se entrega exactamente una vez.
+
+**Prueba automatizada:** caso `cofre-recarga` de `tests/regresion/ampliada.js`.
