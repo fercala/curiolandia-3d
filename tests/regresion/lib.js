@@ -9,8 +9,9 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applic
 // servir(raiz): servidor http mínimo para la carpeta de la web. Devuelve {port, close()}.
 function servir(raiz) {
   const srv = http.createServer((q, r) => {
-    let f = path.join(raiz, decodeURIComponent(q.url.split('?')[0]));
-    if (f.endsWith('/')) f += 'index.html';
+    let ruta = decodeURIComponent(q.url.split('?')[0]);
+    if (ruta.endsWith('/')) ruta += 'index.html'; // la URL usa / también en Windows
+    const f = path.join(raiz, ruta);
     fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return } r.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }); r.end(d) });
   }).listen(0);
   return { get port() { return srv.address().port }, close: () => srv.close() };
@@ -119,3 +120,4 @@ function registro(nombre) {
 }
 
 module.exports = { servir, navegador, abrir, paso, pasoReal, clic, arrastrar, conducir, estado, registro, SAL };
+
