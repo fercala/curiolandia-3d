@@ -97,19 +97,31 @@ const base = {age:5,name:'QA',variant:'es',intro:true,first:{askedName:1},unlock
   return{fail:accepted&&(!!err||p.errs.length>0),accepted,error:err,errors:[...new Set(p.errs)]};
  },{guardado:{...base,...save}});
  await test('matriz-ajustes','Controles de edad, modo, voz y variante (36 combinaciones) y persistencia final',async p=>{
-  const cases=[];
-  await p.evaluate(()=>openAdult());
-  for(const age of[3,4,5])for(const free of[false,true])for(const voice of['','fer','nav'])for(const variant of['es','ar']){
-   await p.locator(`[name="a-age"][value="${age}"]`).check();
-   await p.locator(`[name="a-mode"][value="${free?'libre':'camino'}"]`).check();
-   await p.locator(`[name="a-voz"][value="${voice}"]`).check();
-   await p.locator(`[name="a-var"][value="${variant}"]`).check();
-   const got=await p.evaluate(()=>({age:S.age,free:!!S.unlockAll,voice:S.voz||'',variant:S.variant}));
-   cases.push({expected:{age,free,voice,variant},got,ok:got.age===age&&got.free===free&&got.voice===voice&&got.variant===variant});
-  }
+  // Integración DOM: activa los controles y sus onchange, sin reconstruir 36 mundos 3D.
+  const cases=await p.evaluate(()=>{openAdult();const cases=[];
+   for(const age of[3,4,5])for(const free of[false,true])for(const voice of['','fer','nav'])for(const variant of['es','ar']){
+    for(const [name,value]of[['a-age',String(age)],['a-mode',free?'libre':'camino'],['a-voz',voice],['a-var',variant]]){
+     const el=[...document.querySelectorAll(`[name="${name}"]`)].find(e=>e.value===value);if(!el)throw new Error('Control ausente: '+name);el.click();
+    }
+    const got={age:S.age,free:!!S.unlockAll,voice:S.voz||'',variant:S.variant};
+    cases.push({expected:{age,free,voice,variant},got,ok:got.age===age&&got.free===free&&got.voice===voice&&got.variant===variant});
+   }return cases;
+  });
   await p.reload();await p.waitForFunction(()=>window.__cl&&sceneName==='title');
   const last=await p.evaluate(()=>({age:S.age,free:!!S.unlockAll,voice:S.voz,variant:S.variant}));
   return{fail:cases.some(c=>!c.ok)||last.age!==5||!last.free||last.voice!=='nav'||last.variant!=='ar',count:cases.length,cases,last};
+ });
+ await test('riega-sostenido','Control del guion: regar exige mantener el arrastre, no soltar inmediatamente',async p=>{
+  await p.evaluate(()=>__cl.go('juego',{t:'3A-T10',g:1}));await p.waitForFunction(()=>fade<.5);
+  for(let n=0;n<3;n++){
+   const h=await p.evaluate(()=>scene.hint());if(!h)throw new Error('Falta la ayuda de Riega');
+   const [x,y]=await p.evaluate(h=>[OX+h.x*SC,OY+h.y*SC],h);
+   const [dx,dy]=await p.evaluate(h=>[OX+(h.x+h.dx)*SC,OY+(h.y+h.dy)*SC],h);
+   await p.mouse.move(x,y);await p.mouse.down();await p.mouse.move(dx,dy,{steps:10});
+   try{await p.waitForFunction(n=>sceneName!=='juego'||scene.g.done>n,n,{timeout:45000})}finally{await p.mouse.up()}
+  }
+  await p.waitForFunction(()=>sceneName!=='juego');
+  return p.evaluate(()=>({fail:!S.temas['3A-T10'].g[1],played:S.temas['3A-T10'].g[1],scene:sceneName}));
  });
  const report={testedCommit:require('child_process').execSync('git rev-parse HEAD',{cwd:root,encoding:'utf8'}).trim(),date:new Date().toISOString(),note:'Fixtures sintéticos + eventos reales de ratón. __fast solo omite audio; no equivale a certificación acústica.',results};
  fs.writeFileSync(path.join(L.SAL,runName+'-detalle.json'),JSON.stringify(report,null,2));R.guardar();
