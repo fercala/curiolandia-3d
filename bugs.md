@@ -336,3 +336,49 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 **Regresión:** robot y otros objetos pequeños junto a Tito, mascota y armario; volver a moverlos, cambiar de habitación y recargar. Los controles de Tito deben seguir respondiendo donde se ven.
 
 **Prueba:** `arrastre-tito`; `arrastre-normal` verifica el arrastre fuera de la zona conflictiva.
+
+
+### B13. La vista previa de una copia interpreta HTML incluido en el saldo
+
+**Estado: PENDIENTE. Gravedad: alta (seguridad). Reproducido en v1.591 en un origen local aislado.**
+
+1. Abrir Zona de adultos → Copia de seguridad.
+2. Pegar una copia JSON con `temas:{}` y un campo `coins` de tipo texto que contenga HTML.
+3. Pulsar «Recuperar con este código», **sin confirmar la importación**.
+
+**Resultado:** el resumen inserta ese texto como HTML y ejecuta manejadores de eventos. La prueba usa únicamente una imagen inválida cuyo evento establece una variable local (`window.__qaXss=1`); no extrae información, no modifica la partida y no envía datos a terceros. Se comprueba `executed=true` y que la interfaz ofrece confirmar la copia.
+
+**Alcance:** exige introducir una copia manipulada. No es una ejecución espontánea al abrir el juego; ocurre al previsualizar contenido no fiable. En la web publicada, el código inyectado tendría el origen de esa web.
+
+**Causa:** en [src/adult.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/adult.js), `bkDecode()` valida la raíz y `temas`, pero permite un saldo de texto. `bkWire().ask()` incluye `${d.coins||0}` en el HTML del mensaje sin escaparlo. El nombre sí pasa por `esc()`; el saldo no.
+
+**Posible arreglo:** exigir que el saldo sea un número finito válido antes de presentar la copia, y construir los datos variables del resumen con `textContent` o escaparlos todos. Validar no sustituye el uso seguro del DOM.
+
+**Regresión:** saldo numérico válido, texto normal, texto con etiquetas, nombres con HTML y copias CURIO0/CURIO1/JSON. La previsualización nunca debe ejecutar contenido de la copia ni reemplazar la partida antes de la confirmación.
+
+**Prueba:** `copia-html-monedas`; demostración inocua y limitada a una variable de la página.
+
+### B14. Las copias con estructuras internas inválidas pasan el filtro y rompen pantallas
+
+**Estado: PENDIENTE. Gravedad: media. Cuatro variantes reproducidas en v1.591; se agrupan por la misma validación incompleta.**
+
+**Reproducción:** en una partida de prueba, recuperar una copia con raíz y `temas` válidos pero con una de estas estructuras internas. Confirmar la recuperación y abrir la pantalla indicada. Las pruebas automatizadas escriben la misma estructura en el almacenamiento antes del arranque, comprueban además que `bkDecode()` la acepta y abren la pantalla; no recorren el diálogo de confirmación para cada variante.
+
+| Campo de la copia | Pantalla afectada | Resultado observado |
+|---|---|---|
+| `stats: {busca:null}` | Zona de adultos | Excepción al leer `ok`; no puede construirse el panel |
+| `home: {robot:null}`, `owned: {robot:1}` | Casa de Tito | Excepción al leer `x` |
+| `vales: [null]` | Tienda | Errores repetidos al leer `on`; falla el dibujo |
+| `temas: {'3A-T1':{g:null,done:0}}` | Casita de Mi cole | Excepción al consultar el siguiente juego (`g[0]`) |
+
+Se mantiene el resto de una partida normal en cada fixture. No se afirma que estas estructuras aparezcan en una partida guardada correctamente por el juego. Es un fallo de recuperación y validación frente a copias dañadas o editadas.
+
+**Control:** una entrada nula en `gs` no provocó un fallo en el recorrido concreto probado; no se incluye como quinta reproducción confirmada.
+
+**Causa:** [src/core.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/core.js), `sanoS()`, comprueba los tipos del primer nivel. Dentro de `temas` solo elimina entradas que no sean objetos; no repara `g:null`. Los consumidores de estadísticas, muebles y vales presuponen entradas internas correctas. La corrección B7 de la raíz `temas:null` sigue siendo válida; estos casos son más profundos.
+
+**Posible arreglo:** un esquema compartido para validar la copia antes de confirmarla y sanear el almacenamiento al arrancar. Validar cada entrada de `temas/g`, `stats`, `home`, `vales` y mapas similares; rechazar copias incompatibles o recuperar las partes válidas con un mensaje claro. Respetar los campos donde `null` sí es legítimo.
+
+**Regresión:** las cuatro variantes de arriba, una copia mínima válida, una partida antigua válida, exportar/recuperar una partida normal y conservar ajustes/progreso. El usuario debe poder acceder siempre a una vía de recuperación.
+
+**Pruebas:** `copia-anidada-stats`, `copia-anidada-home`, `copia-anidada-vales` y `copia-anidada-tema-g`.
