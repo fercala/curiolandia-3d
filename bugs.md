@@ -8,6 +8,8 @@ Pruebas con clics y arrastres sobre la web publicada en el navegador integrado d
 
 ## Estado del registro
 
+**Actualización 24-10-2026: B8–B19 RESUELTOS en v1.592** (commit `7c02338`), comprobados con `ampliada.js` y `cobertura.js`; detalle en cada apartado.
+
 **Nueva cobertura 24-10-2026:** cinco incidencias adicionales **B15–B19 PENDIENTES**. Se añadieron 15 casos (9 controles pasan, 6 reproducciones de esos cinco bugs). Véase el [mapa de cobertura y huecos](docs/COBERTURA-PRUEBAS.md), la [batería nueva](tests/regresion/cobertura.js) y sus [resultados](docs/QA-COBERTURA-2026-10-24.json).
 
 **Ampliación 24-10-2026:** siete fallos nuevos **B8–B14 PENDIENTES**, reproducidos automáticamente sobre v1.591. Véanse la ampliación al final, las [instrucciones de Playwright](tests/regresion/AMPLIADA.md) y el [informe de resultados](docs/QA-AUTOMATIZADA-2026-10-24.md). Los estados históricos de B1–B7 se mantienen.
@@ -239,17 +241,19 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 | ID | Estado | Hallazgo | Gravedad |
 |---|---|---|---|
-| B8 | PENDIENTE | El armario pierde acceso a ropa cuando aumenta la colección | Media |
-| B9 | PENDIENTE | Recargar antes de abrir el cofre pierde su recompensa | Alta |
-| B10 | PENDIENTE | Salir de la celebración del repaso pierde cinco monedas | Media |
-| B11 | PENDIENTE | Los muebles grandes quedan recortados tras arrastrarlos al borde | Baja |
-| B12 | PENDIENTE | Un objeto en la región de Tito queda imposible de mover | Media |
-| B13 | PENDIENTE | La vista previa de una copia interpreta HTML del saldo | Alta, seguridad |
-| B14 | PENDIENTE | Estructuras internas inválidas en copias rompen pantallas | Media |
+| B8 | RESUELTO (v1.592) | El armario pierde acceso a ropa cuando aumenta la colección | Media |
+| B9 | RESUELTO (v1.592) | Recargar antes de abrir el cofre pierde su recompensa | Alta |
+| B10 | RESUELTO (v1.592) | Salir de la celebración del repaso pierde cinco monedas | Media |
+| B11 | RESUELTO (v1.592) | Los muebles grandes quedan recortados tras arrastrarlos al borde | Baja |
+| B12 | RESUELTO (v1.592) | Un objeto en la región de Tito queda imposible de mover | Media |
+| B13 | RESUELTO (v1.592) | La vista previa de una copia interpreta HTML del saldo | Alta, seguridad |
+| B14 | RESUELTO (v1.592) | Estructuras internas inválidas en copias rompen pantallas | Media |
 
 ### B8. El armario deja prendas fuera de la pantalla
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591**, además de observado manualmente en v1.586 con una copia de prueba.
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: `casaTito.wardrobe()` enseña la ropa de 9 en 9 con flechas (`wardArrows`) cuando hay más de 10 prendas. Comprobado con `ampliada.js armario`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido en v1.591**, además de observado manualmente en v1.586 con una copia de prueba.
 
 1. Reunir ropa y colores suficientes (la prueba prepara las 19 prendas existentes en `SHOP` como propias; no afirma haberlas comprado jugando).
 2. Entrar en Casa de Tito.
@@ -268,7 +272,9 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 ### B9. El premio del cofre se pierde si se recarga antes de abrirlo
 
-**Estado: PENDIENTE. Gravedad: alta. Reproducido en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: al entrar en el cofre se apunta `S.cofreP[tema]`; `reward()` lo quita y, si la página se cerró antes, `cofrePend()` (llamada desde `boot.js`) entrega el regalo, la pegatina y las monedas al arrancar. Comprobado con `ampliada.js cofre-recarga` y su control `cofre-salida-normal`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: alta. Reproducido en v1.591.**
 
 1. Completar el último juego pendiente de un tema que todavía no se había terminado.
 2. Esperar hasta que aparezca el cofre cerrado.
@@ -292,7 +298,9 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 ### B10. Salir de la celebración del repaso pierde las cinco monedas
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: la pegatina y las 5 monedas se guardan a la vez que `R.paid` (`creditCoins`); la celebración solo las anima. Comprobado con `ampliada.js repaso-salida` y su control `repaso-espera`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
 
 1. Terminar el último juego del repaso diario.
 2. Al regresar a la pantalla del repaso, tocar la casa antes de que termine la celebración.
@@ -312,7 +320,9 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 ### B11. Arrastrar muebles grandes al borde derecho los deja recortados
 
-**Estado: PENDIENTE. Gravedad: baja. Reproducido con ratón real en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: `casaTito.up` encaja la x con `HSIZE` como `homeSpot`. Comprobado con `ampliada.js arrastre-borde`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: baja. Reproducido con ratón real en v1.591.**
 
 1. Tener abierto el dormitorio y colocar una cama.
 2. Arrastrarla hacia el borde derecho y soltarla.
@@ -328,7 +338,9 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 ### B12. Un objeto puede quedar imposible de mover si se coloca en la zona de Tito
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido con dos arrastres reales en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: `casaTito.down` mira los objetos (`itemAt`) antes que la zona de Tito. Comprobado con `ampliada.js arrastre-tito` y su control `arrastre-normal`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido con dos arrastres reales en v1.591.**
 
 1. Tener el robot en el salón.
 2. Arrastrarlo desde el suelo hasta que su posición quede aproximadamente en `(440,600)` (centro inferior del objeto).
@@ -349,7 +361,9 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 ### B13. La vista previa de una copia interpreta HTML incluido en el saldo
 
-**Estado: PENDIENTE. Gravedad: alta (seguridad). Reproducido en v1.591 en un origen local aislado.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: el resumen de la copia pasa las monedas a número (el nombre ya iba con `esc`). Comprobado con `ampliada.js copia-html-monedas`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: alta (seguridad). Reproducido en v1.591 en un origen local aislado.**
 
 1. Abrir Zona de adultos → Copia de seguridad.
 2. Pegar una copia JSON con `temas:{}` y un campo `coins` de tipo texto que contenga HTML.
@@ -369,7 +383,9 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 
 ### B14. Las copias con estructuras internas inválidas pasan el filtro y rompen pantallas
 
-**Estado: PENDIENTE. Gravedad: media. Cuatro variantes reproducidas en v1.591; se agrupan por la misma validación incompleta.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: `sanoHondo()` (core.js) arregla al cargar lo de dentro de `temas.X.g`, `stats`, `gs`, `home`, `kg`, `vales`, `valesLog`, `rep` y `cofreP`. Comprobado con las cinco variantes `ampliada.js copia-anidada-*`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Cuatro variantes reproducidas en v1.591; se agrupan por la misma validación incompleta.**
 
 **Reproducción:** en una partida de prueba, recuperar una copia con raíz y `temas` válidos pero con una de estas estructuras internas. Confirmar la recuperación y abrir la pantalla indicada. Las pruebas automatizadas escriben la misma estructura en el almacenamiento antes del arranque, comprueban además que `bkDecode()` la acepta y abren la pantalla; no recorren el diálogo de confirmación para cada variante.
 
@@ -411,7 +427,9 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 ### B15. Una segunda pestaña puede borrar progreso y monedas guardados por la primera
 
-**Estado: PENDIENTE. Gravedad: alta. Reproducido con dos pestañas del mismo contexto/origen.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: cuando otra pestaña guarda (evento `storage`), esta adopta esa partida antes de su siguiente `save()`. Comprobado con `cobertura.js dos-pestanas` y su control `una-pestana-control`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: alta. Reproducido con dos pestañas del mismo contexto/origen.**
 
 1. Abrir el juego en dos pestañas con la misma partida.
 2. En la primera, terminar una actividad.
@@ -433,7 +451,9 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 ### B16. Salir del repaso por un atajo deja una redirección pendiente al repaso
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: un envoltorio de `go` en `repaso.js` olvida `REP_ON` al ir a cualquier sitio que no sea la vuelta normal del juego. Comprobado con `cobertura.js repaso-atajo` y su control `repaso-casa-control`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
 
 1. Entrar en Repaso con Tito y abrir una de sus actividades.
 2. Abrir Zona de adultos y usar el atajo «Mapa».
@@ -453,7 +473,9 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 ### B17. El tiempo jugado y el límite se ralentizan en dispositivos con pocos FPS
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido con una pantalla visible a 10 FPS simulados.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: `frame()` cuenta el tiempo de juego con el tiempo real `rdt` (tope de 1 s), no con `dt` (tope 0,05 s). Comprobado con `cobertura.js reloj-10fps` (cuenta 3,1 s de 3,0 s) y su control `reloj-normal-control`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido con una pantalla visible a 10 FPS simulados.**
 
 1. Jugar en un dispositivo que renderice aproximadamente diez fotogramas por segundo.
 2. Comparar el tiempo real transcurrido con el reloj de la sesión y los minutos registrados en Zona de adultos.
@@ -472,7 +494,9 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 ### B18. Los regalos diario y de cumpleaños pueden marcarse cobrados sin entregarse
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: el regalo diario y el cumpleaños abonan monedas y pegatina en el mismo momento en que marcan `S.gift`/`S.bdayDone`. Comprobado con `cobertura.js diario-salida` y `cumple-salida`, y sus controles. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
 
 1. Entrar en el mapa un día cuyo regalo todavía no se haya cobrado, sin otros anuncios prioritarios pendientes.
 2. Salir con el botón de casa antes de la entrega de las tres monedas.
@@ -493,7 +517,9 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 ### B19. Un vale desactivado por el adulto todavía se puede comprar si había una confirmación abierta
 
-**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+**Estado de resolución: RESUELTO en v1.592** (commit `7c02338`). Arreglo: `buy()` comprueba que el vale siga activo antes de cobrar. Comprobado con `cobertura.js vale-desactivado` y su control `vale-canje-control`. Todas las pruebas de `ampliada.js` y `cobertura.js` pasan en la v1.592 (17 y 15 casos), además de `limites.js` (45), `informe-b.js`, `casa.js`, `voces.js` y la prueba de humo.
+
+**Estado original: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
 
 1. En la tienda, tocar un vale activo para abrir la confirmación de compra.
 2. Sin confirmar, abrir Zona de adultos.
@@ -517,11 +543,11 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 
 | ID | Estado | Hallazgo | Gravedad |
 |---|---|---|---|
-| B15 | PENDIENTE | Otra pestaña sobrescribe progreso, estadísticas y monedas recientes | Alta |
-| B16 | PENDIENTE | Salir del repaso por atajo redirige indebidamente la siguiente casita | Media |
-| B17 | PENDIENTE | A 10 FPS el reloj de sesión cuenta aproximadamente la mitad del tiempo real | Media |
-| B18 | PENDIENTE | Se pierden premios diario y de cumpleaños al salir antes de su entrega | Media |
-| B19 | PENDIENTE | Se puede confirmar la compra de un vale que el adulto acaba de desactivar | Media |
+| B15 | RESUELTO (v1.592) | Otra pestaña sobrescribe progreso, estadísticas y monedas recientes | Alta |
+| B16 | RESUELTO (v1.592) | Salir del repaso por atajo redirige indebidamente la siguiente casita | Media |
+| B17 | RESUELTO (v1.592) | A 10 FPS el reloj de sesión cuenta aproximadamente la mitad del tiempo real | Media |
+| B18 | RESUELTO (v1.592) | Se pierden premios diario y de cumpleaños al salir antes de su entrega | Media |
+| B19 | RESUELTO (v1.592) | Se puede confirmar la compra de un vale que el adulto acaba de desactivar | Media |
 
 **15 casos nuevos:** 9 controles pasan y 6 reproducciones fallan por B15–B19 (B18 tiene dos variantes). Cero errores pendientes del guion en el resultado consolidado. El arranque offline con caché preparada pasó; la espera inicial se bloqueaba por un problema del servidor de pruebas en Windows, que se corrigió en `tests/regresion/lib.js`. Esa corrección afecta solo a las pruebas.
 
