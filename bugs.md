@@ -8,6 +8,8 @@ Pruebas con clics y arrastres sobre la web publicada en el navegador integrado d
 
 ## Estado del registro
 
+**Ampliación 24-10-2026:** siete fallos nuevos **B8–B14 PENDIENTES**, reproducidos automáticamente sobre v1.591. Véanse la ampliación al final, las [instrucciones de Playwright](tests/regresion/AMPLIADA.md) y el [informe de resultados](docs/QA-AUTOMATIZADA-2026-10-24.md). Los estados históricos de B1–B7 se mantienen.
+
 **Actualización (23-10-2026): B1-B6 resueltos en v1.587 y B7 verificado en v1.586; detalles en cada apartado y en docs/HALLAZGOS-PRUEBAS.md.** Texto original: todos los hallazgos quedan **PENDIENTES** de resolución o de verificación. La evidencia corresponde a **v1.585**, no a una nueva prueba de la versión actual. Al guardar este registro, `main` ya contiene **v1.586** (referencia consultada: `dc71633a94120dda3326f0d44dc98279745b2b83`). Esa versión declara corregido B7 y varios problemas de audio del informe anterior. B7 queda **PENDIENTE DE VERIFICAR EN v1.586**, no se presenta como fallo confirmado de esa versión.
 
 Las capturas originales y la copia de la partida de prueba se conservan fuera del repositorio; no se incluyen enlaces a archivos locales que no puedan abrirse desde GitHub.
@@ -237,6 +239,11 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 |---|---|---|---|
 | B8 | PENDIENTE | El armario pierde acceso a ropa cuando aumenta la colección | Media |
 | B9 | PENDIENTE | Recargar antes de abrir el cofre pierde su recompensa | Alta |
+| B10 | PENDIENTE | Salir de la celebración del repaso pierde cinco monedas | Media |
+| B11 | PENDIENTE | Los muebles grandes quedan recortados tras arrastrarlos al borde | Baja |
+| B12 | PENDIENTE | Un objeto en la región de Tito queda imposible de mover | Media |
+| B13 | PENDIENTE | La vista previa de una copia interpreta HTML del saldo | Alta, seguridad |
+| B14 | PENDIENTE | Estructuras internas inválidas en copias rompen pantallas | Media |
 
 ### B8. El armario deja prendas fuera de la pantalla
 
@@ -382,3 +389,15 @@ Se mantiene el resto de una partida normal en cada fixture. No se afirma que est
 **Regresión:** las cuatro variantes de arriba, una copia mínima válida, una partida antigua válida, exportar/recuperar una partida normal y conservar ajustes/progreso. El usuario debe poder acceder siempre a una vía de recuperación.
 
 **Pruebas:** `copia-anidada-stats`, `copia-anidada-home`, `copia-anidada-vales` y `copia-anidada-tema-g`.
+
+
+### Resultado final de la ampliación automática
+
+Batería nueva: **17 casos ejecutados**, con **7 controles que pasan** y **10 verificaciones que reproducen los siete bugs B8–B14** (B14 agrupa cuatro variantes). **Cero errores pendientes del guion** en el resultado consolidado; el historial de ajustes del control de regar se conserva en el JSON. Matriz de **36 combinaciones de ajustes** correcta, más **3 pruebas existentes de selección de voces** correctas. No son 36 partidas completas ni una certificación acústica.
+
+El recorrido general fue parcial: 78 actividades terminaron y tres dieron avisos de tiempo; esos avisos no se publicaron como bugs. Regar se comprobó después con un arrastre sostenido correcto y terminó. No se afirma haber completado las 253 actividades en esta campaña.
+
+- [Prueba nueva](tests/regresion/ampliada.js), [lanzador para Chrome/Edge/Chromium](tests/regresion/lanzar.js) e [instrucciones](tests/regresion/AMPLIADA.md).
+- [Informe de la campaña](docs/QA-AUTOMATIZADA-2026-10-24.md) y [resultados detallados JSON](docs/QA-AUTOMATIZADA-2026-10-24.json).
+
+Solo se han añadido pruebas y documentación; no se han aplicado las soluciones propuestas al juego.
