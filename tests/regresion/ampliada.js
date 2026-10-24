@@ -113,7 +113,10 @@ const base = {age:5,name:'QA',variant:'es',intro:true,first:{askedName:1},unlock
  });
  await test('riega-sostenido','Control del guion: regar exige mantener el arrastre, no soltar inmediatamente',async p=>{
   await p.evaluate(()=>__cl.go('juego',{t:'3A-T10',g:1}));await p.waitForFunction(()=>fade<.5);
-  for(let n=0;n<3;n++){
+  const total=await p.evaluate(()=>scene.g.total);
+  for(let n=0;n<total;n++){
+   // Tras soltar, esperar el retorno para no intentar coger una posición ya obsoleta.
+   await p.waitForFunction(()=>{const h=scene.hint();return h&&h.x>1390});
    const h=await p.evaluate(()=>scene.hint());if(!h)throw new Error('Falta la ayuda de Riega');
    const [x,y]=await p.evaluate(h=>[OX+h.x*SC,OY+h.y*SC],h);
    const [dx,dy]=await p.evaluate(h=>[OX+(h.x+h.dx)*SC,OY+(h.y+h.dy)*SC],h);
