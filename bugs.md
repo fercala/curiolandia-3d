@@ -279,3 +279,60 @@ Referencia probada: `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`. Playwright con C
 **Regresión:** recargar con cero, uno y dos toques; recargar durante la felicitación; salir normalmente; completar y repetir el tema; comprobar que cada premio se entrega exactamente una vez.
 
 **Prueba automatizada:** caso `cofre-recarga` de `tests/regresion/ampliada.js`.
+
+
+### B10. Salir de la celebración del repaso pierde las cinco monedas
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+
+1. Terminar el último juego del repaso diario.
+2. Al regresar a la pantalla del repaso, tocar la casa antes de que termine la celebración.
+3. Volver a entrar en el repaso.
+
+**Resultado:** el repaso figura como pagado (`S.rep.paid=1`) y completo, pero no se suman las cinco monedas, ni se vuelven a entregar al regresar. El control que permanece en la pantalla sí recibe cinco monedas.
+
+**Preparación automatizada:** un repaso sintético con una actividad ya hecha y `paid=0`; se entra en la pantalla de entrega y se pulsa el botón de casa con un evento real de ratón, tras permitir la entrada de eventos durante la transición y antes del temporizador de celebración. La vuelta comprueba `paid=1, coins=0`. No se simula una escucha real.
+
+**Causa:** [src/repaso.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/repaso.js), `SCENES.repaso.enter()`, guarda `R.paid=1` antes de ejecutar `later(500,...)` y de la callback de voz que llama a `giveCoins(5,...)`. Al cambiar de escena se anula ese temporizador/callback, pero la marca de cobrado permanece.
+
+**Posible arreglo:** contabilizar la recompensa una sola vez antes de iniciar los efectos y la voz; o guardar una entrega pendiente y marcarla pagada únicamente al acreditar las monedas. La animación debe poder cancelarse sin cancelar la entrega.
+
+**Regresión:** salida inmediata, salida durante la voz, recarga, límite de sesión y permanencia normal. Una sola entrega de cinco monedas.
+
+**Pruebas:** `repaso-salida` reproduce el fallo; `repaso-espera` es el control positivo.
+
+### B11. Arrastrar muebles grandes al borde derecho los deja recortados
+
+**Estado: PENDIENTE. Gravedad: baja. Reproducido con ratón real en v1.591.**
+
+1. Tener abierto el dormitorio y colocar una cama.
+2. Arrastrarla hacia el borde derecho y soltarla.
+3. Parte de la cama queda fuera de la pantalla.
+
+**Evidencia:** cama de tamaño 300, centro guardado en x=1500, extremo derecho x=1650, lienzo de ancho 1600. El caso parte de una cama propia en una habitación abierta mediante una partida de prueba; el arrastre pasa por los eventos reales del lienzo.
+
+**Causa:** [src/tienda.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/tienda.js), `SCENES.casaTito.up()` limita todos los centros a `x<=1500` sin considerar `HSIZE[id]`. `homeSpot()` sí utiliza el tamaño al colocar objetos nuevos; ese límite se pierde al moverlos.
+
+**Posible arreglo:** limitar según la caja visual de cada objeto, reutilizando la regla de colocación inicial, con margen a ambos lados. Revisar también los objetos muy altos y los de pared.
+
+**Prueba:** `arrastre-borde`. El control `arrastre-normal` confirma que un movimiento normal se guarda y sobrevive a recargar.
+
+### B12. Un objeto puede quedar imposible de mover si se coloca en la zona de Tito
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido con dos arrastres reales en v1.591.**
+
+1. Tener el robot en el salón.
+2. Arrastrarlo desde el suelo hasta que su posición quede aproximadamente en `(440,600)` (centro inferior del objeto).
+3. Intentar arrastrarlo de nuevo desde su parte visible.
+
+**Resultado:** responde Tito; el robot no se selecciona y permanece en su sitio. Para el robot, toda su región de selección queda dentro de la región que intercepta Tito. No basta con tocar otro punto del robot.
+
+**Evidencia:** después del primer arrastre, posición `{x:440,y:600,r:'salon'}`. El segundo arrastre, desde `(440,530)` hasta otra zona del suelo, no modifica la posición. `itemAt(440,530)` encuentra el robot, pero el manejador anterior de Tito consume el toque. La región del robot (x≈363,5–516,5; y≈455,5–610) está dentro de la región de Tito (x=250–630; y=335–665).
+
+**Causa:** [src/tienda.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/tienda.js), `SCENES.casaTito.down()`, procesa primero `inR(x,y,440,500,380,330)` y retorna antes de consultar `itemAt()`. El arrastre permite soltar objetos dentro de esa región.
+
+**Posible arreglo:** dar prioridad al objeto visible bajo el puntero, reducir la región de Tito a su dibujo o impedir soltar objetos en zonas que después no permiten seleccionarlos. Añadir una opción de recolocar objetos si se necesitan zonas reservadas.
+
+**Regresión:** robot y otros objetos pequeños junto a Tito, mascota y armario; volver a moverlos, cambiar de habitación y recargar. Los controles de Tito deben seguir respondiendo donde se ven.
+
+**Prueba:** `arrastre-tito`; `arrastre-normal` verifica el arrastre fuera de la zona conflictiva.
