@@ -1,0 +1,924 @@
+{
+  "testedCommit": "e1a8af377ce85cd41f8fe97adcb8d27a005aed6d",
+  "date": "2026-10-24T07:26:03.290Z",
+  "note": "Fixtures sintéticos + eventos reales de ratón. __fast solo omite audio; no equivale a certificación acústica.",
+  "results": [
+    {
+      "id": "armario",
+      "title": "Toda la ropa del armario debe ser accesible dentro del lienzo",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "total": 19,
+        "fuera": [
+          {
+            "id": "caparazon:verde",
+            "x": 1670
+          },
+          {
+            "id": "caparazon:violeta",
+            "x": 1770
+          },
+          {
+            "id": "caparazon:dorado",
+            "x": 1870
+          },
+          {
+            "id": "bufanda:roja",
+            "x": 1970
+          },
+          {
+            "id": "bufanda:azul",
+            "x": 2070
+          },
+          {
+            "id": "bufanda:amarilla",
+            "x": 2170
+          },
+          {
+            "id": "bufanda:violeta",
+            "x": 2270
+          }
+        ],
+        "recortadas": [
+          "caparazon:rosa",
+          "caparazon:verde",
+          "caparazon:violeta",
+          "caparazon:dorado",
+          "bufanda:roja",
+          "bufanda:azul",
+          "bufanda:amarilla",
+          "bufanda:violeta"
+        ]
+      },
+      "errors": [],
+      "ms": 2065
+    },
+    {
+      "id": "cofre-recarga",
+      "title": "El premio de un tema terminado debe sobrevivir a recargar antes de abrir el cofre",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "before": {
+          "scene": "cofre",
+          "done": 1,
+          "gift": "gorroFiesta",
+          "owned": {},
+          "coins": 3,
+          "cofres": 1
+        },
+        "after": {
+          "scene": "casita",
+          "done": 1,
+          "owned": {},
+          "coins": 3,
+          "cofres": 1,
+          "remaining": -1
+        }
+      },
+      "errors": [],
+      "ms": 17321
+    },
+    {
+      "id": "cofre-salida-normal",
+      "title": "Control: salir del cofre con la casita entrega el premio una vez",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "coins": 10,
+        "owned": 1
+      },
+      "errors": [],
+      "ms": 8009
+    },
+    {
+      "id": "repaso-salida",
+      "title": "No perder las cinco monedas si se sale durante la celebración del repaso",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "paid": 1,
+        "coins": 0,
+        "done": {
+          "3A-T1#1": 1
+        },
+        "scene": "repaso"
+      },
+      "errors": [],
+      "ms": 10142
+    },
+    {
+      "id": "repaso-espera",
+      "title": "Control: esperar la celebración entrega las cinco monedas del repaso",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "paid": 1,
+        "coins": 5
+      },
+      "errors": [],
+      "ms": 5309
+    },
+    {
+      "id": "arrastre-borde",
+      "title": "Los muebles grandes no deben quedar recortados al arrastrarlos al borde",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "position": {
+          "x": 1500,
+          "y": 720,
+          "r": "dormitorio"
+        },
+        "size": 300,
+        "right": 1650,
+        "width": 1600
+      },
+      "errors": [],
+      "ms": 5566
+    },
+    {
+      "id": "arrastre-tito",
+      "title": "Un objeto arrastrado junto a Tito debe poder volver a moverse",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "before": {
+          "x": 440,
+          "y": 600,
+          "r": "salon"
+        },
+        "after": {
+          "x": 440,
+          "y": 600,
+          "r": "salon"
+        },
+        "itemHit": true,
+        "titoHit": true
+      },
+      "errors": [],
+      "ms": 6374
+    },
+    {
+      "id": "arrastre-normal",
+      "title": "Control: mover un objeto en el suelo y guardar su posición",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "before": {
+          "x": 1100,
+          "y": 720,
+          "r": "salon"
+        },
+        "after": {
+          "x": 1100,
+          "y": 720,
+          "r": "salon"
+        }
+      },
+      "errors": [],
+      "ms": 9238
+    },
+    {
+      "id": "reinicio",
+      "title": "Empezar de nuevo conserva preferencias y limpia progreso",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "stars": 0,
+        "voz": "fer",
+        "limit": 10
+      },
+      "errors": [],
+      "ms": 7457
+    },
+    {
+      "id": "copia-html-monedas",
+      "title": "La previsualización de copias no debe ejecutar HTML del saldo",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "executed": true,
+        "offeredImport": true
+      },
+      "errors": [],
+      "ms": 9473
+    },
+    {
+      "id": "copia-anidada-stats",
+      "title": "Una copia con datos anidados incorrectos debe rechazarse o recuperarse: stats",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "accepted": true,
+        "error": "Error: page.evaluate: TypeError: Cannot read properties of null (reading 'ok')",
+        "errors": []
+      },
+      "errors": [],
+      "ms": 8301
+    },
+    {
+      "id": "copia-anidada-home",
+      "title": "Una copia con datos anidados incorrectos debe rechazarse o recuperarse: home",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "accepted": true,
+        "error": "Error: page.evaluate: TypeError: Cannot read properties of null (reading 'x')",
+        "errors": [
+          "consola: TypeError: Cannot read properties of null (reading 'x')\n    at http://localhost:64711/index.html:6910:114\n    at Array.map (<anonymous>)\n    at homeItems (http://localhost:64711/index.html:6910:88)\n  "
+        ]
+      },
+      "errors": [
+        "consola: TypeError: Cannot read properties of null (reading 'x')\n    at http://localhost:64711/index.html:6910:114\n    at Array.map (<anonymous>)\n    at homeItems (http://localhost:64711/index.html:6910:88)\n  "
+      ],
+      "ms": 8304
+    },
+    {
+      "id": "copia-anidada-vales",
+      "title": "Una copia con datos anidados incorrectos debe rechazarse o recuperarse: vales",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "accepted": true,
+        "error": null,
+        "errors": [
+          "consola: TypeError: Cannot read properties of null (reading 'on')\n    at http://localhost:64711/index.html:6835:70\n    at Array.some (<anonymous>)\n    at http://localhost:64711/index.html:6835:60\n    at Array."
+        ]
+      },
+      "errors": [
+        "consola: TypeError: Cannot read properties of null (reading 'on')\n    at http://localhost:64711/index.html:6835:70\n    at Array.some (<anonymous>)\n    at http://localhost:64711/index.html:6835:60\n    at Array."
+      ],
+      "ms": 7692
+    },
+    {
+      "id": "copia-anidada-tema-g",
+      "title": "Una copia con datos anidados incorrectos debe rechazarse o recuperarse: tema-g",
+      "status": "FAIL",
+      "detail": {
+        "fail": true,
+        "accepted": true,
+        "error": "Error: page.evaluate: TypeError: Cannot read properties of null (reading '0')",
+        "errors": [
+          "consola: TypeError: Cannot read properties of null (reading '0')\n    at http://localhost:64711/index.html:6186:58\n    at Array.findIndex (<anonymous>)\n    at nextGameOf (http://localhost:64711/index.html:6186:"
+        ]
+      },
+      "errors": [
+        "consola: TypeError: Cannot read properties of null (reading '0')\n    at http://localhost:64711/index.html:6186:58\n    at Array.findIndex (<anonymous>)\n    at nextGameOf (http://localhost:64711/index.html:6186:"
+      ],
+      "ms": 6699
+    },
+    {
+      "id": "copia-anidada-gs",
+      "title": "Una copia con datos anidados incorrectos debe rechazarse o recuperarse: gs",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "accepted": true,
+        "error": null,
+        "errors": []
+      },
+      "errors": [],
+      "ms": 6920
+    },
+    {
+      "id": "matriz-ajustes",
+      "title": "Controles de edad, modo, voz y variante (36 combinaciones) y persistencia final",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "count": 36,
+        "cases": [
+          {
+            "expected": {
+              "age": 3,
+              "free": false,
+              "voice": "",
+              "variant": "es"
+            },
+            "got": {
+              "age": 3,
+              "free": false,
+              "voice": "",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": false,
+              "voice": "",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 3,
+              "free": false,
+              "voice": "",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": false,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "got": {
+              "age": 3,
+              "free": false,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": false,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 3,
+              "free": false,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": false,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "got": {
+              "age": 3,
+              "free": false,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": false,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 3,
+              "free": false,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": true,
+              "voice": "",
+              "variant": "es"
+            },
+            "got": {
+              "age": 3,
+              "free": true,
+              "voice": "",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": true,
+              "voice": "",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 3,
+              "free": true,
+              "voice": "",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": true,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "got": {
+              "age": 3,
+              "free": true,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": true,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 3,
+              "free": true,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": true,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "got": {
+              "age": 3,
+              "free": true,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 3,
+              "free": true,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 3,
+              "free": true,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": false,
+              "voice": "",
+              "variant": "es"
+            },
+            "got": {
+              "age": 4,
+              "free": false,
+              "voice": "",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": false,
+              "voice": "",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 4,
+              "free": false,
+              "voice": "",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": false,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "got": {
+              "age": 4,
+              "free": false,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": false,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 4,
+              "free": false,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": false,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "got": {
+              "age": 4,
+              "free": false,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": false,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 4,
+              "free": false,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": true,
+              "voice": "",
+              "variant": "es"
+            },
+            "got": {
+              "age": 4,
+              "free": true,
+              "voice": "",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": true,
+              "voice": "",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 4,
+              "free": true,
+              "voice": "",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": true,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "got": {
+              "age": 4,
+              "free": true,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": true,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 4,
+              "free": true,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": true,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "got": {
+              "age": 4,
+              "free": true,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 4,
+              "free": true,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 4,
+              "free": true,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": false,
+              "voice": "",
+              "variant": "es"
+            },
+            "got": {
+              "age": 5,
+              "free": false,
+              "voice": "",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": false,
+              "voice": "",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 5,
+              "free": false,
+              "voice": "",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": false,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "got": {
+              "age": 5,
+              "free": false,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": false,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 5,
+              "free": false,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": false,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "got": {
+              "age": 5,
+              "free": false,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": false,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 5,
+              "free": false,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": true,
+              "voice": "",
+              "variant": "es"
+            },
+            "got": {
+              "age": 5,
+              "free": true,
+              "voice": "",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": true,
+              "voice": "",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 5,
+              "free": true,
+              "voice": "",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": true,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "got": {
+              "age": 5,
+              "free": true,
+              "voice": "fer",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": true,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 5,
+              "free": true,
+              "voice": "fer",
+              "variant": "ar"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": true,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "got": {
+              "age": 5,
+              "free": true,
+              "voice": "nav",
+              "variant": "es"
+            },
+            "ok": true
+          },
+          {
+            "expected": {
+              "age": 5,
+              "free": true,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "got": {
+              "age": 5,
+              "free": true,
+              "voice": "nav",
+              "variant": "ar"
+            },
+            "ok": true
+          }
+        ],
+        "last": {
+          "age": 5,
+          "free": true,
+          "voice": "nav",
+          "variant": "ar"
+        }
+      },
+      "errors": [],
+      "ms": 7325
+    },
+    {
+      "id": "riega-sostenido",
+      "title": "Control del guion: regar exige mantener el arrastre, no soltar inmediatamente",
+      "status": "PASS",
+      "detail": {
+        "fail": false,
+        "played": 1,
+        "scene": "casita"
+      },
+      "errors": [],
+      "ms": 22257
+    }
+  ],
+  "history": [
+    {
+      "id": "riega-sostenido",
+      "title": "Control del guion: regar exige mantener el arrastre, no soltar inmediatamente",
+      "status": "ERROR_HARNESS",
+      "error": "TimeoutError: page.waitForFunction: Timeout 45000ms exceeded."
+    }
+  ],
+  "rerun": {
+    "date": "2026-10-24T07:27:57.412Z",
+    "results": [
+      {
+        "id": "riega-sostenido",
+        "title": "Control del guion: regar exige mantener el arrastre, no soltar inmediatamente",
+        "status": "PASS",
+        "detail": {
+          "fail": false,
+          "played": 1,
+          "scene": "casita"
+        },
+        "errors": [],
+        "ms": 22257
+      }
+    ]
+  },
+  "voices": {
+    "prueba": "voces",
+    "fecha": "2026-10-24T07:22:09.859Z",
+    "hallazgos": [],
+    "bien": [
+      {
+        "id": "V1",
+        "titulo": "Sin elegir, la voz automática es la más natural de España"
+      },
+      {
+        "id": "V2",
+        "titulo": "La zona de adultos lista las voces en español de mejor a peor, con ★ y la guía"
+      },
+      {
+        "id": "V3",
+        "titulo": "Elegir una voz la guarda, sigue tras recargar y, si desaparece, vuelve la automática"
+      }
+    ]
+  },
+  "summary": {
+    "cases": 17,
+    "pass": 7,
+    "fail": 10,
+    "harnessErrors": 0,
+    "settingsCombinations": 36,
+    "newBugs": [
+      "B8",
+      "B9",
+      "B10",
+      "B11",
+      "B12",
+      "B13",
+      "B14"
+    ]
+  },
+  "generalSweep": {
+    "completed": 78,
+    "timeoutWarnings": 3,
+    "totalActivities": 253,
+    "complete": false,
+    "note": "Parcial; avisos no publicados como bugs. Regar verificado con un control corregido."
+  }
+}
