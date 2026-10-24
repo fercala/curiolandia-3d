@@ -8,6 +8,8 @@ Pruebas con clics y arrastres sobre la web publicada en el navegador integrado d
 
 ## Estado del registro
 
+**Nueva cobertura 24-10-2026:** cinco incidencias adicionales **B15–B19 PENDIENTES**. Se añadieron 15 casos (9 controles pasan, 6 reproducciones de esos cinco bugs). Véase el [mapa de cobertura y huecos](docs/COBERTURA-PRUEBAS.md), la [batería nueva](tests/regresion/cobertura.js) y sus [resultados](docs/QA-COBERTURA-2026-10-24.json).
+
 **Ampliación 24-10-2026:** siete fallos nuevos **B8–B14 PENDIENTES**, reproducidos automáticamente sobre v1.591. Véanse la ampliación al final, las [instrucciones de Playwright](tests/regresion/AMPLIADA.md) y el [informe de resultados](docs/QA-AUTOMATIZADA-2026-10-24.md). Los estados históricos de B1–B7 se mantienen.
 
 **Actualización (23-10-2026): B1-B6 resueltos en v1.587 y B7 verificado en v1.586; detalles en cada apartado y en docs/HALLAZGOS-PRUEBAS.md.** Texto original: todos los hallazgos quedan **PENDIENTES** de resolución o de verificación. La evidencia corresponde a **v1.585**, no a una nueva prueba de la versión actual. Al guardar este registro, `main` ya contiene **v1.586** (referencia consultada: `dc71633a94120dda3326f0d44dc98279745b2b83`). Esa versión declara corregido B7 y varios problemas de audio del informe anterior. B7 queda **PENDIENTE DE VERIFICAR EN v1.586**, no se presenta como fallo confirmado de esa versión.
@@ -509,3 +511,22 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 **Regresión:** desactivar un vale con confirmación abierta, modificar precio/texto, compra normal, canje y recarga. No debe producirse descuento ni registro si el vale fue desactivado.
 
 **Pruebas:** `vale-desactivado` y `vale-canje-control` en `tests/regresion/cobertura.js`.
+
+
+### Resultado de los nuevos huecos de cobertura
+
+| ID | Estado | Hallazgo | Gravedad |
+|---|---|---|---|
+| B15 | PENDIENTE | Otra pestaña sobrescribe progreso, estadísticas y monedas recientes | Alta |
+| B16 | PENDIENTE | Salir del repaso por atajo redirige indebidamente la siguiente casita | Media |
+| B17 | PENDIENTE | A 10 FPS el reloj de sesión cuenta aproximadamente la mitad del tiempo real | Media |
+| B18 | PENDIENTE | Se pierden premios diario y de cumpleaños al salir antes de su entrega | Media |
+| B19 | PENDIENTE | Se puede confirmar la compra de un vale que el adulto acaba de desactivar | Media |
+
+**15 casos nuevos:** 9 controles pasan y 6 reproducciones fallan por B15–B19 (B18 tiene dos variantes). Cero errores pendientes del guion en el resultado consolidado. El arranque offline con caché preparada pasó; la espera inicial se bloqueaba por un problema del servidor de pruebas en Windows, que se corrigió en `tests/regresion/lib.js`. Esa corrección afecta solo a las pruebas.
+
+- [Mapa de cobertura funcional, límites y prioridades](docs/COBERTURA-PRUEBAS.md).
+- [Pruebas ejecutables](tests/regresion/cobertura.js) y [guía general](tests/regresion/LEEME.md).
+- [Resultados detallados con versión y huella de la web](docs/QA-COBERTURA-2026-10-24.json).
+
+Estos resultados no equivalen a cobertura instrumentada de líneas ni a probar las 253 actividades en todas las edades, repeticiones, voces y dispositivos. No se ha modificado el código del juego.
