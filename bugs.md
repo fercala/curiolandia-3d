@@ -401,3 +401,29 @@ El recorrido general fue parcial: 78 actividades terminaron y tres dieron avisos
 - [Informe de la campaña](docs/QA-AUTOMATIZADA-2026-10-24.md) y [resultados detallados JSON](docs/QA-AUTOMATIZADA-2026-10-24.json).
 
 Solo se han añadido pruebas y documentación; no se han aplicado las soluciones propuestas al juego.
+
+
+## Nuevos huecos de cobertura — 24-10-2026 (v1.591)
+
+Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005aed6d`; el estado remoto al comenzar era `d63f28e15032ce665f8f10f629716943027e3017`, que solo añade pruebas y documentación. Playwright y Chrome en Windows. Preparaciones sintéticas, eventos de interfaz y controles positivos identificados por caso.
+
+### B15. Una segunda pestaña puede borrar progreso y monedas guardados por la primera
+
+**Estado: PENDIENTE. Gravedad: alta. Reproducido con dos pestañas del mismo contexto/origen.**
+
+1. Abrir el juego en dos pestañas con la misma partida.
+2. En la primera, terminar una actividad.
+3. En la segunda, que seguía abierta desde antes, abrir Zona de adultos y cambiar el volumen de música.
+4. Recargar la primera pestaña.
+
+**Resultado:** desaparecen la actividad terminada, sus estadísticas y las monedas obtenidas. El ajuste de volumen de la segunda pestaña sí se conserva.
+
+**Evidencia:** se completa la búsqueda de «Mi cole» mediante ratón real. Primera pestaña: `g[1]=1`, saldo 108 y cinco aciertos. Tras cambiar el volumen en la segunda y recargar: `g[1]=0`, saldo 100, volumen 0,2. El caso de control, haciendo exactamente ese cambio en una única pestaña, conserva la actividad y las 108 monedas.
+
+**Causa:** [src/core.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/core.js), `load()` mantiene una copia de `S` en memoria por pestaña y `save()` reemplaza el documento completo de `localStorage`. No se detectan versiones desactualizadas ni se coordinan escrituras entre pestañas. Un guardado inocuo de ajustes sobrescribe progreso más reciente.
+
+**Posible arreglo:** detectar escrituras de otro contexto con versión y eventos de almacenamiento; impedir guardar desde una copia obsoleta hasta reconciliarla. Una alternativa es permitir una sola sesión de escritura y ofrecer recargar las otras. Si se permite concurrencia, diseñar operaciones de progreso y monedas que no pierdan ni dupliquen cambios; una mezcla superficial de objetos no basta.
+
+**Regresión:** dos pestañas, ventana normal y app instalada en el mismo origen, cambios de ajustes y progreso en distinto orden, y recarga. Verificar juegos, monedas, estadísticas, inventario y canjes; no basta con conservar el nombre.
+
+**Pruebas:** `dos-pestanas` y `una-pestana-control` en `tests/regresion/cobertura.js`.
