@@ -427,3 +427,61 @@ Campaña sobre el mismo código del juego `e1a8af377ce85cd41f8fe97adcb8d27a005ae
 **Regresión:** dos pestañas, ventana normal y app instalada en el mismo origen, cambios de ajustes y progreso en distinto orden, y recarga. Verificar juegos, monedas, estadísticas, inventario y canjes; no basta con conservar el nombre.
 
 **Pruebas:** `dos-pestanas` y `una-pestana-control` en `tests/regresion/cobertura.js`.
+
+
+### B16. Salir del repaso por un atajo deja una redirección pendiente al repaso
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+
+1. Entrar en Repaso con Tito y abrir una de sus actividades.
+2. Abrir Zona de adultos y usar el atajo «Mapa».
+3. Elegir otra casita. La reproducción usa de nuevo el panel: seleccionar «Mi cuerpo» (`3A-T2`) y «Ir al tema».
+
+**Resultado:** se abre el repaso en lugar de la casita elegida. Tras esa redirección el contexto se limpia, por lo que un segundo intento puede funcionar.
+
+**Control:** salir del juego de repaso con su botón normal de casa sí vuelve al repaso y limpia el estado correctamente.
+
+**Causa:** [src/repaso.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/repaso.js) pone `REP_ON=true` al abrir una actividad del repaso. Solo lo restablece al entrar en repaso o al pasar por el envoltorio de `SCENES.casita.enter()`. El atajo al mapa evita ambos. La siguiente casita consume esa bandera global y redirige al repaso aunque no sea la casita del ejercicio anterior.
+
+**Posible arreglo:** representar explícitamente el contexto de navegación del ejercicio y descartarlo cuando se abandona por una ruta ajena al repaso. No borrar indiscriminadamente la bandera en todos los cambios de escena: el regreso normal del juego al repaso debe seguir funcionando.
+
+**Regresión:** botón casa, atajos de adultos, límite de sesión, volver desde tienda y elegir un tema distinto. Verificar la pantalla solicitada y la vuelta normal al repaso.
+
+**Pruebas:** `repaso-atajo` y `repaso-casa-control` en `tests/regresion/cobertura.js`.
+
+### B17. El tiempo jugado y el límite se ralentizan en dispositivos con pocos FPS
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido con una pantalla visible a 10 FPS simulados.**
+
+1. Jugar en un dispositivo que renderice aproximadamente diez fotogramas por segundo.
+2. Comparar el tiempo real transcurrido con el reloj de la sesión y los minutos registrados en Zona de adultos.
+
+**Resultado medido:** en 3,015 segundos reales se contabilizaron 1,45 segundos de sesión (29 cuadros, aproximadamente el 48 %). Sin ralentización artificial, el control registró 3,0664 segundos frente a 3,0147 reales, dentro de la tolerancia del muestreo.
+
+**Consecuencia:** el límite de diez minutos puede tardar aproximadamente veinte minutos reales a diez FPS sostenidos; es una extrapolación del contador medido, no una espera manual de veinte minutos. También se infravaloran los minutos del historial.
+
+**Causa:** [src/adult.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/adult.js), `frame()`, limita `dt` a 0,05 s para la animación y utiliza ese mismo valor para `sessionT` y `minuteAcc`. Cada cuadro que tarda más de 50 ms descarta tiempo real. La persistencia de sesión de v1.586 no corrige esta diferencia.
+
+**Posible arreglo:** separar el paso limitado de animación del reloj de juego basado en tiempo real. Definir y conservar las pausas actuales (adultos, portada y dormir), y tratar explícitamente la pestaña oculta y la reanudación para no sumar tiempo de inactividad.
+
+**Regresión:** 60/30/20/10 FPS, caída temporal de rendimiento, pestaña oculta y reanudada, panel de adultos, límite alcanzado y recarga.
+
+**Pruebas:** `reloj-10fps` y `reloj-normal-control`; se modifica únicamente la cadencia de animación del navegador de prueba, no la fórmula del reloj del juego.
+
+### B18. Salir pronto del mapa pierde las tres monedas del regalo diario
+
+**Estado: PENDIENTE. Gravedad: media. Reproducido en v1.591.**
+
+1. Entrar en el mapa un día cuyo regalo todavía no se haya cobrado, sin otros anuncios prioritarios pendientes.
+2. Salir con el botón de casa antes de la entrega de las tres monedas.
+3. Volver al mapa.
+
+**Resultado:** el día ya figura como cobrado (`S.gift=hoy`), pero el saldo sigue a cero. Al regresar no se vuelve a ofrecer la entrega. El control que permanece en el mapa recibe exactamente tres monedas y no las duplica al volver.
+
+**Causa:** [src/zonas.js](https://github.com/fercala/curiolandia-3d/blob/e1a8af377ce85cd41f8fe97adcb8d27a005aed6d/src/zonas.js), `SCENES.map.enter()`, guarda `S.gift=today()` antes de un `later(1400,...giveCoins(3))`. Salir del mapa anula el temporizador y conserva la marca. Comparte el patrón de B10, pero afecta a otra recompensa y otro punto de entrega.
+
+**Posible arreglo:** acreditar el premio de forma idempotente antes de la celebración o persistir una entrega pendiente. Cancelar una animación o una frase no debe cancelar las monedas.
+
+**Regresión:** salida inmediata, recarga, permanencia normal y reentrada repetida durante el mismo día. Una sola entrega de tres monedas.
+
+**Pruebas:** `diario-salida` y `diario-espera-control`; el fixture prepara el mapa sin avisos prioritarios para alcanzar explícitamente la rama del regalo.
